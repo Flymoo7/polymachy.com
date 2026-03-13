@@ -286,44 +286,51 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 0 8%;
-      /* Push content up slightly to sit within the box */
-      margin-top: -6%;
+      justify-content: flex-start;
+      padding-top: 22%;
+      padding-left: 10%;
+      padding-right: 10%;
     }
 
     .hero-main-tagline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 5.5vw, 6rem);
-      line-height: 1.1;
-      letter-spacing: 0.06em;
-      color: var(--white);
-      text-shadow: 2px 2px 20px rgba(0,0,0,0.7);
+      font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 4.2rem);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: 0.02em;
       text-align: center;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 12px rgba(0,0,0,0.8);
       opacity: 0;
       transition: opacity 0.8s ease;
-      margin-bottom: 4%;
     }
 
     .hero-main-tagline.visible {
       opacity: 1;
     }
 
-    .hero-main-tagline .line-accent {
+    .hero-main-tagline .line-one {
+      display: block;
+      color: #ffffff;
+    }
+
+    .hero-main-tagline .line-two {
+      display: block;
       color: var(--accent);
     }
 
     .hero-rotating-tagline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(0.9rem, 1.8vw, 1.6rem);
-      letter-spacing: 0.25em;
-      color: var(--white);
-      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+      font-family: 'Trebuchet MS', 'Gill Sans', 'Century Gothic', sans-serif;
+      font-size: clamp(0.6rem, 1vw, 0.95rem);
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      color: #ffffff;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
       text-align: center;
+      text-transform: uppercase;
       opacity: 0;
       transition: opacity 0.8s ease 0.4s;
-      /* Position below the dividing line — sits in lower quarter of box */
-      margin-top: 6%;
+      margin-top: 14%;
     }
 
     .hero-rotating-tagline.visible {
@@ -892,19 +899,22 @@
 
   <script>
     const taglines = [
-      "Roll less. Story more.",
-      "How immersed do you want to be...?",
-      "Your story. Uninterrupted.",
-      "Stop counting. Start conquering.",
-      "Every hero needs a copilot.",
-      "Less rules. More legend.",
-      "Built for the fight. Freed for the story.",
-      "Master the combat. Own the story.",
-      "Never leave the story.",
-      "Precision in battle. Freedom in story.",
-      "We handle the numbers. You play.",
-      "Your copilot in every campaign."
+      ["Roll less.", "Story more."],
+      ["How immersed do", "you want to be...?"],
+      ["Your story.", "Uninterrupted."],
+      ["Stop counting.", "Start conquering."],
+      ["Every hero", "needs a copilot."],
+      ["Less rules.", "More legend."],
+      ["Built for the fight.", "Freed for the story."],
+      ["Master the combat.", "Own the story."],
+      ["Never leave", "the story."],
+      ["Precision in battle.", "Freedom in story."],
+      ["We handle the numbers.", "You play."],
+      ["Your copilot", "in every campaign."]
     ];
+
+    const mainEl = document.getElementById('mainTagline');
+    const rotatingEl = document.getElementById('rotatingTagline');
 
     // Pick two different random taglines
     const mainIndex = Math.floor(Math.random() * taglines.length);
@@ -913,11 +923,13 @@
       secondaryIndex = Math.floor(Math.random() * taglines.length);
     } while (secondaryIndex === mainIndex);
 
-    const mainEl = document.getElementById('mainTagline');
-    const rotatingEl = document.getElementById('rotatingTagline');
+    // Main tagline — line one white, line two gold
+    mainEl.innerHTML =
+      '<span class="line-one">' + taglines[mainIndex][0] + '</span>' +
+      '<span class="line-two">' + taglines[mainIndex][1] + '</span>';
 
-    mainEl.textContent = taglines[mainIndex];
-    rotatingEl.textContent = taglines[secondaryIndex];
+    // Secondary tagline — full tagline in one line, white, smaller font
+    rotatingEl.textContent = taglines[secondaryIndex][0] + ' ' + taglines[secondaryIndex][1];
 
     // Fade both in
     setTimeout(() => {
@@ -925,6 +937,8 @@
       rotatingEl.classList.add('visible');
     }, 300);
   </script>
+  <script>
+    const nav = document.getElementById('main-nav');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 60) {
         nav.classList.add('scrolled');
