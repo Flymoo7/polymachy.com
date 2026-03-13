@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Polymachy — Combat Copilot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f4f0;
+      --accent: #c8a96e;
+      --mid: #6b6b6b;
+      --light: #e8e6e0;
+      --rule: #d0cdc6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVIGATION ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 4rem;
+      background: rgba(245,244,240,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.15em;
+      color: var(--black);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--black); }
+
+    .nav-cta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      border: none;
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-cta:hover { background: var(--accent); }
+
+    /* ── HERO ── */
+    #home {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('hero.png');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      z-index: 0;
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.35) 0%,
+        rgba(0,0,0,0.2) 40%,
+        rgba(0,0,0,0.65) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 2rem;
+      max-width: 900px;
+      margin: auto auto 5rem;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 9rem);
+      line-height: 0.9;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.5);
+    }
+
+    .hero-title .line-accent {
+      color: var(--accent);
+    }
+
+    .hero-rule {
+      width: 4rem;
+      height: 1px;
+      background: var(--accent);
+      margin: 0 auto 1.75rem;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: rgba(245,244,240,0.85);
+      max-width: 520px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.7;
+    }
+
+    .hero-tagline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.15em;
+      color: var(--white);
+      margin-bottom: 2.5rem;
+      opacity: 0.9;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: rgba(10,10,10,0.75);
+      border: 1px solid rgba(245,244,240,0.3);
+      padding: 1rem 2rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s, border-color 0.2s;
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--black);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      border: 1px solid rgba(245,244,240,0.4);
+      padding: 1rem 2rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin-left: 1rem;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: var(--white);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .hero-scroll span {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.5);
+    }
+
+    .hero-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(200,169,110,0.8), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+
+    /* nav override for hero — transparent until scrolled */
+    nav.hero-nav {
+      background: transparent;
+      border-bottom: 1px solid rgba(245,244,240,0.1);
+      backdrop-filter: none;
+    }
+
+    nav.hero-nav .nav-logo { color: var(--white); }
+    nav.hero-nav .nav-logo span { color: var(--accent); }
+    nav.hero-nav .nav-links a { color: rgba(245,244,240,0.7); }
+    nav.hero-nav .nav-links a:hover { color: var(--white); }
+    nav.hero-nav .nav-cta { background: rgba(245,244,240,0.15); border: 1px solid rgba(245,244,240,0.3); }
+    nav.hero-nav .nav-cta:hover { background: var(--accent); color: var(--black); border-color: var(--accent); }
+
+    nav.scrolled {
+      background: rgba(10,10,10,0.95) !important;
+      border-bottom: 1px solid #1a1a1a !important;
+      backdrop-filter: blur(12px) !important;
+    }
+    nav.scrolled .nav-logo { color: var(--white) !important; }
+    nav.scrolled .nav-links a { color: rgba(245,244,240,0.6) !important; }
+    nav.scrolled .nav-links a:hover { color: var(--white) !important; }
+    nav.scrolled .nav-cta { background: var(--accent) !important; color: var(--black) !important; border: none !important; }
+
+    /* ── SECTION BASE ── */
+    section {
+      padding: 7rem 4rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .section-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      background: var(--white);
+      border-top: 1px solid var(--rule);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .about-body p {
+      font-size: 1.05rem;
+      color: #3a3a3a;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+
+    .stat-box {
+      background: var(--light);
+      padding: 2rem;
+    }
+
+    .stat-box:first-child {
+      background: var(--black);
+    }
+
+    .stat-box:first-child .stat-num,
+    .stat-box:first-child .stat-label {
+      color: var(--white);
+    }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--black);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-num span {
+      color: var(--accent);
+      font-size: 2rem;
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    /* ── PRODUCT ── */
+    #product {
+      background: var(--black);
+      color: var(--white);
+      border-top: 1px solid #1a1a1a;
+    }
+
+    #product .section-title { color: var(--white); }
+    #product .section-rule { background: #2a2a2a; }
+
+    .product-intro {
+      font-size: 1.15rem;
+      color: rgba(245,244,240,0.65);
+      max-width: 600px;
+      margin-bottom: 5rem;
+      line-height: 1.8;
+    }
+
+    .tenets-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      margin-bottom: 5rem;
+    }
+
+    .tenet {
+      background: #111;
+      padding: 2.5rem 1.5rem;
+      border-top: 2px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .tenet:hover {
+      border-color: var(--accent);
+      background: #161616;
+    }
+
+    .tenet-icon {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      line-height: 1;
+    }
+
+    .tenet-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 0.75rem;
+    }
+
+    .tenet-desc {
+      font-size: 0.82rem;
+      color: rgba(245,244,240,0.5);
+      line-height: 1.7;
+    }
+
+    .product-tagline-block {
+      border-top: 1px solid #1e1e1e;
+      padding-top: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4rem;
+    }
+
+    .product-tagline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      letter-spacing: 0.06em;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .product-tagline span { color: var(--accent); }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--white);
+      border-top: 1px solid var(--rule);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+    }
+
+    .contact-info p {
+      font-size: 1.05rem;
+      color: var(--mid);
+      margin-bottom: 2rem;
+      line-height: 1.8;
+    }
+
+    .contact-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .contact-item-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      min-width: 80px;
+    }
+
+    .contact-item-val {
+      font-size: 0.9rem;
+      color: var(--black);
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: var(--light);
+      border: 1px solid var(--rule);
+      padding: 0.85rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s;
+      resize: none;
+      appearance: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--black);
+    }
+
+    .form-group textarea { height: 120px; }
+
+    .form-submit {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      border: none;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-self: flex-start;
+    }
+
+    .form-submit:hover { background: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      color: rgba(245,244,240,0.4);
+      padding: 2.5rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.15em;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .footer-logo span { color: var(--accent); }
+
+    .footer-copy {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-left > * {
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards;
+    }
+
+    .hero-eyebrow  { animation-delay: 0.1s; }
+    .hero-title    { animation-delay: 0.25s; }
+    .hero-rule     { animation-delay: 0.35s; }
+    .hero-sub      { animation-delay: 0.45s; }
+    .hero-tagline  { animation-delay: 0.55s; }
+    .hero-buttons  { animation-delay: 0.65s; }
+
+    .hero-logo-wrap {
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      #home { grid-template-columns: 1fr; }
+      .hero-left { padding: 6rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--rule); }
+      .hero-right { padding: 3rem 1.5rem; min-height: 340px; }
+      section { padding: 5rem 1.5rem; }
+      .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .tenets-grid { grid-template-columns: 1fr 1fr; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+      .product-tagline-block { flex-direction: column; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="main-nav" class="hero-nav">
+    <a href="#home" class="nav-logo">POLY<span>MACHY</span></a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#product">Combat Copilot</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+  </nav>
+
+  <!-- HERO -->
+  <section id="home">
+    <div class="hero-bg"></div>
+
+    <a href="#about" class="hero-scroll">
+      <span>Scroll</span>
+      <div class="hero-scroll-line"></div>
+    </a>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About Us</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="about-grid">
+      <div class="about-body">
+        <p>
+          Polymachy Ltd. was created by gamers, for gamers. Its two founders share a deep passion for immersive storytelling and a firm belief that rules and calculations should never get in the way of a great adventure.
+        </p>
+        <p>
+          Storytelling is fundamental to the human experience — from survival knowledge shared around ancient campfires to the social bonds forged through shared narrative. Today's TTRPG market is the natural evolution of that drive, transforming passive story consumption into active, collaborative world-building.
+        </p>
+        <p>
+          Even as AI reshapes industries, the appetite for authentic storytelling grows stronger. TTRPGs thrive because they speak to our desire to inhabit other worlds and create epic tales through human creativity and spontaneity.
+        </p>
+        <p>
+          Combat Copilot removes the mechanical friction that interrupts narrative flow — automating calculations, streamlining rules, and handling administrative overhead — so players spend less time in the rulebook and more time in the story.
+        </p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-box">
+          <div class="stat-num">30<span>+</span></div>
+          <div class="stat-label">Years industry experience</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Passionate founder-gamers</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">1</div>
+          <div class="stat-label">Vision: story first</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Campaigns awaiting</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCT -->
+  <section id="product">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Combat Copilot</h2>
+      <div class="section-rule"></div>
+    </div>
+    <p class="product-intro">
+      Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.
+    </p>
+    <div class="tenets-grid">
+      <div class="tenet">
+        <div class="tenet-icon">01</div>
+        <div class="tenet-name">Stability</div>
+        <p class="tenet-desc">Your character sheet stays consistent and reliable across sessions. Stats, history, and progress are always there when you sit down to play.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-icon">02</div>
+        <div class="tenet-name">Security</div>
+        <p class="tenet-desc">Your data is protected. Nobody can tamper with your sheet, and your personal information isn't exposed or exploited. What's yours stays yours.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-icon">03</div>
+        <div class="tenet-name">Portability</div>
+        <p class="tenet-desc">Take your character sheet anywhere — different devices, different platforms, different tables. No format lock-in, no dependency on a single service.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-icon">04</div>
+        <div class="tenet-name">Ownership</div>
+        <p class="tenet-desc">You fully control your character sheet. No platform can delete it, monetise it, or hold it hostage behind a paywall or subscription.</p>
+      </div>
+      <div class="tenet">
+        <div class="tenet-icon">05</div>
+        <div class="tenet-name">Automation</div>
+        <p class="tenet-desc">The sheet does the heavy lifting. Modifiers calculate themselves, rolls are computed instantly — so you stay focused on the story, not the maths.</p>
+      </div>
+    </div>
+    <div class="product-tagline-block">
+      <p class="product-tagline">
+        Roll less.<br><span>Story more.</span>
+      </p>
+      <a href="#contact" class="btn-primary" style="background:var(--accent); color:var(--black);">Register Interest</a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Get in Touch</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <p>
+          Whether you're a player, creator, publisher, or potential collaborator — we'd love to hear from you. Combat Copilot is built by the community, for the community.
+        </p>
+        <div class="contact-detail">
+          <div class="contact-item">
+            <span class="contact-item-label">Company</span>
+            <span class="contact-item-val">Polymachy Ltd.</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-item-label">Product</span>
+            <span class="contact-item-val">Combat Copilot</span>
+          </div>
+          <div class="contact-item">
+            <span class="contact-item-label">Website</span>
+            <span class="contact-item-val">polymachy.com</span>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form" action="https://formspree.io/f/xojkwyeb" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Your first name"/>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Your last name"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="your@email.com"/>
+        </div>
+        <div class="form-group">
+          <label>I am a…</label>
+          <select>
+            <option value="">Select one</option>
+            <option>Player / Gamer</option>
+            <option>Game Master / Dungeon Master</option>
+            <option>Content Creator</option>
+            <option>Publisher / Developer</option>
+            <option>Potential Investor</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea placeholder="Tell us about yourself or your enquiry…"></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#home" class="footer-logo">POLY<span>MACHY</span></a>
+    <p class="footer-copy">© 2024 Polymachy Ltd. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#product">Product</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </footer>
+
+
+  <script>
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  </script>
+</body>
+</html>
