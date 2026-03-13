@@ -287,8 +287,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding-top: 12%;
-      padding-bottom: 14%;
+      padding-top: 30%;
+      padding-bottom: 12%;
       padding-left: 8%;
       padding-right: 8%;
     }
@@ -304,6 +304,10 @@
       text-shadow: 3px 3px 15px rgba(0,0,0,0.9);
       opacity: 0;
       transition: opacity 0.8s ease;
+      width: 100%;
+      /* Force each span to its own line, never allow three lines */
+      word-break: keep-all;
+      overflow-wrap: normal;
     }
 
     .hero-main-tagline.visible {
@@ -313,11 +317,15 @@
     .hero-main-tagline .line-one {
       display: block;
       color: #ffffff;
+      white-space: nowrap;
+      font-size: clamp(2rem, 7.5vw, 9rem);
     }
 
     .hero-main-tagline .line-two {
       display: block;
       color: var(--accent);
+      white-space: nowrap;
+      font-size: clamp(2rem, 7.5vw, 9rem);
     }
 
     .hero-rotating-tagline {
