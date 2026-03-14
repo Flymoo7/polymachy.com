@@ -342,6 +342,110 @@
       opacity: 0.8;
     }
 
+    /* ── PRODUCT CARDS ── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: 5rem;
+    }
+
+    .product-card {
+      background: #111;
+      padding: 2.5rem 2rem;
+      position: relative;
+      border-top: 2px solid #222;
+      transition: border-color 0.3s;
+    }
+
+    .product-card:hover { border-color: var(--accent); }
+
+    .product-card--mid { background: #0f0f0f; }
+    .product-card--dark { background: #0d0d0d; }
+
+    .product-card-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.5);
+      border: 1px solid rgba(245,244,240,0.2);
+      padding: 0.3rem 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-card-badge--accent {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .product-card-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.06em;
+      color: var(--white);
+      margin-bottom: 0.25rem;
+    }
+
+    .product-card-sub {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    .product-card-desc {
+      font-size: 0.88rem;
+      color: rgba(245,244,240,0.55);
+      line-height: 1.75;
+    }
+
+    .product-card-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.7);
+      border: 1px solid rgba(245,244,240,0.2);
+      padding: 0.6rem 1.2rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .product-card-btn:hover {
+      color: var(--white);
+      border-color: var(--white);
+    }
+
+    .product-card-btn--accent {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .product-card-btn--accent:hover {
+      background: var(--accent);
+      color: var(--black);
+    }
+
+    .tenets-header {
+      border-top: 1px solid #1e1e1e;
+      padding-top: 3rem;
+      margin-bottom: 1rem;
+    }
+
     /* ── SECTION BASE ── */
     section {
       padding: 7rem 4rem;
@@ -702,6 +806,7 @@
       section { padding: 5rem 1.5rem; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
       .tenets-grid { grid-template-columns: 1fr 1fr; }
+      .products-grid { grid-template-columns: 1fr; }
       .about-stats { grid-template-columns: 1fr 1fr; }
       .product-tagline-block { flex-direction: column; }
       footer { flex-direction: column; gap: 1.5rem; text-align: center; }
@@ -785,12 +890,46 @@
   <section id="product">
     <div class="section-header">
       <span class="section-num">02</span>
-      <h2 class="section-title">Combat Copilot</h2>
+      <h2 class="section-title">Combat Copilot — Products</h2>
       <div class="section-rule"></div>
     </div>
+
     <p class="product-intro">
-      Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.
+      COMBAT COPILOT is an evolving suite of products developed for the TTRPG community, designed to push storytelling back to the forefront of the playing experience. By freeing players from the drudgery of rules and calculations, Combat Copilot allows them to fully immerse themselves in their fantasy worlds.
     </p>
+
+    <!-- THREE PRODUCT CARDS -->
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="product-card-badge">Free</div>
+        <div class="product-card-num">01</div>
+        <h3 class="product-card-name">Document Distiller</h3>
+        <p class="product-card-sub">Combat Copilot</p>
+        <p class="product-card-desc">Distils lengthy and complex rulebooks into concise, manageable summaries, delivering only the key information you need, when you need it.</p>
+        <a href="distiller.html" class="product-card-btn">Learn More →</a>
+      </div>
+      <div class="product-card product-card--mid">
+        <div class="product-card-badge">Nominal Charge</div>
+        <div class="product-card-num">02</div>
+        <h3 class="product-card-name">Character Sheet</h3>
+        <p class="product-card-sub">Combat Copilot</p>
+        <p class="product-card-desc">A comprehensive digital character sheet for the TTRPG community, providing complete character tracking in a clean, easy-to-use format.</p>
+        <a href="charactersheet.html" class="product-card-btn">Learn More →</a>
+      </div>
+      <div class="product-card product-card--dark">
+        <div class="product-card-badge product-card-badge--accent">Competitively Priced</div>
+        <div class="product-card-num">03</div>
+        <h3 class="product-card-name">The App</h3>
+        <p class="product-card-sub">Combat Copilot</p>
+        <p class="product-card-desc">The ultimate digital companion for every TTRPG player. Automatically handling complex calculations whilst delivering an unprecedented level of combat realism.</p>
+        <a href="app.html" class="product-card-btn product-card-btn--accent">Learn More →</a>
+      </div>
+    </div>
+
+    <!-- TENETS -->
+    <div class="tenets-header">
+      <p class="product-intro" style="margin-bottom:2rem;">Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.</p>
+    </div>
     <div class="tenets-grid">
       <div class="tenet">
         <div class="tenet-icon">01</div>
