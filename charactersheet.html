@@ -25,11 +25,65 @@
     .nav-back:hover { color: var(--accent); }
     .product-hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 0 5rem 0; }
     .product-hero-bg { position: absolute; inset: 0; background-image: url('bear.jpg'); background-size: cover; background-position: center; z-index: 0; }
-    .product-hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.75) 100%); }
+    .product-hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 100%); }
     .product-hero-content { position: relative; z-index: 2; padding: 0 4rem; }
     .product-hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
     .product-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(3rem, 7vw, 7rem); line-height: 0.95; letter-spacing: 0.03em; color: var(--white); margin-bottom: 1rem; }
     .product-hero-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 0.4rem 1rem; }
+
+    /* TENETS OVERLAY */
+    .tenets-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 2;
+      background: rgba(10,10,10,0.82);
+      padding: 2.5rem 4rem;
+    }
+
+    .tenets-intro {
+      font-size: 0.9rem;
+      color: rgba(245,244,240,0.7);
+      margin-bottom: 2rem;
+      max-width: 800px;
+      line-height: 1.7;
+    }
+
+    .tenets-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    .tenet {
+      background: rgba(255,255,255,0.04);
+      padding: 1.5rem 1.25rem;
+      border-top: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+
+    .tenet:hover { border-color: var(--accent); }
+
+    .tenet-icon {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+
+    .tenet-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .tenet-desc {
+      font-size: 0.75rem;
+      color: rgba(245,244,240,0.5);
+      line-height: 1.6;
+    }
     .product-body { background: var(--black); color: var(--white); padding: 6rem 4rem; }
     .coming-soon { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 2rem; border: 1px solid #1e1e1e; }
     .coming-soon-num { font-family: 'Bebas Neue', sans-serif; font-size: 6rem; color: var(--accent); line-height: 1; margin-bottom: 1rem; }
@@ -52,6 +106,37 @@
       <p class="product-hero-eyebrow">Combat Copilot — Product 02</p>
       <h1 class="product-hero-title">Character<br>Sheet</h1>
       <span class="product-hero-badge">Nominal Charge</span>
+    </div>
+    <!-- TENETS OVERLAY on lower 30% of hero image -->
+    <div class="tenets-overlay">
+      <p class="tenets-intro">Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.</p>
+      <div class="tenets-grid">
+        <div class="tenet">
+          <div class="tenet-icon">01</div>
+          <div class="tenet-name">Stability</div>
+          <p class="tenet-desc">Your character sheet stays consistent and reliable across sessions. Stats, history, and progress are always there when you sit down to play.</p>
+        </div>
+        <div class="tenet">
+          <div class="tenet-icon">02</div>
+          <div class="tenet-name">Security</div>
+          <p class="tenet-desc">Your data is protected. Nobody can tamper with your sheet, and your personal information isn't exposed or exploited. What's yours stays yours.</p>
+        </div>
+        <div class="tenet">
+          <div class="tenet-icon">03</div>
+          <div class="tenet-name">Portability</div>
+          <p class="tenet-desc">Take your character sheet anywhere — different devices, different platforms, different tables. No format lock-in, no dependency on a single service.</p>
+        </div>
+        <div class="tenet">
+          <div class="tenet-icon">04</div>
+          <div class="tenet-name">Ownership</div>
+          <p class="tenet-desc">You fully control your character sheet. No platform can delete it, monetise it, or hold it hostage behind a paywall or subscription.</p>
+        </div>
+        <div class="tenet">
+          <div class="tenet-icon">05</div>
+          <div class="tenet-name">Automation</div>
+          <p class="tenet-desc">The sheet does the heavy lifting. Modifiers calculate themselves, rolls are computed instantly — so you stay focused on the story, not the maths.</p>
+        </div>
+      </div>
     </div>
   </div>
   <div class="product-body">
