@@ -38,13 +38,25 @@
       z-index: 2;
       background: rgba(10,10,10,0.82);
       padding: 2.5rem 4rem;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .tenets-overlay-left {
+      /* Empty left column reserved for the title space */
+    }
+
+    .tenets-overlay-right {
+      display: flex;
+      flex-direction: column;
     }
 
     .tenets-intro {
       font-size: 0.9rem;
       color: rgba(245,244,240,0.7);
       margin-bottom: 2rem;
-      max-width: 800px;
       line-height: 1.7;
     }
 
@@ -109,32 +121,35 @@
     </div>
     <!-- TENETS OVERLAY on lower 30% of hero image -->
     <div class="tenets-overlay">
-      <p class="tenets-intro">Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.</p>
-      <div class="tenets-grid">
-        <div class="tenet">
-          <div class="tenet-icon">01</div>
-          <div class="tenet-name">Stability</div>
-          <p class="tenet-desc">Your character sheet stays consistent and reliable across sessions. Stats, history, and progress are always there when you sit down to play.</p>
-        </div>
-        <div class="tenet">
-          <div class="tenet-icon">02</div>
-          <div class="tenet-name">Security</div>
-          <p class="tenet-desc">Your data is protected. Nobody can tamper with your sheet, and your personal information isn't exposed or exploited. What's yours stays yours.</p>
-        </div>
-        <div class="tenet">
-          <div class="tenet-icon">03</div>
-          <div class="tenet-name">Portability</div>
-          <p class="tenet-desc">Take your character sheet anywhere — different devices, different platforms, different tables. No format lock-in, no dependency on a single service.</p>
-        </div>
-        <div class="tenet">
-          <div class="tenet-icon">04</div>
-          <div class="tenet-name">Ownership</div>
-          <p class="tenet-desc">You fully control your character sheet. No platform can delete it, monetise it, or hold it hostage behind a paywall or subscription.</p>
-        </div>
-        <div class="tenet">
-          <div class="tenet-icon">05</div>
-          <div class="tenet-name">Automation</div>
-          <p class="tenet-desc">The sheet does the heavy lifting. Modifiers calculate themselves, rolls are computed instantly — so you stay focused on the story, not the maths.</p>
+      <div class="tenets-overlay-left"></div>
+      <div class="tenets-overlay-right">
+        <p class="tenets-intro">Player feedback is clear — what gamers want from their character sheet is trusted, state-of-the-art data management with full ownership and portability. These five principles form the foundation of everything we've built.</p>
+        <div class="tenets-grid">
+          <div class="tenet">
+            <div class="tenet-icon">01</div>
+            <div class="tenet-name">Stability</div>
+            <p class="tenet-desc">Your character sheet stays consistent and reliable across sessions. Stats, history, and progress are always there when you sit down to play.</p>
+          </div>
+          <div class="tenet">
+            <div class="tenet-icon">02</div>
+            <div class="tenet-name">Security</div>
+            <p class="tenet-desc">Your data is protected. Nobody can tamper with your sheet, and your personal information isn't exposed or exploited. What's yours stays yours.</p>
+          </div>
+          <div class="tenet">
+            <div class="tenet-icon">03</div>
+            <div class="tenet-name">Portability</div>
+            <p class="tenet-desc">Take your character sheet anywhere — different devices, different platforms, different tables. No format lock-in, no dependency on a single service.</p>
+          </div>
+          <div class="tenet">
+            <div class="tenet-icon">04</div>
+            <div class="tenet-name">Ownership</div>
+            <p class="tenet-desc">You fully control your character sheet. No platform can delete it, monetise it, or hold it hostage behind a paywall or subscription.</p>
+          </div>
+          <div class="tenet">
+            <div class="tenet-icon">05</div>
+            <div class="tenet-name">Automation</div>
+            <p class="tenet-desc">The sheet does the heavy lifting. Modifiers calculate themselves, rolls are computed instantly — so you stay focused on the story, not the maths.</p>
+          </div>
         </div>
       </div>
     </div>
