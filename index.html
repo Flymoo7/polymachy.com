@@ -103,10 +103,17 @@
       position: absolute;
       inset: 0;
       background-image: url('hero.png');
-      background-size: cover;
-      background-position: center top;
+      background-size: contain;
+      background-position: center center;
       background-repeat: no-repeat;
       z-index: 0;
+    }
+
+    @media (min-aspect-ratio: 16/10) {
+      .hero-bg {
+        background-size: cover;
+        background-position: center top;
+      }
     }
 
     .hero-bg::after {
@@ -902,7 +909,7 @@
           <div class="stat-label">Vision: story first</div>
         </div>
         <div class="stat-box">
-          <div class="stat-num">∞</div>
+          <div class="stat-num" style="font-family: Georgia, serif; font-size: 3rem;">&#8734;</div>
           <div class="stat-label">Campaigns awaiting</div>
         </div>
       </div>
