@@ -439,12 +439,12 @@
 
     .stat-box--disciplines {
       background: var(--black);
-      grid-column: span 2;
+      grid-column: span 3;
       padding: 2rem;
     }
 
     .disciplines-text {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: rgba(245,244,240,0.75);
       line-height: 1.7;
       margin-bottom: 1rem;
@@ -455,17 +455,18 @@
       padding: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.5rem 2rem;
+      gap: 0.4rem 2rem;
     }
 
     .disciplines-list li {
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--accent);
       padding-left: 1rem;
       position: relative;
+      line-height: 1.5;
     }
 
     .disciplines-list li::before {
@@ -529,22 +530,13 @@
 
     .about-stats {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 2px;
     }
 
     .stat-box {
       background: var(--light);
       padding: 2rem;
-    }
-
-    .stat-box:first-child {
-      background: var(--black);
-    }
-
-    .stat-box:first-child .stat-num,
-    .stat-box:first-child .stat-label {
-      color: var(--white);
     }
 
     .stat-num {
@@ -581,7 +573,7 @@
     .product-intro {
       font-size: 1.15rem;
       color: rgba(245,244,240,0.65);
-      max-width: 600px;
+      max-width: 100%;
       margin-bottom: 5rem;
       line-height: 1.8;
     }
