@@ -426,24 +426,53 @@
     }
 
     .product-card-btn:hover {
-      color: var(--white);
-      border-color: var(--white);
-    }
-
-    .product-card-btn--accent {
       color: var(--accent);
       border-color: var(--accent);
-    }
-
-    .product-card-btn--accent:hover {
-      background: var(--accent);
-      color: var(--black);
+      background: transparent;
     }
 
     .tenets-header {
       border-top: 1px solid #1e1e1e;
       padding-top: 3rem;
       margin-bottom: 1rem;
+    }
+
+    .stat-box--disciplines {
+      background: var(--black);
+      grid-column: span 2;
+      padding: 2rem;
+    }
+
+    .disciplines-text {
+      font-size: 0.85rem;
+      color: rgba(245,244,240,0.75);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .disciplines-list {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 2rem;
+    }
+
+    .disciplines-list li {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .disciplines-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
     }
 
     /* ── SECTION BASE ── */
@@ -838,10 +867,6 @@
       <p class="hero-rotating-tagline" id="rotatingTagline"></p>
     </div>
 
-    <a href="#about" class="hero-scroll">
-      <span>Scroll</span>
-      <div class="hero-scroll-line"></div>
-    </a>
   </section>
 
   <!-- ABOUT -->
@@ -867,9 +892,14 @@
         </p>
       </div>
       <div class="about-stats">
-        <div class="stat-box">
-          <div class="stat-num">30<span>+</span></div>
-          <div class="stat-label">Years industry experience</div>
+        <div class="stat-box stat-box--disciplines">
+          <p class="disciplines-text">Multiple disciplines and talents — all coming together to deliver an unprecedented gameplay experience, incorporating</p>
+          <ul class="disciplines-list">
+            <li>AAA game development</li>
+            <li>TTRPGs</li>
+            <li>Military and martial arts combat experience</li>
+            <li>Professional expertise in arms, armour and metallurgy</li>
+          </ul>
         </div>
         <div class="stat-box">
           <div class="stat-num">2</div>
@@ -903,16 +933,16 @@
     <div class="products-grid">
       <div class="product-card">
         <div class="product-card-num">01</div>
-        <h3 class="product-card-name">Document Distiller</h3>
+        <h3 class="product-card-name">Rules Omnibus</h3>
         <p class="product-card-sub">Combat Copilot</p>
-        <p class="product-card-desc">Distils lengthy and complex rulebooks into concise, manageable summaries, delivering only the key information you need, when you need it.</p>
+        <p class="product-card-desc">Capturing and documenting rules for traditional games such as D&amp;D and Vampire the Masquerade, as well as collecting together homebrew rules from all your favourite titles.</p>
         <a href="distiller.html" class="product-card-btn">Learn More →</a>
       </div>
       <div class="product-card product-card--mid">
         <div class="product-card-num">02</div>
         <h3 class="product-card-name">Character Sheet</h3>
         <p class="product-card-sub">Combat Copilot</p>
-        <p class="product-card-desc">A comprehensive digital character sheet for the TTRPG community, providing complete character tracking in a clean, easy-to-use format.</p>
+        <p class="product-card-desc">Agnostic digital, multi-support and print ready character sheets for the most popular TTRPG worlds: Total control at your fingertips.</p>
         <a href="charactersheet.html" class="product-card-btn">Learn More →</a>
       </div>
       <div class="product-card product-card--dark">
@@ -920,7 +950,7 @@
         <h3 class="product-card-name">The App</h3>
         <p class="product-card-sub">Combat Copilot</p>
         <p class="product-card-desc">The ultimate digital companion for every TTRPG player. Automatically handling complex calculations whilst delivering an unprecedented level of combat realism.</p>
-        <a href="app.html" class="product-card-btn product-card-btn--accent">Learn More →</a>
+        <a href="app.html" class="product-card-btn">Learn More →</a>
       </div>
     </div>
 
