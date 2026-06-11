@@ -15,88 +15,149 @@
       --mid: #6b6b6b;
       --light: #e8e6e0;
       --rule: #d0cdc6;
+      --cyan: #00bcd4;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      /* gentle magnetic snapping — sections attract the viewport when close */
+      scroll-snap-type: y proximity;
+    }
 
     body {
-      background: var(--white);
-      color: var(--black);
+      background: var(--black);
+      color: var(--white);
       font-family: 'DM Sans', sans-serif;
       font-weight: 300;
       line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* ── NAVIGATION ── */
-    nav {
+    /* ── SCROLL PROGRESS BAR ── */
+    .scroll-progress {
       position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.4rem 4rem;
-      background: rgba(245,244,240,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--rule);
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--accent);
+      z-index: 300;
     }
 
-    .nav-logo {
+    /* ── FIXED MINIMAL HEADER ── */
+    .site-logo {
+      position: fixed;
+      top: 1.4rem; left: 2.5rem;
+      z-index: 200;
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.5rem;
       letter-spacing: 0.15em;
-      color: var(--black);
+      color: var(--white);
       text-decoration: none;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.6);
+      mix-blend-mode: normal;
     }
 
-    .nav-logo span {
-      color: var(--accent);
-    }
+    .site-logo span { color: var(--accent); }
 
-    .nav-links {
+    /* ── SIDE CHAPTER NAVIGATION ── */
+    .chapter-nav {
+      position: fixed;
+      right: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 200;
       display: flex;
-      gap: 2.5rem;
-      list-style: none;
+      flex-direction: column;
+      gap: 1.1rem;
     }
 
-    .nav-links a {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--mid);
-      text-decoration: none;
-      transition: color 0.2s;
+    .chapter-nav a {
+      position: relative;
+      display: block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(245,244,240,0.45);
+      background: transparent;
+      transition: background 0.25s, border-color 0.25s, transform 0.25s;
     }
 
-    .nav-links a:hover { color: var(--black); }
+    .chapter-nav a:hover {
+      border-color: var(--accent);
+      transform: scale(1.25);
+    }
 
-    .nav-cta {
+    .chapter-nav a.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .chapter-nav a .dot-label {
+      position: absolute;
+      right: 22px;
+      top: 50%;
+      transform: translateY(-50%);
       font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--white);
-      background: var(--black);
-      border: none;
-      padding: 0.6rem 1.4rem;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.2s;
+      background: rgba(10,10,10,0.85);
+      padding: 0.3rem 0.7rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
     }
 
-    .nav-cta:hover { background: var(--accent); }
+    .chapter-nav a:hover .dot-label { opacity: 1; }
 
-    /* ── HERO ── */
-    #home {
+    /* flip fixed chrome to dark when over light chapters */
+    body.on-light .site-logo { color: var(--black); text-shadow: none; }
+    body.on-light .chapter-nav a { border-color: rgba(10,10,10,0.45); }
+    body.on-light .chapter-nav a.active { background: var(--accent); border-color: var(--accent); }
+    body.on-light .chapter-nav a .dot-label {
+      background: rgba(10,10,10,0.85);
+      color: var(--white);
+    }
+
+    /* ── CHAPTER BASE ── */
+    .chapter {
+      scroll-snap-align: start;
       position: relative;
+    }
+
+    .chapter--full {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
       overflow: hidden;
+    }
+
+    /* scroll-triggered reveals */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal.delay-1 { transition-delay: 0.15s; }
+    .reveal.delay-2 { transition-delay: 0.3s; }
+    .reveal.delay-3 { transition-delay: 0.45s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; scroll-snap-type: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* ── HERO ── */
+    #home {
+      align-items: center;
     }
 
     .hero-bg {
@@ -128,105 +189,64 @@
       );
     }
 
-    .hero-content {
-      position: relative;
+    .hero-tagline-wrap {
+      position: absolute;
+      inset: 0;
       z-index: 2;
+    }
+
+    .hero-main-tagline {
+      position: absolute;
+      top: 32%;
+      left: 8%;
+      right: 8%;
+      font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow', sans-serif;
+      font-weight: 400;
+      line-height: 1.25;
+      letter-spacing: 0.02em;
       text-align: center;
-      padding: 0 2rem;
-      max-width: 900px;
-      margin: auto auto 5rem;
+      text-transform: uppercase;
+      text-shadow: 3px 3px 15px rgba(0,0,0,0.9);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      word-break: keep-all;
+      overflow-wrap: normal;
     }
 
-    .hero-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
+    .hero-main-tagline.visible { opacity: 1; }
+
+    .hero-main-tagline .line-one {
+      display: block;
+      color: rgba(255,255,255,0.8);
+      white-space: nowrap;
+      font-size: clamp(2rem, 7.5vw, 9rem);
+    }
+
+    .hero-main-tagline .line-two {
+      display: block;
+      color: rgba(200,169,110,0.8);
+      white-space: nowrap;
+      font-size: clamp(2rem, 7.5vw, 9rem);
+    }
+
+    .hero-rotating-tagline {
+      position: absolute;
+      top: 78%;
+      left: 8%;
+      right: 8%;
+      font-family: 'Trebuchet MS', 'Gill Sans', 'Century Gothic', sans-serif;
+      font-size: clamp(1rem, 2vw, 1.8rem);
+      font-weight: 400;
       letter-spacing: 0.25em;
+      color: rgba(255,255,255,0.8);
+      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
+      text-align: center;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.8s ease 0.4s;
     }
 
-    .hero-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3.5rem, 9vw, 9rem);
-      line-height: 0.9;
-      letter-spacing: 0.04em;
-      color: var(--white);
-      margin-bottom: 1.5rem;
-      text-shadow: 0 2px 40px rgba(0,0,0,0.5);
-    }
-
-    .hero-title .line-accent {
-      color: var(--accent);
-    }
-
-    .hero-rule {
-      width: 4rem;
-      height: 1px;
-      background: var(--accent);
-      margin: 0 auto 1.75rem;
-    }
-
-    .hero-sub {
-      font-size: 1.1rem;
-      font-weight: 300;
-      color: rgba(245,244,240,0.85);
-      max-width: 520px;
-      margin: 0 auto 1.5rem;
-      line-height: 1.7;
-    }
-
-    .hero-tagline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      letter-spacing: 0.15em;
-      color: var(--white);
-      margin-bottom: 2.5rem;
-      opacity: 0.9;
-    }
-
-    .btn-primary {
-      display: inline-block;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--white);
-      background: rgba(10,10,10,0.75);
-      border: 1px solid rgba(245,244,240,0.3);
-      padding: 1rem 2rem;
-      text-decoration: none;
-      transition: background 0.2s, transform 0.2s, border-color 0.2s;
-      backdrop-filter: blur(8px);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: var(--black);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      display: inline-block;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--white);
-      border: 1px solid rgba(245,244,240,0.4);
-      padding: 1rem 2rem;
-      text-decoration: none;
-      transition: all 0.2s;
-      margin-left: 1rem;
-      backdrop-filter: blur(8px);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.15);
-      border-color: var(--white);
-    }
+    .hero-rotating-tagline.visible { opacity: 0.8; }
 
     .hero-scroll {
       position: absolute;
@@ -262,190 +282,216 @@
       50% { opacity: 1; transform: scaleY(1.1); }
     }
 
-    /* nav override for hero — transparent until scrolled */
-    nav.hero-nav {
-      background: transparent;
-      border-bottom: 1px solid rgba(245,244,240,0.1);
-      backdrop-filter: none;
+    /* ── PROJECT CHAPTERS ── */
+    .project-chapter {
+      justify-content: flex-end;
+      padding: 0 0 6rem 0;
     }
 
-    nav.hero-nav .nav-logo { color: var(--white); }
-    nav.hero-nav .nav-logo span { color: var(--accent); }
-    nav.hero-nav .nav-links a { color: rgba(245,244,240,0.7); }
-    nav.hero-nav .nav-links a:hover { color: var(--white); }
-    nav.hero-nav .nav-cta { background: rgba(245,244,240,0.15); border: 1px solid rgba(245,244,240,0.3); }
-    nav.hero-nav .nav-cta:hover { background: var(--accent); color: var(--black); border-color: var(--accent); }
-
-    nav.scrolled {
-      background: rgba(10,10,10,0.95) !important;
-      border-bottom: 1px solid #1a1a1a !important;
-      backdrop-filter: blur(12px) !important;
-    }
-    nav.scrolled .nav-logo { color: var(--white) !important; }
-    nav.scrolled .nav-links a { color: rgba(245,244,240,0.6) !important; }
-    nav.scrolled .nav-links a:hover { color: var(--white) !important; }
-    nav.scrolled .nav-cta { background: var(--accent) !important; color: var(--black) !important; border: none !important; }
-
-    .hero-tagline-wrap {
+    .project-bg {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 2;
+      inset: -12% 0;       /* oversized for parallax travel */
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+      will-change: transform;
     }
 
-    .hero-main-tagline {
+    .project-bg::after {
+      content: '';
       position: absolute;
-      top: 32%;
-      left: 8%;
-      right: 8%;
-      font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow', sans-serif;
-      font-weight: 400;
-      line-height: 1.25;
-      letter-spacing: 0.02em;
-      text-align: center;
-      text-transform: uppercase;
-      text-shadow: 3px 3px 15px rgba(0,0,0,0.9);
-      opacity: 0;
-      transition: opacity 0.8s ease;
-      word-break: keep-all;
-      overflow-wrap: normal;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.82) 100%);
     }
 
-    .hero-main-tagline.visible {
-      opacity: 1;
-    }
+    #project-01 .project-bg { background-image: url('archer.jpg'); }
+    #project-02 .project-bg { background-image: url('bear.jpg'); }
+    #project-03 .project-bg { background-image: url('ogre.jpg'); }
 
-    .hero-main-tagline .line-one {
-      display: block;
-      color: rgba(255,255,255,0.8);
-      white-space: nowrap;
-      font-size: clamp(2rem, 7.5vw, 9rem);
-    }
-
-    .hero-main-tagline .line-two {
-      display: block;
-      color: rgba(200,169,110,0.8);
-      white-space: nowrap;
-      font-size: clamp(2rem, 7.5vw, 9rem);
-    }
-
-    .hero-rotating-tagline {
-      position: absolute;
-      top: 78%;
-      left: 8%;
-      right: 8%;
-      font-family: 'Trebuchet MS', 'Gill Sans', 'Century Gothic', sans-serif;
-      font-size: clamp(1rem, 2vw, 1.8rem);
-      font-weight: 400;
-      letter-spacing: 0.25em;
-      color: rgba(255,255,255,0.8);
-      text-shadow: 0 1px 8px rgba(0,0,0,0.7);
-      text-align: center;
-      text-transform: uppercase;
-      opacity: 0;
-      transition: opacity 0.8s ease 0.4s;
-    }
-
-    .hero-rotating-tagline.visible {
-      opacity: 0.8;
-    }
-
-    /* ── PRODUCT CARDS ── */
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2px;
-      margin-bottom: 5rem;
-    }
-
-    .product-card {
-      background: #111;
-      padding: 2.5rem 2rem;
+    .project-content {
       position: relative;
-      border-top: 2px solid #222;
-      transition: border-color 0.3s;
+      z-index: 2;
+      padding: 0 4rem;
+      max-width: 1100px;
     }
 
-    .product-card:hover { border-color: var(--accent); }
+    .project-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
 
-    .product-card--mid { background: #0f0f0f; }
-    .product-card--dark { background: #0d0d0d; }
-
-    .product-card-badge {
+    .project-badge {
       display: inline-block;
       font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
+      font-size: 0.62rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: rgba(245,244,240,0.5);
-      border: 1px solid rgba(245,244,240,0.2);
-      padding: 0.3rem 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .product-card-badge--accent {
-      color: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .product-card-num {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 3rem;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-
-    .product-card-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8rem;
-      letter-spacing: 0.06em;
-      color: var(--white);
-      margin-bottom: 0.25rem;
-    }
-
-    .product-card-sub {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.35rem 0.9rem;
       margin-bottom: 1.25rem;
     }
 
-    .product-card-desc {
-      font-size: 0.88rem;
-      color: rgba(245,244,240,0.55);
-      line-height: 1.75;
+    .project-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 8rem);
+      line-height: 0.92;
+      letter-spacing: 0.03em;
+      color: var(--white);
+      margin-bottom: 1.25rem;
+      text-shadow: 0 2px 30px rgba(0,0,0,0.6);
     }
 
-    .product-card-btn {
+    .project-desc {
+      font-size: 1.05rem;
+      color: rgba(245,244,240,0.8);
+      max-width: 560px;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .project-btn {
       display: inline-block;
-      margin-top: 1.5rem;
       font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
+      font-size: 0.72rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: rgba(245,244,240,0.7);
-      border: 1px solid rgba(245,244,240,0.2);
-      padding: 0.6rem 1.2rem;
+      color: var(--white);
+      border: 1px solid rgba(245,244,240,0.4);
+      background: rgba(10,10,10,0.45);
+      backdrop-filter: blur(6px);
+      padding: 0.9rem 1.8rem;
       text-decoration: none;
       transition: all 0.2s;
     }
 
-    .product-card-btn:hover {
-      color: var(--accent);
+    .project-btn:hover {
+      background: var(--accent);
       border-color: var(--accent);
-      background: transparent;
+      color: var(--black);
+      transform: translateY(-2px);
     }
 
-    .tenets-header {
-      border-top: 1px solid #1e1e1e;
-      padding-top: 3rem;
-      margin-bottom: 1rem;
+    .project-index {
+      position: absolute;
+      top: 50%;
+      right: 6rem;
+      transform: translateY(-50%);
+      z-index: 2;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 13rem);
+      color: rgba(200,169,110,0.18);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    /* ── INTERSTITIAL TAGLINE ── */
+    #immersed {
+      background: var(--black);
+      align-items: center;
+      text-align: center;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .immersed-tagline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 6rem);
+      letter-spacing: 0.06em;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 2.5rem;
+      padding: 0 2rem;
+    }
+
+    .immersed-tagline span { color: var(--accent); }
+
+    .btn-primary {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 1rem 2.5rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--white);
+      border-color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    /* ── SECTION BASE (light chapters) ── */
+    .section-pad { padding: 7rem 4rem; }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 4vw, 4rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .section-rule {
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+
+    .about-body p {
+      font-size: 1.05rem;
+      color: #3a3a3a;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 2px;
+    }
+
+    .stat-box {
+      background: var(--light);
+      padding: 2rem;
     }
 
     .stat-box--disciplines {
-      background: var(--black) !important;
+      background: var(--black);
       grid-column: span 3;
       padding: 2rem;
     }
@@ -483,80 +529,12 @@
       color: var(--accent);
     }
 
-    /* ── SECTION BASE ── */
-    section {
-      padding: 7rem 4rem;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1.5rem;
-      margin-bottom: 4rem;
-    }
-
-    .section-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-    }
-
-    .section-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.5rem, 4vw, 4rem);
-      letter-spacing: 0.05em;
-      line-height: 1;
-    }
-
-    .section-rule {
-      flex: 1;
-      height: 1px;
-      background: var(--rule);
-    }
-
-    /* ── ABOUT ── */
-    #about {
-      background: var(--white);
-      border-top: 1px solid var(--rule);
-    }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: start;
-    }
-
-    .about-body p {
-      font-size: 1.05rem;
-      color: #3a3a3a;
-      margin-bottom: 1.5rem;
-      line-height: 1.8;
-    }
-
-    .about-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 2px;
-    }
-
-    .stat-box {
-      background: var(--light);
-      padding: 2rem;
-    }
-
     .stat-num {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 3.5rem;
       line-height: 1;
       color: var(--black);
       margin-bottom: 0.5rem;
-    }
-
-    .stat-num span {
-      color: var(--accent);
-      font-size: 2rem;
     }
 
     .stat-label {
@@ -567,87 +545,10 @@
       color: var(--mid);
     }
 
-    /* ── PRODUCT ── */
-    #product {
-      background: var(--black);
-      color: var(--white);
-      border-top: 1px solid #1a1a1a;
-    }
-
-    #product .section-title { color: var(--white); }
-    #product .section-rule { background: #2a2a2a; }
-
-    .product-intro {
-      font-size: 1.15rem;
-      color: rgba(245,244,240,0.65);
-      max-width: 100%;
-      margin-bottom: 5rem;
-      line-height: 1.8;
-    }
-
-    .tenets-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 2px;
-      margin-bottom: 5rem;
-    }
-
-    .tenet {
-      background: #111;
-      padding: 2.5rem 1.5rem;
-      border-top: 2px solid transparent;
-      transition: border-color 0.3s, background 0.3s;
-    }
-
-    .tenet:hover {
-      border-color: var(--accent);
-      background: #161616;
-    }
-
-    .tenet-icon {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.5rem;
-      color: var(--accent);
-      margin-bottom: 1rem;
-      line-height: 1;
-    }
-
-    .tenet-name {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 0.08em;
-      color: var(--white);
-      margin-bottom: 0.75rem;
-    }
-
-    .tenet-desc {
-      font-size: 0.82rem;
-      color: rgba(245,244,240,0.5);
-      line-height: 1.7;
-    }
-
-    .product-tagline-block {
-      border-top: 1px solid #1e1e1e;
-      padding-top: 4rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4rem;
-    }
-
-    .product-tagline {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2rem, 3.5vw, 3.5rem);
-      letter-spacing: 0.06em;
-      color: var(--white);
-      line-height: 1.1;
-    }
-
-    .product-tagline span { color: var(--accent); }
-
     /* ── CONTACT ── */
     #contact {
       background: var(--white);
+      color: var(--black);
       border-top: 1px solid var(--rule);
     }
 
@@ -756,6 +657,147 @@
 
     .form-submit:hover { background: var(--accent); }
 
+    /* ── MERCH ── */
+    #merch {
+      background: var(--black);
+      color: var(--white);
+      border-top: 1px solid #1a1a1a;
+    }
+
+    #merch .section-title { color: var(--white); }
+    #merch .section-rule { background: #1e1e1e; }
+
+    .merch-intro {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .merch-coming-soon {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.5rem 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .merch-intro-desc {
+      font-size: 0.9rem;
+      color: rgba(245,244,240,0.5);
+      max-width: 320px;
+      line-height: 1.7;
+    }
+
+    .merch-intro-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+      letter-spacing: 0.06em;
+      color: var(--white);
+    }
+
+    .merch-intro-title span { color: var(--accent); }
+
+    .merch-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-bottom: 3rem;
+    }
+
+    .merch-item {
+      background: #0d0d0d;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .merch-item:hover .merch-item-img { transform: scale(1.03); }
+
+    .merch-item-img-wrap {
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .merch-item-img-wrap.dark-product {
+      background: #1a1a1a;
+      outline: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .merch-item-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      display: block;
+    }
+
+    .merch-item-info {
+      padding: 1.5rem;
+      border-top: 1px solid #1a1a1a;
+    }
+
+    .merch-item-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+
+    .merch-item-desc {
+      font-size: 0.8rem;
+      color: rgba(245,244,240,0.45);
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .merch-item-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 0.3rem 0.75rem;
+    }
+
+    .merch-notify-banner {
+      margin-top: 2rem;
+      padding: 3.5rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4rem;
+      background: #0d0d0d;
+      border: 1px solid #1e1e1e;
+    }
+
+    .merch-notify-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      letter-spacing: 0.05em;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .merch-notify-text h2 span { color: var(--accent); }
+
+    .merch-notify-text p {
+      font-size: 0.9rem;
+      color: rgba(245,244,240,0.5);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
     /* ── FOOTER ── */
     footer {
       background: var(--black);
@@ -801,64 +843,48 @@
 
     .footer-links a:hover { color: var(--accent); }
 
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-left > * {
-      opacity: 0;
-      animation: fadeUp 0.7s ease forwards;
-    }
-
-    .hero-eyebrow  { animation-delay: 0.1s; }
-    .hero-title    { animation-delay: 0.25s; }
-    .hero-rule     { animation-delay: 0.35s; }
-    .hero-sub      { animation-delay: 0.45s; }
-    .hero-tagline  { animation-delay: 0.55s; }
-    .hero-buttons  { animation-delay: 0.65s; }
-
-    .hero-logo-wrap {
-      opacity: 0;
-      animation: fadeUp 0.9s ease 0.4s forwards;
-    }
-
     /* ── MOBILE ── */
     @media (max-width: 900px) {
-      nav { padding: 1.2rem 1.5rem; }
-      .nav-links { display: none; }
-      #home { grid-template-columns: 1fr; }
-      .hero-left { padding: 6rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--rule); }
-      .hero-right { padding: 3rem 1.5rem; min-height: 340px; }
-      section { padding: 5rem 1.5rem; }
+      .site-logo { top: 1.1rem; left: 1.25rem; font-size: 1.3rem; }
+      .chapter-nav { right: 0.85rem; gap: 0.9rem; }
+      .chapter-nav a { width: 8px; height: 8px; }
+      .chapter-nav a .dot-label { display: none; }
+      .project-content { padding: 0 1.5rem; }
+      .project-chapter { padding-bottom: 5rem; }
+      .project-index { right: 1.5rem; top: 18%; transform: none; }
+      .section-pad { padding: 5rem 1.5rem; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
-      .tenets-grid { grid-template-columns: 1fr 1fr; }
-      .products-grid { grid-template-columns: 1fr; }
       .about-stats { grid-template-columns: 1fr 1fr; }
-      .product-tagline-block { flex-direction: column; }
-      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .stat-box--disciplines { grid-column: span 2; }
       .form-row { grid-template-columns: 1fr; }
+      .merch-intro { flex-direction: column; align-items: flex-start; }
+      .merch-grid-3 { grid-template-columns: 1fr; }
+      .merch-notify-banner { flex-direction: column; text-align: center; padding: 2.5rem 1.5rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav id="main-nav" class="hero-nav">
-    <a href="#home" class="nav-logo">POLY<span>MACHY</span></a>
-    <ul class="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#product">Products</a></li>
-      <li><a href="#contact">Contact</a></li>
-      <li><a href="merch.html">Merchandise</a></li>
-    </ul>
+  <!-- SCROLL PROGRESS -->
+  <div class="scroll-progress" id="scrollProgress"></div>
 
+  <!-- FIXED LOGO -->
+  <a href="#home" class="site-logo">POLY<span>MACHY</span></a>
+
+  <!-- SIDE CHAPTER NAVIGATION -->
+  <nav class="chapter-nav" id="chapterNav" aria-label="Sections">
+    <a href="#home" data-chapter="home"><span class="dot-label">Home</span></a>
+    <a href="#project-01" data-chapter="project-01"><span class="dot-label">Rules Omnibus</span></a>
+    <a href="#project-02" data-chapter="project-02"><span class="dot-label">The Omni Matrix</span></a>
+    <a href="#project-03" data-chapter="project-03"><span class="dot-label">Tempus</span></a>
+    <a href="#about" data-chapter="about"><span class="dot-label">About Us</span></a>
+    <a href="#contact" data-chapter="contact"><span class="dot-label">Get In Contact</span></a>
+    <a href="#merch" data-chapter="merch"><span class="dot-label">Merchandise</span></a>
   </nav>
 
-  <!-- HERO -->
-  <section id="home">
+  <!-- CHAPTER · HERO -->
+  <section id="home" class="chapter chapter--full">
     <div class="hero-bg"></div>
 
     <div class="hero-tagline-wrap">
@@ -866,17 +892,76 @@
       <p class="hero-rotating-tagline" id="rotatingTagline"></p>
     </div>
 
+    <a href="#project-01" class="hero-scroll">
+      <span>Scroll</span>
+      <div class="hero-scroll-line"></div>
+    </a>
   </section>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <div class="section-header">
+  <!-- CHAPTER · PROJECT 01 -->
+  <section id="project-01" class="chapter chapter--full project-chapter">
+    <div class="project-bg"></div>
+    <div class="project-index">01</div>
+    <div class="project-content">
+      <p class="project-eyebrow reveal">Project 01 / 03</p>
+      <div class="reveal delay-1"><span class="project-badge">In Development</span></div>
+      <h2 class="project-title reveal delay-1">Rules<br>Omnibus</h2>
+      <p class="project-desc reveal delay-2">
+        Capturing and documenting rules for all the traditional games, as well as collecting together homebrew rules from all your favourite titles.
+      </p>
+      <a href="distiller.html" class="project-btn reveal delay-3">Learn More →</a>
+    </div>
+  </section>
+
+  <!-- CHAPTER · PROJECT 02 -->
+  <section id="project-02" class="chapter chapter--full project-chapter">
+    <div class="project-bg"></div>
+    <div class="project-index">02</div>
+    <div class="project-content">
+      <p class="project-eyebrow reveal">Project 02 / 03</p>
+      <div class="reveal delay-1"><span class="project-badge">In Development</span></div>
+      <h2 class="project-title reveal delay-1">The Omni<br>Matrix</h2>
+      <p class="project-desc reveal delay-2">
+        Agnostic digital, multi-support and print ready character sheets for the most popular TTRPG worlds: Total control at your fingertips.
+      </p>
+      <a href="charactersheet.html" class="project-btn reveal delay-3">Learn More →</a>
+    </div>
+  </section>
+
+  <!-- CHAPTER · PROJECT 03 -->
+  <section id="project-03" class="chapter chapter--full project-chapter">
+    <div class="project-bg"></div>
+    <div class="project-index">03</div>
+    <div class="project-content">
+      <p class="project-eyebrow reveal">Project 03 / 03</p>
+      <div class="reveal delay-1"><span class="project-badge">In Development</span></div>
+      <h2 class="project-title reveal delay-1">Tempus</h2>
+      <p class="project-desc reveal delay-2">
+        The ultimate digital companion for every TTRPG player. Automatically handling complex calculations whilst delivering an unprecedented level of combat realism.
+      </p>
+      <a href="app.html" class="project-btn reveal delay-3">Learn More →</a>
+    </div>
+  </section>
+
+  <!-- CHAPTER · INTERSTITIAL -->
+  <section id="immersed" class="chapter chapter--full">
+    <p class="immersed-tagline reveal">
+      How Immersed Do You<br><span>Want To Be...?</span>
+    </p>
+    <div class="reveal delay-2">
+      <a href="#contact" class="btn-primary">Register Interest</a>
+    </div>
+  </section>
+
+  <!-- CHAPTER · ABOUT -->
+  <section id="about" class="chapter section-pad">
+    <div class="section-header reveal">
       <span class="section-num">01</span>
       <h2 class="section-title">About Us</h2>
       <div class="section-rule"></div>
     </div>
     <div class="about-grid">
-      <div class="about-body">
+      <div class="about-body reveal delay-1">
         <p>
           Polymachy Ltd. was created by gamers, for gamers. Its two founders share a deep passion for immersive storytelling and a firm belief that rules and calculations should never get in the way of a great adventure.
         </p>
@@ -890,7 +975,7 @@
           Our products remove the mechanical friction that interrupts narrative flow — automating calculations, streamlining rules, and handling administrative overhead — so players spend less time in the rulebook and more time in the story.
         </p>
       </div>
-      <div class="about-stats">
+      <div class="about-stats reveal delay-2">
         <div class="stat-box stat-box--disciplines">
           <p class="disciplines-text">Multiple disciplines and talents — all coming together to deliver an unprecedented gameplay experience, incorporating</p>
           <ul class="disciplines-list">
@@ -916,61 +1001,15 @@
     </div>
   </section>
 
-  <!-- PRODUCT -->
-  <section id="product">
-    <div class="section-header">
+  <!-- CHAPTER · CONTACT -->
+  <section id="contact" class="chapter section-pad">
+    <div class="section-header reveal">
       <span class="section-num">02</span>
-      <h2 class="section-title">Products</h2>
-      <div class="section-rule"></div>
-    </div>
-
-    <p class="product-intro">
-      Our evolving suite of products developed for the TTRPG community are designed to push storytelling back to the forefront of the playing experience. By freeing players from the drudgery of rules and calculations, our products allow you to fully immerse yourself in your fantasy worlds.
-    </p>
-
-    <!-- THREE PRODUCT CARDS -->
-    <div class="products-grid">
-      <div class="product-card">
-        <div class="product-card-num">01</div>
-        <h3 class="product-card-name">Rules Omnibus</h3>
-        
-        <p class="product-card-desc">Capturing and documenting rules for all the traditional games, as well as collecting together homebrew rules from all your favourite titles.</p>
-        <a href="distiller.html" class="product-card-btn">Learn More →</a>
-      </div>
-      <div class="product-card product-card--mid">
-        <div class="product-card-num">02</div>
-        <h3 class="product-card-name">The Omni Matrix</h3>
-        
-        <p class="product-card-desc">Agnostic digital, multi-support and print ready character sheets for the most popular TTRPG worlds: Total control at your fingertips.</p>
-        <a href="charactersheet.html" class="product-card-btn">Learn More →</a>
-      </div>
-      <div class="product-card product-card--dark">
-        <div class="product-card-num">03</div>
-        <h3 class="product-card-name">Tempus</h3>
-        
-        <p class="product-card-desc">The ultimate digital companion for every TTRPG player. Automatically handling complex calculations whilst delivering an unprecedented level of combat realism.</p>
-        <a href="app.html" class="product-card-btn">Learn More →</a>
-      </div>
-    </div>
-
-    <!-- TENETS moved to Omni Matrix page -->
-    <div class="product-tagline-block">
-      <p class="product-tagline">
-        How Immersed Do You<br><span>Want To Be...?</span>
-      </p>
-      <a href="#contact" class="btn-primary" style="background:var(--accent); color:var(--black);">Register Interest</a>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="section-header">
-      <span class="section-num">03</span>
-      <h2 class="section-title">Get in Touch</h2>
+      <h2 class="section-title">Get In Contact</h2>
       <div class="section-rule"></div>
     </div>
     <div class="contact-grid">
-      <div class="contact-info">
+      <div class="contact-info reveal delay-1">
         <p>
           Whether you're a player, creator, publisher, or potential collaborator — we'd love to hear from you.
         </p>
@@ -985,7 +1024,7 @@
           </div>
         </div>
       </div>
-      <form class="contact-form" action="https://formspree.io/f/xojkwyeb" method="POST">
+      <form class="contact-form reveal delay-2" action="https://formspree.io/f/xojkwyeb" method="POST">
         <div class="form-row">
           <div class="form-group">
             <label>First Name</label>
@@ -1021,20 +1060,112 @@
     </div>
   </section>
 
+  <!-- CHAPTER · MERCH -->
+  <section id="merch" class="chapter section-pad">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Merchandise</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="merch-intro reveal delay-1">
+      <h3 class="merch-intro-title">Combat Copilot <span>Official Store</span></h3>
+      <div>
+        <div class="merch-coming-soon">Store Coming Soon</div>
+        <p class="merch-intro-desc">Branded apparel for the TTRPG community. Designed for those who live for the story. Shipped globally via Printful.</p>
+      </div>
+    </div>
+
+    <div class="merch-grid-3 reveal delay-1">
+      <div class="merch-item">
+        <div class="merch-item-img-wrap dark-product">
+          <img src="merch-tshirt-01.jpg" alt="Combat Copilot Black Polo" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Combat Copilot Polo</div>
+          <p class="merch-item-desc">Archer logo in white on black chest. Classic polo shirt.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+      <div class="merch-item">
+        <div class="merch-item-img-wrap dark-product">
+          <img src="merch-tshirt-02.jpg" alt="Combat Copilot Half Archer Tee" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Half Archer Tee</div>
+          <p class="merch-item-desc">Half archer clock logo with wordmark and cyan rule. Black crew neck.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+      <div class="merch-item">
+        <div class="merch-item-img-wrap dark-product">
+          <img src="merch-tshirt-03.jpg" alt="Combat Copilot Stripe Tee" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Stripe Tee</div>
+          <p class="merch-item-desc">Bold cyan stripe design with Combat Copilot wordmark. Black crew neck.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="merch-grid-3 reveal">
+      <div class="merch-item">
+        <div class="merch-item-img-wrap">
+          <img src="merch-cap-01.jpg" alt="Combat Copilot Baseball Cap — Full Logo" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Baseball Cap — Full Logo</div>
+          <p class="merch-item-desc">Full archer clock logo with Combat Copilot wordmark. Stone/black two-tone.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+      <div class="merch-item">
+        <div class="merch-item-img-wrap">
+          <img src="merch-cap-02.jpg" alt="Combat Copilot Baseball Cap — Icon Only" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Baseball Cap — Icon</div>
+          <p class="merch-item-desc">Archer clock icon only in black. Stone/black two-tone.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+      <div class="merch-item">
+        <div class="merch-item-img-wrap">
+          <img src="merch-cap-03.jpg" alt="Combat Copilot Baseball Cap — Stripe" class="merch-item-img" loading="lazy"/>
+        </div>
+        <div class="merch-item-info">
+          <div class="merch-item-name">Baseball Cap — Stripe</div>
+          <p class="merch-item-desc">Bold cyan stripe design with Combat Copilot wordmark. Stone/black two-tone.</p>
+          <span class="merch-item-status">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="merch-notify-banner reveal">
+      <div class="merch-notify-text">
+        <h2>Store Opening<br><span>Soon</span></h2>
+        <p>Register your interest and be the first to know when the Combat Copilot merchandise store goes live. Shipped globally via Printful.</p>
+      </div>
+      <a href="#contact" class="btn-primary">Notify Me When Live</a>
+    </div>
+  </section>
+
   <!-- FOOTER -->
   <footer>
     <a href="#home" class="footer-logo">POLY<span>MACHY</span></a>
     <p class="footer-copy">© 2024 Polymachy Ltd. All rights reserved.</p>
     <ul class="footer-links">
       <li><a href="#home">Home</a></li>
+      <li><a href="#project-01">Projects</a></li>
       <li><a href="#about">About</a></li>
-      <li><a href="#product">Product</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li><a href="#merch">Merch</a></li>
     </ul>
   </footer>
 
-
   <script>
+    /* ── HERO TAGLINES ── */
     const taglines = [
       ["How immersed do", "you want to be...?"],
       ["Your story.", "Uninterrupted."],
@@ -1052,36 +1183,90 @@
     const mainEl = document.getElementById('mainTagline');
     const rotatingEl = document.getElementById('rotatingTagline');
 
-    // Pick two different random taglines
     const mainIndex = Math.floor(Math.random() * taglines.length);
     let secondaryIndex;
     do {
       secondaryIndex = Math.floor(Math.random() * taglines.length);
     } while (secondaryIndex === mainIndex);
 
-    // Main tagline — line one white, line two gold
     mainEl.innerHTML =
       '<span class="line-one">' + taglines[mainIndex][0] + '</span>' +
       '<span class="line-two">' + taglines[mainIndex][1] + '</span>';
 
-    // Secondary tagline — full tagline in one line, white, smaller font
     rotatingEl.textContent = taglines[secondaryIndex][0] + ' ' + taglines[secondaryIndex][1];
 
-    // Fade both in
     setTimeout(() => {
       mainEl.classList.add('visible');
       rotatingEl.classList.add('visible');
     }, 300);
-  </script>
-  <script>
-    const nav = document.getElementById('main-nav');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 60) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+
+    /* ── SCROLL-TRIGGERED REVEALS ── */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ── ACTIVE CHAPTER DOT ── */
+    const navLinks = document.querySelectorAll('#chapterNav a');
+    const lightChapters = ['about', 'contact'];
+    const chapterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.chapter === entry.target.id);
+          });
+          document.body.classList.toggle('on-light', lightChapters.includes(entry.target.id));
+        }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+
+    document.querySelectorAll('.chapter[id]').forEach(section => {
+      if (document.querySelector('#chapterNav a[data-chapter="' + section.id + '"]')) {
+        chapterObserver.observe(section);
       }
     });
+
+    /* ── PROGRESS BAR + PARALLAX ── */
+    const progressEl = document.getElementById('scrollProgress');
+    const parallaxSections = Array.from(document.querySelectorAll('.project-chapter')).map(section => ({
+      section,
+      bg: section.querySelector('.project-bg')
+    }));
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let ticking = false;
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        progressEl.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+
+        if (!reducedMotion) {
+          const vh = window.innerHeight;
+          parallaxSections.forEach(({ section, bg }) => {
+            const rect = section.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > vh) return;
+            // -1 when section is below viewport, +1 when above
+            const progress = (vh - rect.top) / (vh + rect.height) * 2 - 1;
+            bg.style.transform = 'translateY(' + (progress * vh * 0.08) + 'px)';
+          });
+        }
+
+        ticking = false;
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   </script>
 </body>
 </html>
