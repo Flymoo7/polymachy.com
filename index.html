@@ -164,6 +164,8 @@
       inset: 0;
       background-size: cover;
       background-position: center;
+      /* zoom grows downward/sideways so the top of the artwork is never cropped */
+      transform-origin: top center;
       animation: kenburns 55s ease-in-out infinite alternate;
       animation-play-state: paused;
       will-change: transform;
@@ -172,8 +174,8 @@
     .chapter.live .bg-art { animation-play-state: running; }
 
     @keyframes kenburns {
-      from { transform: scale(1.03); }
-      to   { transform: scale(1.11) translateY(-1.2%); }
+      from { transform: scale(1); }
+      to   { transform: scale(1.06); }
     }
 
     .bg-video {
@@ -276,16 +278,14 @@
 
     .hero-bg .bg-art {
       background-image: url('hero.png');
+      /* contain at every aspect ratio: the artwork's painted-in frame,
+         tagline and logo must never be cropped */
       background-size: contain;
       background-position: center center;
       background-repeat: no-repeat;
-    }
-
-    @media (min-aspect-ratio: 16/10) {
-      .hero-bg .bg-art {
-        background-size: cover;
-        background-position: center top;
-      }
+      /* no zoom on the hero — at an exact-fit aspect ratio any zoom
+         would crop the painted frame */
+      animation: none;
     }
 
     .hero-bg::after {
@@ -330,14 +330,15 @@
       display: block;
       color: rgba(255,255,255,0.8);
       white-space: nowrap;
-      font-size: clamp(2rem, 7.5vw, 9rem);
+      /* scales with width AND height so it never overflows the viewport */
+      font-size: clamp(1.6rem, min(7.5vw, 12vh), 9rem);
     }
 
     .hero-main-tagline .line-two {
       display: block;
       color: rgba(200,169,110,0.8);
       white-space: nowrap;
-      font-size: clamp(2rem, 7.5vw, 9rem);
+      font-size: clamp(1.6rem, min(7.5vw, 12vh), 9rem);
     }
 
     .hero-rotating-tagline {
@@ -346,7 +347,7 @@
       left: 8%;
       right: 8%;
       font-family: 'Trebuchet MS', 'Gill Sans', 'Century Gothic', sans-serif;
-      font-size: clamp(1rem, 2vw, 1.8rem);
+      font-size: clamp(0.9rem, min(2vw, 3.2vh), 1.8rem);
       font-weight: 400;
       letter-spacing: 0.25em;
       color: rgba(255,255,255,0.8);
@@ -401,7 +402,9 @@
 
     .project-bg {
       position: absolute;
-      inset: -12% 0;       /* oversized for parallax travel */
+      /* extend below only for parallax travel — the top edge stays
+         aligned with the chapter so heads in the artwork are never cut */
+      inset: 0 0 -10% 0;
       overflow: hidden;
       z-index: 0;
       will-change: transform;
@@ -414,6 +417,7 @@
       background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.82) 100%);
     }
 
+    .project-bg .bg-art { background-position: center top; }
     #project-01 .bg-art { background-image: url('archer.jpg'); }
     #project-02 .bg-art { background-image: url('bear.jpg'); }
     #project-03 .bg-art { background-image: url('ogre.jpg'); }
