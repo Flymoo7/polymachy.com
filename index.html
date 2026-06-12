@@ -184,7 +184,11 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.2s ease;
     }
+
+    .bg-video.ready { opacity: 1; }
 
     /* ── ATMOSPHERE (steam, dust, god rays) ── */
     .atmosphere {
@@ -254,6 +258,23 @@
       /* no zoom on the hero — at an exact-fit aspect ratio any zoom
          would crop the painted frame */
       animation: none;
+    }
+
+    /* the hero loop must match the contained painting, never crop it */
+    .hero-bg .bg-video { object-fit: contain; }
+
+    /* crisp static copy of the painted-in white frame and Polymachy
+       logo, layered over the AI loop so they can never warp or drift;
+       same 16:9 contain box as the video and the still, so it aligns
+       pixel-perfectly with both */
+    .hero-bg .hero-frame-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 1; /* above the appended .bg-video */
     }
 
     /* cinematic letterbox fill: a blurred, darkened extension of the
@@ -1052,7 +1073,7 @@
 
   <!-- CHAPTER · HERO -->
   <section id="home" class="chapter chapter--full">
-    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"></div></div>
+    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"><img class="hero-frame-overlay" src="hero-overlay.png" alt="" aria-hidden="true"></div></div>
 
     <div class="atmosphere" aria-hidden="true">
       <canvas class="atmo-canvas"></canvas>
@@ -1449,18 +1470,19 @@
     onScroll();
 
     /* ── LIVING ATMOSPHERE (slow drift, steam, battle dust, god rays) ──
-       Future upgrade: set a path below to an AI-generated slow-motion
-       loop (e.g. { home: 'hero-loop.mp4' }) and it plays behind the
-       text, with the still painting as instant fallback. */
+       AI-generated slow-motion loops (made with scripts/generate-hero-loop.sh)
+       play behind the text, with the still painting as instant fallback
+       while the video loads — or forever, if the file is absent. */
     const chapterVideoLoops = {
-      'home': null,
+      'home': 'hero-loop.mp4',
       'project-01': null,
       'project-02': null,
       'project-03': null
     };
 
+    const chapterVideos = {};
     Object.entries(chapterVideoLoops).forEach(([id, src]) => {
-      if (!src) return;
+      if (!src || reducedMotion) return;
       const art = document.querySelector('#' + id + ' .bg-art');
       const video = document.createElement('video');
       video.muted = true;
@@ -1470,7 +1492,12 @@
       video.setAttribute('playsinline', '');
       video.src = src;
       video.className = 'bg-video';
+      // fade in only once it can actually play; if the file is missing
+      // or fails, the still painting simply stays
+      video.addEventListener('canplay', () => video.classList.add('ready'), { once: true });
+      video.addEventListener('error', () => video.remove(), { once: true });
       art.appendChild(video);
+      chapterVideos[id] = video;
     });
 
     /* tunable atmosphere settings — these are the site-wide defaults;
@@ -1481,7 +1508,9 @@
        rays appear to break in from high overhead;
        sunAngle: tilt of the beams in degrees from vertical (negative
        leans the light toward the left, positive toward the right) */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1 };
+    /* videoSpeed: playback rate of the chapter's AI loop (1 = as rendered,
+       lower = slower motion) */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1, videoSpeed: 1 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
@@ -1500,6 +1529,13 @@
       return Object.assign({}, ATMO_DEFAULTS, ATMO_CHAPTER_DEFAULTS[id] || {},
         atmoStore.global, (atmoStore.chapters || {})[id] || {});
     }
+
+    function applyVideoSpeeds() {
+      Object.entries(chapterVideos).forEach(([id, video]) => {
+        video.playbackRate = effectiveCfg(id).videoSpeed;
+      });
+    }
+    applyVideoSpeeds();
 
     const atmospheres = [];
 
@@ -1693,6 +1729,11 @@
             if (entry.isIntersecting && !document.hidden) atmo.start();
             else atmo.stop();
           }
+          const vid = chapterVideos[entry.target.id];
+          if (vid) {
+            if (entry.isIntersecting && !document.hidden) vid.play().catch(() => {});
+            else vid.pause();
+          }
         });
       }, { rootMargin: '10% 0px' });
 
@@ -1736,13 +1777,15 @@
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
             '<input type="range" id="tMistDensity" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Loop — speed (&times;) <span id="vVideoSpeed"></span>' +
+            '<input type="range" id="tVideoSpeed" min="0.1" max="2" step="0.05"></label>' +
           '<div class="tuner-row">' +
             '<button id="tunerCopy">Copy settings</button>' +
             '<button id="tunerReset">Reset</button>' +
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity', 'VideoSpeed'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
@@ -1765,6 +1808,7 @@
         function persistAndApply() {
           try { localStorage.setItem('polymachy-atmo', JSON.stringify(atmoStore)); } catch (e) {}
           atmospheres.forEach(a => a.applyConfig());
+          applyVideoSpeeds();
         }
 
         fields.forEach(f => {
