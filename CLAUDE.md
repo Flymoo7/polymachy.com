@@ -47,14 +47,19 @@ painting stays as the instant fallback; wiring + CSS already done).
   (running shadows) and v3 (mid-loop drift).
 - **2026-06-12 v4 (REJECTED):** owner liked the mist but the kneeling
   knight's right sword arm animated strangely.
-- **2026-06-12 v5 (committed, pending owner verdict):** kneeling
-  knight's action simplified per owner: he lets go of the broken
-  sword with his right hand and reaches that hand to the ground to
-  support himself, staying kneeling; arrow in his right shoulder
-  explicitly fixed in place. Everything else word-for-word from v4
-  (static arrows, drifting mist, motionless background). 6s, fresh
-  seed. Claude's frame check incl. kneeling-knight close-up crops
-  passed. Plays at baked 0.6x default → ~10s perceived slo-mo loop.
+- **2026-06-12 v5 (REJECTED):** kneeling knight finally right, but
+  the female knight's slashing sword appeared to split in two
+  mid-swing.
+- **2026-06-12 v6 (committed, pending owner verdict):** two owner
+  changes: female knight no longer slashes — she stays poised to
+  strike with sword held high (nothing for the model to split) —
+  and the white frame line + POLYMACHY logo are GONE from the video.
+  Owner uploaded `CLEAN_HERO.png` (1920x1080, painting without
+  frame/logo) to main as the new render source; owner will overlay
+  frame/logo as a separate layer later. Frame/logo prompt sentence
+  dropped. Kneeling knight ground-brace kept word-for-word from v5.
+  6s, fresh seed; frame check incl. female-knight crops passed.
+  Plays at baked 0.6x default → ~10s perceived slo-mo loop.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
