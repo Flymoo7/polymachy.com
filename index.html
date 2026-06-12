@@ -250,9 +250,10 @@
     }
 
     .hero-bg .bg-art {
-      background-image: url('hero.png');
-      /* contain at every aspect ratio: the artwork's painted-in frame,
-         tagline and logo must never be cropped */
+      background-image: url('CLEAN_HERO.png');
+      /* contain at every aspect ratio: the artwork must never be
+         cropped or it would drift out of register with the frame/logo
+         overlay layered on top */
       background-size: contain;
       background-position: center center;
       background-repeat: no-repeat;
@@ -261,9 +262,23 @@
       animation: none;
     }
 
-    /* the hero loop must match the still's contain fit so the painted
-       frame and logo are never cropped */
+    /* the hero loop must match the still's contain fit so it stays in
+       register with the frame/logo overlay */
     .hero-bg .bg-video { object-fit: contain; }
+
+    /* owner-supplied frame line + logo (Logo_Overlay.png, 1920x1080
+       RGBA) layered over the clean artwork and loop; identical contain
+       fit keeps it pixel-registered with both at any viewport size.
+       Painted before .hero-bg::after so the gradient grades it exactly
+       like the old baked-in frame. */
+    .hero-bg .frame-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
 
     /* cinematic letterbox fill: a blurred, darkened extension of the
        painting covers any bars left by contain, so the screen is always
@@ -271,7 +286,7 @@
     .hero-bg .bg-fill {
       position: absolute;
       inset: -4%;
-      background-image: url('hero.png');
+      background-image: url('CLEAN_HERO.png');
       background-size: cover;
       background-position: center;
       filter: blur(26px) brightness(0.55) saturate(1.1);
@@ -1061,7 +1076,7 @@
 
   <!-- CHAPTER · HERO -->
   <section id="home" class="chapter chapter--full">
-    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"></div></div>
+    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"></div><img class="frame-overlay" src="Logo_Overlay.png" alt=""></div>
 
     <div class="atmosphere" aria-hidden="true">
       <canvas class="atmo-canvas"></canvas>

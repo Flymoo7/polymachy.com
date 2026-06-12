@@ -80,6 +80,17 @@ painting stays as the instant fallback; wiring + CSS already done).
   left-side mist still brightens/gathers around the midpoint —
   flagged to owner as softer-but-present. If rejected again,
   consider dropping mist motion from the prompt entirely.
+- **2026-06-12 v8 ACCEPTED “for now”** — owner wants to see it live
+  with the god-rays/mist before a final verdict.
+- **2026-06-12 frame/logo overlay wired:** owner uploaded
+  `Logo_Overlay.png` (1920x1080 RGBA, frame line + logo on
+  transparent) to main. index.html now layers it over the hero
+  still + loop via `.frame-overlay` (object-fit: contain, same fit
+  as still/video, under the ::after gradient). Fallback still and
+  blurred .bg-fill switched from `hero.png` (owner DELETED it on
+  main) to `CLEAN_HERO.png`. ⚠ The uploaded overlay's wordmark
+  reads “COMBAT COPILOT”, not “POLYMACHY” — flagged to owner;
+  swapping the PNG on GitHub needs no code change.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
