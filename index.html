@@ -1478,12 +1478,14 @@
        this browser's localStorage only */
     /* sunX: % across the screen; sunY: % down from the top of the
        chapter — negative values place the sun above the screen so the
-       rays appear to break in from high overhead */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 1, sunX: 50, sunY: -5, mistCount: 7, mistDensity: 1 };
+       rays appear to break in from high overhead;
+       sunAngle: tilt of the beams in degrees from vertical (negative
+       leans the light toward the left, positive toward the right) */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.5, sunX: 50, sunY: -5, sunAngle: 0, mistCount: 7, mistDensity: 1 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
-      'home': { rayCount: 9, rayBrightness: 1, sunX: 50, sunY: -90, mistCount: 9, mistDensity: 0.8 }
+      'home': { rayCount: 9, sunX: 50, sunY: -90, mistCount: 9, mistDensity: 0.8 }
     };
     let atmoStore = { global: {}, chapters: {} };
     try {
@@ -1535,11 +1537,13 @@
 
         function makeRay(now) {
           // the higher the sun sits above the screen, the narrower the
-          // fan, so distant rays arrive near-parallel
+          // fan, so distant rays arrive near-parallel; sunAngle tilts
+          // the whole fan away from vertical
           const high = Math.max(0, -cfg.sunY / 100);
           const fan = 32 / (1 + high * 1.5);
+          const center = 90 + cfg.sunAngle;
           return {
-            ang: (90 - fan + Math.random() * fan * 2) * Math.PI / 180,
+            ang: (center - fan + Math.random() * fan * 2) * Math.PI / 180,
             spread: (1.2 + Math.random() * 3.2) * Math.PI / 180,
             born: now + Math.random() * 7,                    // quiet gap before it breaks through
             dur: 7 + Math.random() * 12,
@@ -1723,6 +1727,8 @@
             '<input type="range" id="tSunX" min="0" max="100" step="1"></label>' +
           '<label>Sun — height (% &uarr;) <span id="vSunY"></span>' +
             '<input type="range" id="tSunY" min="-150" max="30" step="1"></label>' +
+          '<label>Sun — arc (&deg; tilt) <span id="vSunAngle"></span>' +
+            '<input type="range" id="tSunAngle" min="-60" max="60" step="1"></label>' +
           '<label>Mist — patches <span id="vMistCount"></span>' +
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
@@ -1733,7 +1739,7 @@
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'MistCount', 'MistDensity'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
