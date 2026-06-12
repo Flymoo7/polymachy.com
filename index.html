@@ -280,6 +280,20 @@
       pointer-events: none;
     }
 
+    /* the hero atmosphere (god rays, mist, dust) clips to the same
+       16:9 contain box as the artwork/loop/overlay, so the effects
+       only ever play across the painting — never the letterbox fill
+       bars that appear on non-16:9 screens. max-width/max-height
+       transfer through the aspect-ratio, giving the contain fit. */
+    #home .atmosphere {
+      inset: 0;
+      margin: auto;
+      width: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 16 / 9;
+    }
+
     /* cinematic letterbox fill: a blurred, darkened extension of the
        painting covers any bars left by contain, so the screen is always
        full edge-to-edge while the sharp art stays uncropped */
