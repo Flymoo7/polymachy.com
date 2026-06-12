@@ -1481,11 +1481,14 @@
        rays appear to break in from high overhead;
        sunAngle: tilt of the beams in degrees from vertical (negative
        leans the light toward the left, positive toward the right) */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.5, sunX: 50, sunY: -5, sunAngle: 0, mistCount: 7, mistDensity: 1 };
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
-      'home': { rayCount: 9, sunX: 50, sunY: -90, mistCount: 9, mistDensity: 0.8 }
+      'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8 },
+      'project-01': { rayBrightness: 1, sunX: 96, sunY: -35, sunAngle: 56 },
+      'project-02': { rayBrightness: 0.75, sunX: 3, sunY: -93, sunAngle: -24 },
+      'project-03': { rayBrightness: 1, sunX: 16, sunY: -30, sunAngle: -34 }
     };
     let atmoStore = { global: {}, chapters: {} };
     try {
