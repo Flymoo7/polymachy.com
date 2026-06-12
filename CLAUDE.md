@@ -60,6 +60,16 @@ painting stays as the instant fallback; wiring + CSS already done).
   dropped. Kneeling knight ground-brace kept word-for-word from v5.
   6s, fresh seed; frame check incl. female-knight crops passed.
   Plays at baked 0.6x default → ~10s perceived slo-mo loop.
+- **2026-06-12 v7 (NOT committed, owner reviewing):** owner rejected
+  v6 for the female knight's left (shield) hand suddenly holding the
+  sword, and a big smoke puff on the right. v7: she only subtly
+  brandishes her sword behind her head (right hand only, left
+  arm/shield never move, hands never swap); mist must drift slowly
+  left→right, no large plume ever. Result: female knight looks
+  fixed, BUT a large white plume billows upper-LEFT during the
+  first ~2.5s — same failure mirrored. Repo still holds v6.
+  Next idea if re-rolling: rephrase so only the painting's
+  EXISTING mist slides right and no new mist/smoke is ever added.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
