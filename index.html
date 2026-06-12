@@ -965,6 +965,65 @@
       footer { flex-direction: column; gap: 1.5rem; text-align: center; }
     }
 
+    /* ── ATMOSPHERE TUNER (?tune) ── */
+    #atmoTuner {
+      position: fixed;
+      left: 1.25rem; bottom: 1.25rem;
+      z-index: 400;
+      width: 252px;
+      background: rgba(10,10,10,0.94);
+      border: 1px solid #2a2a2a;
+      padding: 1rem 1.1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.75);
+    }
+
+    #atmoTuner .tuner-title {
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      margin-bottom: 0.85rem;
+    }
+
+    #atmoTuner label { display: block; margin-bottom: 0.7rem; }
+    #atmoTuner label span { color: var(--accent); float: right; }
+
+    #atmoTuner input[type="range"] {
+      width: 100%;
+      margin-top: 0.3rem;
+      accent-color: var(--accent);
+    }
+
+    #atmoTuner select {
+      width: 100%;
+      margin-top: 0.3rem;
+      background: #1a1a1a;
+      color: var(--white);
+      border: 1px solid #2a2a2a;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0.35rem;
+    }
+
+    #atmoTuner .tuner-row { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+
+    #atmoTuner button {
+      flex: 1;
+      background: var(--accent);
+      color: var(--black);
+      border: none;
+      padding: 0.55rem;
+      font-family: inherit;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    #atmoTuner button:hover { background: var(--white); }
+
     /* last in the cascade so it beats the animation declarations above */
     @media (prefers-reduced-motion: reduce) {
       .bg-art, .bg-fill, .mist-puff { animation: none; }
@@ -1414,6 +1473,20 @@
       art.appendChild(video);
     });
 
+    /* tunable atmosphere settings — these are the site-wide defaults;
+       opening the site with ?tune shows a panel whose overrides live in
+       this browser's localStorage only */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 1, mistCount: 7, mistDensity: 1 };
+    let atmoStore = { global: {}, chapters: {} };
+    try {
+      const saved = localStorage.getItem('polymachy-atmo');
+      if (saved) atmoStore = JSON.parse(saved);
+    } catch (e) {}
+
+    function effectiveCfg(id) {
+      return Object.assign({}, ATMO_DEFAULTS, atmoStore.global, (atmoStore.chapters || {})[id] || {});
+    }
+
     const atmospheres = [];
 
     if (!reducedMotion) {
@@ -1422,20 +1495,28 @@
         const ctx = canvas.getContext('2d');
         let w = 0, h = 0, parts = [], raf = null, t = Math.random() * 1000;
 
+        const chapterId = atmo.parentElement.id;
+        let cfg = effectiveCfg(chapterId);
+        const mobileScale = window.innerWidth < 700 ? 0.6 : 1;
+
         // patchy mist: independent puffs, each with its own cycle
-        const puffCount = window.innerWidth < 700 ? 4 : 7;
-        for (let i = 0; i < puffCount; i++) {
-          const puff = document.createElement('div');
-          puff.className = 'mist-puff';
-          puff.style.setProperty('--size', Math.round(240 + Math.random() * 440) + 'px');
-          puff.style.setProperty('--x', Math.round(Math.random() * 105 - 15) + '%');
-          puff.style.setProperty('--dur', (20 + Math.random() * 24).toFixed(1) + 's');
-          puff.style.setProperty('--delay', '-' + (Math.random() * 44).toFixed(1) + 's');
-          puff.style.setProperty('--drift', Math.round(Math.random() * 280 - 140) + 'px');
-          puff.style.setProperty('--peak', (0.3 + Math.random() * 0.35).toFixed(2));
-          puff.style.setProperty('--peak2', (0.12 + Math.random() * 0.3).toFixed(2));
-          atmo.insertBefore(puff, canvas);
+        function buildMist() {
+          atmo.querySelectorAll('.mist-puff').forEach(el => el.remove());
+          const count = Math.round(cfg.mistCount * mobileScale);
+          for (let i = 0; i < count; i++) {
+            const puff = document.createElement('div');
+            puff.className = 'mist-puff';
+            puff.style.setProperty('--size', Math.round(240 + Math.random() * 440) + 'px');
+            puff.style.setProperty('--x', Math.round(Math.random() * 105 - 15) + '%');
+            puff.style.setProperty('--dur', (20 + Math.random() * 24).toFixed(1) + 's');
+            puff.style.setProperty('--delay', '-' + (Math.random() * 44).toFixed(1) + 's');
+            puff.style.setProperty('--drift', Math.round(Math.random() * 280 - 140) + 'px');
+            puff.style.setProperty('--peak', Math.min(0.9, (0.3 + Math.random() * 0.35) * cfg.mistDensity).toFixed(2));
+            puff.style.setProperty('--peak2', Math.min(0.8, (0.12 + Math.random() * 0.3) * cfg.mistDensity).toFixed(2));
+            atmo.insertBefore(puff, canvas);
+          }
         }
+        buildMist();
 
         // god rays: beams from a sun point, each fading in/out on its
         // own random cycle so they never appear all at once
@@ -1454,13 +1535,18 @@
           };
         }
 
-        let rays = [];
-        const now0 = performance.now() / 1000;
-        rays = Array.from({ length: window.innerWidth < 700 ? 4 : 7 }, () => {
-          const r = makeRay(now0);
-          r.born = now0 - Math.random() * r.dur;              // stagger initial lifecycles
-          return r;
-        });
+        const rays = [];
+        function buildRays() {
+          const now = performance.now() / 1000;
+          const target = Math.round(cfg.rayCount * mobileScale);
+          while (rays.length > target) rays.pop();
+          while (rays.length < target) {
+            const r = makeRay(now);
+            r.born = now - Math.random() * r.dur;             // stagger initial lifecycles
+            rays.push(r);
+          }
+        }
+        buildRays();
 
         function drawRays(now) {
           const ow = off.width, oh = off.height;
@@ -1473,7 +1559,7 @@
             const p = (now - r.born) / r.dur;
             if (p >= 1) { Object.assign(r, makeRay(now)); continue; }
             if (p <= 0) continue;
-            const a = r.maxA * Math.sin(Math.PI * p);          // ease in, ease out
+            const a = Math.min(0.5, r.maxA * cfg.rayBrightness) * Math.sin(Math.PI * p);   // ease in, ease out
             glow += a;
             const ang = r.ang + Math.sin(now * 0.05 + r.swayPhase) * 0.012;
             const g = octx.createRadialGradient(sx, sy, 0, sx, sy, len);
@@ -1563,6 +1649,8 @@
 
         atmospheres.push({
           el: atmo.parentElement,
+          id: chapterId,
+          applyConfig() { cfg = effectiveCfg(chapterId); buildRays(); buildMist(); },
           start() { if (!raf) raf = requestAnimationFrame(frame); },
           stop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
         });
@@ -1588,6 +1676,92 @@
           else if (a.el.classList.contains('live')) a.start();
         });
       });
+
+      /* ── ATMOSPHERE TUNER ──
+         Open the site with ?tune appended to the URL to show the panel.
+         Changes apply live and persist in this browser only; use
+         "Copy settings" to capture the values so they can be made the
+         site-wide defaults. */
+      if (/[?#&]tune/.test(location.search + location.hash)) {
+        const panel = document.createElement('div');
+        panel.id = 'atmoTuner';
+        panel.innerHTML =
+          '<div class="tuner-title">Atmosphere Tuner</div>' +
+          '<label>Apply to <select id="tunerScope">' +
+            '<option value="">All chapters</option>' +
+            '<option value="home">Landing</option>' +
+            '<option value="project-01">Rules Omnibus</option>' +
+            '<option value="project-02">The Omni Matrix</option>' +
+            '<option value="project-03">Tempus</option>' +
+          '</select></label>' +
+          '<label>God rays — number <span id="vRayCount"></span>' +
+            '<input type="range" id="tRayCount" min="0" max="14" step="1"></label>' +
+          '<label>God rays — strength <span id="vRayBrightness"></span>' +
+            '<input type="range" id="tRayBrightness" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Mist — patches <span id="vMistCount"></span>' +
+            '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
+          '<label>Mist — density <span id="vMistDensity"></span>' +
+            '<input type="range" id="tMistDensity" min="0" max="2.5" step="0.05"></label>' +
+          '<div class="tuner-row">' +
+            '<button id="tunerCopy">Copy settings</button>' +
+            '<button id="tunerReset">Reset</button>' +
+          '</div>';
+        document.body.appendChild(panel);
+
+        const fields = ['RayCount', 'RayBrightness', 'MistCount', 'MistDensity'];
+        const scopeEl = panel.querySelector('#tunerScope');
+        const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
+
+        function scopeCfg() {
+          if (!scopeEl.value) return atmoStore.global = atmoStore.global || {};
+          atmoStore.chapters = atmoStore.chapters || {};
+          return atmoStore.chapters[scopeEl.value] = atmoStore.chapters[scopeEl.value] || {};
+        }
+
+        function refreshInputs() {
+          const cfg = scopeEl.value
+            ? effectiveCfg(scopeEl.value)
+            : Object.assign({}, ATMO_DEFAULTS, atmoStore.global);
+          fields.forEach(f => {
+            panel.querySelector('#t' + f).value = cfg[keyOf(f)];
+            panel.querySelector('#v' + f).textContent = cfg[keyOf(f)];
+          });
+        }
+
+        function persistAndApply() {
+          try { localStorage.setItem('polymachy-atmo', JSON.stringify(atmoStore)); } catch (e) {}
+          atmospheres.forEach(a => a.applyConfig());
+        }
+
+        fields.forEach(f => {
+          panel.querySelector('#t' + f).addEventListener('input', e => {
+            scopeCfg()[keyOf(f)] = parseFloat(e.target.value);
+            panel.querySelector('#v' + f).textContent = e.target.value;
+            persistAndApply();
+          });
+        });
+
+        scopeEl.addEventListener('change', refreshInputs);
+
+        panel.querySelector('#tunerCopy').addEventListener('click', () => {
+          const text = JSON.stringify(atmoStore, null, 2);
+          const btn = panel.querySelector('#tunerCopy');
+          (navigator.clipboard && navigator.clipboard.writeText
+            ? navigator.clipboard.writeText(text)
+            : Promise.reject()
+          ).then(() => { btn.textContent = 'Copied!'; })
+           .catch(() => { prompt('Copy these settings:', text); })
+           .finally(() => setTimeout(() => { btn.textContent = 'Copy settings'; }, 1500));
+        });
+
+        panel.querySelector('#tunerReset').addEventListener('click', () => {
+          atmoStore = { global: {}, chapters: {} };
+          persistAndApply();
+          refreshInputs();
+        });
+
+        refreshInputs();
+      }
     }
   </script>
 </body>
