@@ -184,7 +184,12 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      /* still painting shows until the loop can play, then crossfade */
+      opacity: 0;
+      transition: opacity 1.5s ease;
     }
+
+    .bg-video.ready { opacity: 1; }
 
     /* ── ATMOSPHERE (steam, dust, god rays) ── */
     .atmosphere {
@@ -255,6 +260,10 @@
          would crop the painted frame */
       animation: none;
     }
+
+    /* the hero loop must match the still's contain fit so the painted
+       frame and logo are never cropped */
+    .hero-bg .bg-video { object-fit: contain; }
 
     /* cinematic letterbox fill: a blurred, darkened extension of the
        painting covers any bars left by contain, so the screen is always
@@ -1449,18 +1458,17 @@
     onScroll();
 
     /* ── LIVING ATMOSPHERE (slow drift, steam, battle dust, god rays) ──
-       Future upgrade: set a path below to an AI-generated slow-motion
-       loop (e.g. { home: 'hero-loop.mp4' }) and it plays behind the
-       text, with the still painting as instant fallback. */
+       AI-generated slow-motion loops play behind the text, with the
+       still painting as instant fallback while the video loads. */
     const chapterVideoLoops = {
-      'home': null,
+      'home': 'hero-loop.mp4',
       'project-01': null,
       'project-02': null,
       'project-03': null
     };
 
     Object.entries(chapterVideoLoops).forEach(([id, src]) => {
-      if (!src) return;
+      if (!src || reducedMotion) return;
       const art = document.querySelector('#' + id + ' .bg-art');
       const video = document.createElement('video');
       video.muted = true;
@@ -1470,6 +1478,7 @@
       video.setAttribute('playsinline', '');
       video.src = src;
       video.className = 'bg-video';
+      video.addEventListener('canplay', () => video.classList.add('ready'), { once: true });
       art.appendChild(video);
     });
 
