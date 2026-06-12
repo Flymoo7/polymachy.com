@@ -1480,6 +1480,11 @@
        chapter — negative values place the sun above the screen so the
        rays appear to break in from high overhead */
     const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 1, sunX: 50, sunY: -5, mistCount: 7, mistDensity: 1 };
+
+    /* per-chapter defaults baked in from tuner sessions */
+    const ATMO_CHAPTER_DEFAULTS = {
+      'home': { rayCount: 9, rayBrightness: 1, sunX: 50, sunY: -90, mistCount: 9, mistDensity: 0.8 }
+    };
     let atmoStore = { global: {}, chapters: {} };
     try {
       const saved = localStorage.getItem('polymachy-atmo');
@@ -1487,7 +1492,8 @@
     } catch (e) {}
 
     function effectiveCfg(id) {
-      return Object.assign({}, ATMO_DEFAULTS, atmoStore.global, (atmoStore.chapters || {})[id] || {});
+      return Object.assign({}, ATMO_DEFAULTS, ATMO_CHAPTER_DEFAULTS[id] || {},
+        atmoStore.global, (atmoStore.chapters || {})[id] || {});
     }
 
     const atmospheres = [];
@@ -1568,7 +1574,10 @@
             if (p <= 0) continue;
             const a = Math.min(0.5, r.maxA * cfg.rayBrightness) * Math.sin(Math.PI * p);   // ease in, ease out
             glow += a;
-            const ang = r.ang + Math.sin(now * 0.05 + r.swayPhase) * 0.012;
+            // clouds crossing the sun: every beam sweeps slowly left-to-right
+            // over its life (decreasing angle moves the far end rightward),
+            // with a touch of sway so the drift isn't mechanical
+            const ang = r.ang - (now - r.born) * 0.006 + Math.sin(now * 0.05 + r.swayPhase) * 0.006;
             const g = octx.createRadialGradient(sx, sy, 0, sx, sy, len);
             g.addColorStop(0, 'rgba(255,246,214,' + a.toFixed(3) + ')');
             g.addColorStop(0.3, 'rgba(255,246,214,' + (a * 0.55).toFixed(3) + ')');
