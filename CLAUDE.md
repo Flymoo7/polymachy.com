@@ -40,6 +40,12 @@ painting stays as the instant fallback; wiring + CSS already done).
   runs/charges/crosses, no new figures), plus whole animation slowed
   40% — implemented as baked `loopSpeed: 0.6` default for the home
   chapter (slider still overrides).
+- **2026-06-12 v3 (NOT committed, pending owner verdict):** the 10s
+  render drifted badly mid-loop — kneeling knight stands up with a
+  full sword, a new round shield appears, elf knight's shield loses
+  its arrows. Longer durations drift more; the repo still holds the
+  6s v2. Possible paths: keep v2 at 0.6x playback (= 10s perceived),
+  or re-roll 10s with a new seed (~$0.52, drift risk remains).
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
