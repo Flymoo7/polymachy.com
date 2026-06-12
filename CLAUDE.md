@@ -88,9 +88,10 @@ painting stays as the instant fallback; wiring + CSS already done).
   still + loop via `.frame-overlay` (object-fit: contain, same fit
   as still/video, under the ::after gradient). Fallback still and
   blurred .bg-fill switched from `hero.png` (owner DELETED it on
-  main) to `CLEAN_HERO.png`. ⚠ The uploaded overlay's wordmark
-  reads “COMBAT COPILOT”, not “POLYMACHY” — flagged to owner;
-  swapping the PNG on GitHub needs no code change.
+  main) to `CLEAN_HERO.png`. The first uploaded overlay's wordmark
+  read “COMBAT COPILOT” — owner re-uploaded the corrected
+  POLYMACHY version (gold wordmark, verified) and it's on the
+  branch; no code change was needed.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
