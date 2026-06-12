@@ -45,13 +45,16 @@ painting stays as the instant fallback; wiring + CSS already done).
   full sword, a new round shield appears, elf knight's shield loses
   its arrows. Longer durations drift more. Owner rejected both v2
   (running shadows) and v3 (mid-loop drift).
-- **2026-06-12 v4 (committed, pending owner verdict):** re-rendered
-  at 6s with the v3 motionless-background language plus two owner
-  additions: ALL embedded arrows (kneeling knight's shoulder, elf
-  knight's shield) stay completely static, and the mist slowly
-  drifts across the scene. Claude's frame check at 1s intervals
-  passed: no running shadows, no drift, arrows intact, mist moving.
-  Plays at baked 0.6x default → ~10s perceived slo-mo loop.
+- **2026-06-12 v4 (REJECTED):** owner liked the mist but the kneeling
+  knight's right sword arm animated strangely.
+- **2026-06-12 v5 (committed, pending owner verdict):** kneeling
+  knight's action simplified per owner: he lets go of the broken
+  sword with his right hand and reaches that hand to the ground to
+  support himself, staying kneeling; arrow in his right shoulder
+  explicitly fixed in place. Everything else word-for-word from v4
+  (static arrows, drifting mist, motionless background). 6s, fresh
+  seed. Claude's frame check incl. kneeling-knight close-up crops
+  passed. Plays at baked 0.6x default → ~10s perceived slo-mo loop.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
