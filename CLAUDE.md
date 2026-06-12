@@ -40,12 +40,18 @@ painting stays as the instant fallback; wiring + CSS already done).
   runs/charges/crosses, no new figures), plus whole animation slowed
   40% — implemented as baked `loopSpeed: 0.6` default for the home
   chapter (slider still overrides).
-- **2026-06-12 v3 (NOT committed, pending owner verdict):** the 10s
+- **2026-06-12 v3 (REJECTED, not committed):** the 10s
   render drifted badly mid-loop — kneeling knight stands up with a
   full sword, a new round shield appears, elf knight's shield loses
-  its arrows. Longer durations drift more; the repo still holds the
-  6s v2. Possible paths: keep v2 at 0.6x playback (= 10s perceived),
-  or re-roll 10s with a new seed (~$0.52, drift risk remains).
+  its arrows. Longer durations drift more. Owner rejected both v2
+  (running shadows) and v3 (mid-loop drift).
+- **2026-06-12 v4 (committed, pending owner verdict):** re-rendered
+  at 6s with the v3 motionless-background language plus two owner
+  additions: ALL embedded arrows (kneeling knight's shoulder, elf
+  knight's shield) stay completely static, and the mist slowly
+  drifts across the scene. Claude's frame check at 1s intervals
+  passed: no running shadows, no drift, arrows intact, mist moving.
+  Plays at baked 0.6x default → ~10s perceived slo-mo loop.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
