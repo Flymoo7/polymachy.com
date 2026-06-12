@@ -211,7 +211,7 @@
       width: var(--size);
       height: calc(var(--size) * 0.55);
       background: radial-gradient(ellipse at center,
-        rgba(236,230,218,var(--density)) 0%,
+        rgba(236,230,218,var(--density, 0.6)) 0%,
         rgba(236,230,218,0) 65%);
       filter: blur(18px);
       mix-blend-mode: screen;
@@ -1476,7 +1476,10 @@
     /* tunable atmosphere settings — these are the site-wide defaults;
        opening the site with ?tune shows a panel whose overrides live in
        this browser's localStorage only */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 1, mistCount: 7, mistDensity: 1 };
+    /* sunX: % across the screen; sunY: % down from the top of the
+       chapter — negative values place the sun above the screen so the
+       rays appear to break in from high overhead */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 1, sunX: 50, sunY: -5, mistCount: 7, mistDensity: 1 };
     let atmoStore = { global: {}, chapters: {} };
     try {
       const saved = localStorage.getItem('polymachy-atmo');
@@ -1511,6 +1514,7 @@
             puff.style.setProperty('--dur', (20 + Math.random() * 24).toFixed(1) + 's');
             puff.style.setProperty('--delay', '-' + (Math.random() * 44).toFixed(1) + 's');
             puff.style.setProperty('--drift', Math.round(Math.random() * 280 - 140) + 'px');
+            puff.style.setProperty('--density', Math.min(0.9, (0.5 + Math.random() * 0.35) * cfg.mistDensity).toFixed(2));
             puff.style.setProperty('--peak', Math.min(0.9, (0.3 + Math.random() * 0.35) * cfg.mistDensity).toFixed(2));
             puff.style.setProperty('--peak2', Math.min(0.8, (0.12 + Math.random() * 0.3) * cfg.mistDensity).toFixed(2));
             atmo.insertBefore(puff, canvas);
@@ -1520,13 +1524,16 @@
 
         // god rays: beams from a sun point, each fading in/out on its
         // own random cycle so they never appear all at once
-        const sun = { x: 0.4 + Math.random() * 0.2, y: -0.06 };
         const off = document.createElement('canvas');   // quarter-res, upscaled for softness
         const octx = off.getContext('2d');
 
         function makeRay(now) {
+          // the higher the sun sits above the screen, the narrower the
+          // fan, so distant rays arrive near-parallel
+          const high = Math.max(0, -cfg.sunY / 100);
+          const fan = 32 / (1 + high * 1.5);
           return {
-            ang: (58 + Math.random() * 64) * Math.PI / 180,   // downward fan
+            ang: (90 - fan + Math.random() * fan * 2) * Math.PI / 180,
             spread: (1.2 + Math.random() * 3.2) * Math.PI / 180,
             born: now + Math.random() * 7,                    // quiet gap before it breaks through
             dur: 7 + Math.random() * 12,
@@ -1551,8 +1558,8 @@
         function drawRays(now) {
           const ow = off.width, oh = off.height;
           octx.clearRect(0, 0, ow, oh);
-          const sx = sun.x * ow, sy = sun.y * oh;
-          const len = Math.hypot(ow, oh) * 1.4;
+          const sx = (cfg.sunX / 100) * ow, sy = (cfg.sunY / 100) * oh;
+          const len = Math.hypot(ow, oh) * 1.4 + Math.max(0, -sy);
           octx.globalCompositeOperation = 'lighter';
           let glow = 0;
           for (const r of rays) {
@@ -1650,7 +1657,12 @@
         atmospheres.push({
           el: atmo.parentElement,
           id: chapterId,
-          applyConfig() { cfg = effectiveCfg(chapterId); buildRays(); buildMist(); },
+          applyConfig() {
+            cfg = effectiveCfg(chapterId);
+            rays.length = 0;       // re-aim every beam at the new sun position
+            buildRays();
+            buildMist();
+          },
           start() { if (!raf) raf = requestAnimationFrame(frame); },
           stop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
         });
@@ -1698,6 +1710,10 @@
             '<input type="range" id="tRayCount" min="0" max="14" step="1"></label>' +
           '<label>God rays — strength <span id="vRayBrightness"></span>' +
             '<input type="range" id="tRayBrightness" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Sun — across (%) <span id="vSunX"></span>' +
+            '<input type="range" id="tSunX" min="0" max="100" step="1"></label>' +
+          '<label>Sun — height (% &uarr;) <span id="vSunY"></span>' +
+            '<input type="range" id="tSunY" min="-150" max="30" step="1"></label>' +
           '<label>Mist — patches <span id="vMistCount"></span>' +
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
@@ -1708,7 +1724,7 @@
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'MistCount', 'MistDensity'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'MistCount', 'MistDensity'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
