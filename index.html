@@ -184,7 +184,12 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      /* still painting shows until the loop can play, then crossfade */
+      opacity: 0;
+      transition: opacity 1.5s ease;
     }
+
+    .bg-video.ready { opacity: 1; }
 
     /* ── ATMOSPHERE (steam, dust, god rays) ── */
     .atmosphere {
@@ -245,9 +250,10 @@
     }
 
     .hero-bg .bg-art {
-      background-image: url('hero.png');
-      /* contain at every aspect ratio: the artwork's painted-in frame,
-         tagline and logo must never be cropped */
+      background-image: url('CLEAN_HERO.png');
+      /* contain at every aspect ratio: the artwork must never be
+         cropped or it would drift out of register with the frame/logo
+         overlay layered on top */
       background-size: contain;
       background-position: center center;
       background-repeat: no-repeat;
@@ -256,13 +262,31 @@
       animation: none;
     }
 
+    /* the hero loop must match the still's contain fit so it stays in
+       register with the frame/logo overlay */
+    .hero-bg .bg-video { object-fit: contain; }
+
+    /* owner-supplied frame line + logo (Logo_Overlay.png, 1920x1080
+       RGBA) layered over the clean artwork and loop; identical contain
+       fit keeps it pixel-registered with both at any viewport size.
+       Painted before .hero-bg::after so the gradient grades it exactly
+       like the old baked-in frame. */
+    .hero-bg .frame-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
     /* cinematic letterbox fill: a blurred, darkened extension of the
        painting covers any bars left by contain, so the screen is always
        full edge-to-edge while the sharp art stays uncropped */
     .hero-bg .bg-fill {
       position: absolute;
       inset: -4%;
-      background-image: url('hero.png');
+      background-image: url('CLEAN_HERO.png');
       background-size: cover;
       background-position: center;
       filter: blur(26px) brightness(0.55) saturate(1.1);
@@ -1052,7 +1076,7 @@
 
   <!-- CHAPTER · HERO -->
   <section id="home" class="chapter chapter--full">
-    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"></div></div>
+    <div class="hero-bg"><div class="bg-fill"></div><div class="bg-art"></div><img class="frame-overlay" src="Logo_Overlay.png" alt=""></div>
 
     <div class="atmosphere" aria-hidden="true">
       <canvas class="atmo-canvas"></canvas>
@@ -1449,18 +1473,19 @@
     onScroll();
 
     /* ── LIVING ATMOSPHERE (slow drift, steam, battle dust, god rays) ──
-       Future upgrade: set a path below to an AI-generated slow-motion
-       loop (e.g. { home: 'hero-loop.mp4' }) and it plays behind the
-       text, with the still painting as instant fallback. */
+       AI-generated slow-motion loops play behind the text, with the
+       still painting as instant fallback while the video loads. */
     const chapterVideoLoops = {
-      'home': null,
+      'home': 'hero-loop.mp4',
       'project-01': null,
       'project-02': null,
       'project-03': null
     };
 
+    const chapterVideos = {};
+
     Object.entries(chapterVideoLoops).forEach(([id, src]) => {
-      if (!src) return;
+      if (!src || reducedMotion) return;
       const art = document.querySelector('#' + id + ' .bg-art');
       const video = document.createElement('video');
       video.muted = true;
@@ -1470,7 +1495,9 @@
       video.setAttribute('playsinline', '');
       video.src = src;
       video.className = 'bg-video';
+      video.addEventListener('canplay', () => video.classList.add('ready'), { once: true });
       art.appendChild(video);
+      chapterVideos[id] = video;
     });
 
     /* tunable atmosphere settings — these are the site-wide defaults;
@@ -1481,11 +1508,12 @@
        rays appear to break in from high overhead;
        sunAngle: tilt of the beams in degrees from vertical (negative
        leans the light toward the left, positive toward the right) */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1 };
+    /* loopSpeed: playbackRate of the chapter's video loop (1 = as rendered) */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1, loopSpeed: 1 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
-      'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8 },
+      'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8, loopSpeed: 0.6 },
       'project-01': { rayBrightness: 1, sunX: 96, sunY: -35, sunAngle: 56 },
       'project-02': { rayBrightness: 0.75, sunX: 3, sunY: -93, sunAngle: -24 },
       'project-03': { rayBrightness: 1, sunX: 16, sunY: -30, sunAngle: -34 }
@@ -1500,6 +1528,13 @@
       return Object.assign({}, ATMO_DEFAULTS, ATMO_CHAPTER_DEFAULTS[id] || {},
         atmoStore.global, (atmoStore.chapters || {})[id] || {});
     }
+
+    function applyLoopSpeeds() {
+      Object.entries(chapterVideos).forEach(([id, video]) => {
+        video.playbackRate = effectiveCfg(id).loopSpeed;
+      });
+    }
+    applyLoopSpeeds();
 
     const atmospheres = [];
 
@@ -1736,13 +1771,15 @@
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
             '<input type="range" id="tMistDensity" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Loop — speed (&times;) <span id="vLoopSpeed"></span>' +
+            '<input type="range" id="tLoopSpeed" min="0.1" max="2" step="0.05"></label>' +
           '<div class="tuner-row">' +
             '<button id="tunerCopy">Copy settings</button>' +
             '<button id="tunerReset">Reset</button>' +
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity', 'LoopSpeed'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
@@ -1765,6 +1802,7 @@
         function persistAndApply() {
           try { localStorage.setItem('polymachy-atmo', JSON.stringify(atmoStore)); } catch (e) {}
           atmospheres.forEach(a => a.applyConfig());
+          applyLoopSpeeds();
         }
 
         fields.forEach(f => {
