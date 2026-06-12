@@ -33,6 +33,13 @@ painting stays as the instant fallback; wiring + CSS already done).
   given specific creative direction in an earlier session and this
   attempt ignored it. Treat the current `hero-loop.mp4` as a
   placeholder to be replaced.
+- **2026-06-12 v2 (NEARLY approved):** regenerated 6s from the
+  direction below; owner liked it except for two running shadow
+  figures the model invented in the background. v3 spec: re-render at
+  10s with the background silhouettes explicitly motionless (nothing
+  runs/charges/crosses, no new figures), plus whole animation slowed
+  40% — implemented as baked `loopSpeed: 0.6` default for the home
+  chapter (slider still overrides).
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
