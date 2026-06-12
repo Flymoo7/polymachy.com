@@ -1467,6 +1467,8 @@
       'project-03': null
     };
 
+    const chapterVideos = {};
+
     Object.entries(chapterVideoLoops).forEach(([id, src]) => {
       if (!src || reducedMotion) return;
       const art = document.querySelector('#' + id + ' .bg-art');
@@ -1480,6 +1482,7 @@
       video.className = 'bg-video';
       video.addEventListener('canplay', () => video.classList.add('ready'), { once: true });
       art.appendChild(video);
+      chapterVideos[id] = video;
     });
 
     /* tunable atmosphere settings — these are the site-wide defaults;
@@ -1490,7 +1493,8 @@
        rays appear to break in from high overhead;
        sunAngle: tilt of the beams in degrees from vertical (negative
        leans the light toward the left, positive toward the right) */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1 };
+    /* loopSpeed: playbackRate of the chapter's video loop (1 = as rendered) */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1, loopSpeed: 1 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
@@ -1509,6 +1513,13 @@
       return Object.assign({}, ATMO_DEFAULTS, ATMO_CHAPTER_DEFAULTS[id] || {},
         atmoStore.global, (atmoStore.chapters || {})[id] || {});
     }
+
+    function applyLoopSpeeds() {
+      Object.entries(chapterVideos).forEach(([id, video]) => {
+        video.playbackRate = effectiveCfg(id).loopSpeed;
+      });
+    }
+    applyLoopSpeeds();
 
     const atmospheres = [];
 
@@ -1745,13 +1756,15 @@
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
             '<input type="range" id="tMistDensity" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Loop — speed (&times;) <span id="vLoopSpeed"></span>' +
+            '<input type="range" id="tLoopSpeed" min="0.1" max="2" step="0.05"></label>' +
           '<div class="tuner-row">' +
             '<button id="tunerCopy">Copy settings</button>' +
             '<button id="tunerReset">Reset</button>' +
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity', 'LoopSpeed'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
@@ -1774,6 +1787,7 @@
         function persistAndApply() {
           try { localStorage.setItem('polymachy-atmo', JSON.stringify(atmoStore)); } catch (e) {}
           atmospheres.forEach(a => a.applyConfig());
+          applyLoopSpeeds();
         }
 
         fields.forEach(f => {

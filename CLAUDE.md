@@ -34,12 +34,34 @@ painting stays as the instant fallback; wiring + CSS already done).
   attempt ignored it. Treat the current `hero-loop.mp4` as a
   placeholder to be replaced.
 
-### Owner's creative direction (authoritative — fill in / keep updated)
+### Owner's creative direction (authoritative — restated 2026-06-12)
 
-> TODO: the owner's original direction was lost with a previous
-> session. When the owner restates it, record it here VERBATIM
-> (expected motion, mood, exact prompt wording if given, model
-> preference, what past attempts got wrong) and follow it exactly.
+Recorded verbatim from the owner:
+
+> Maintaining the original painterly effect of the hero image - I want
+> this to be a subtle, slo-mo fx of the 4 main characters defending
+> their position. Character 1 - knight on bended knee should be
+> struggling to raise his broken sword whilst maintaining his balance,
+> make sure the arrow in his right should stays fixed in place and
+> doesnt become attached to the broken sword. Character 2 - bearded
+> knight brings his sword to full height in anticipation of thrusting
+> a crushing downwards blow into an unforeseen foe. Character 3 -
+> female knight preparing to slash at the charging oncoming enemy, as
+> she slashes her shield arm moves with the general motion and the
+> shield remains firmly fixed to her atm. Character 4 - elf knight
+> raises shield against arrows whilst brandishing his mace. The shadow
+> characters in the background should be seen to hover waiting to
+> attack. There should be NO sparks or explosions in the background,
+> no trailing leaves being blown across the screen by an unseen wind.
+> This requires a 6 second looping animation whose speed can be
+> tweaked with a slider similar to the god-ray sliders recently
+> created.
+
+Notes: character numbering is left to right in `hero.png` (1 kneeling
+knight, 2 bearded knight, 3 female knight, 4 elf knight with shield).
+The painted white frame line and POLYMACHY logo must stay perfectly
+static. Loop speed slider = video `playbackRate` control in the ?tune
+panel.
 
 ## Other chapters
 
