@@ -70,6 +70,16 @@ painting stays as the instant fallback; wiring + CSS already done).
   first ~2.5s — same failure mirrored. Repo still holds v6.
   Next idea if re-rolling: rephrase so only the painting's
   EXISTING mist slides right and no new mist/smoke is ever added.
+- **2026-06-12 v8 (committed, pending owner verdict):** owner also
+  rejected v7's elf knight (moved too much, mace changed shape).
+  v8: elf knight stands fixed to the spot, mace held high waiting
+  to strike, subtlest movement only, mace never changes shape;
+  mist rephrased per the "existing mist only slides left→right,
+  no new mist ever created" idea. Frame check: all four knights
+  clean (elf mace consistent in crops), no dense plume, but the
+  left-side mist still brightens/gathers around the midpoint —
+  flagged to owner as softer-but-present. If rejected again,
+  consider dropping mist motion from the prompt entirely.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
