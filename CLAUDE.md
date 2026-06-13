@@ -197,6 +197,25 @@ Omnibus chapter (`chapterVideoLoops['project-01']`).
   sunAngle 50, mistDensity 1.5` are now the chapter defaults
   (replaced the previous ray values; ~17s perceived loop).
 
+## Bear loop task — status
+
+Goal: a subtle 6s loop of `Bear_Claude.png` behind the Omni Matrix
+chapter (`chapterVideoLoops['project-02']`). Owner direction: the
+bear has ALREADY struck (paw only follows through, never strikes
+again), the airborne elf keeps falling backwards (arms/legs/head
+trail), the head-blood keeps travelling, all slo-mo subtle,
+painterly preserved. Owner deleted `bear.jpg` on main →
+`#project-02 .bg-art` switched to `Bear_Claude.png` (committed).
+
+- **2026-06-13 v1 (REJECTED by Claude's check, NOT committed, owner
+  reviewing):** mid-loop (~3s) the elf LANDS and stands upright
+  facing the bear before easing back to airborne — the same
+  start/end frame return path routed through "standing". If
+  re-rolling: add "the elf remains airborne in EVERY frame, his
+  feet never touch the ground", clamp amplitudes ("each movement
+  only a few centimetres"), and consider repeating the never-lands
+  language twice.
+
 ## Other chapters
 
 `project-02`–`project-03` have `null` entries in `chapterVideoLoops`
