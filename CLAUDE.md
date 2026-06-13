@@ -342,10 +342,16 @@ Each project's "Learn More →" links to a standalone page:
 - Playback (index.html, IIFE at end of the main `<script>`): **Web
   Audio API** decodes the buffer and loops it (sample-accurate/gapless,
   unlike `<audio loop>` which honours the codec padding). Starts on the
-  **first user gesture** (browsers block audio autoplay) at 0.5 gain
+  **first user gesture** (browsers block audio autoplay) at **0.25 gain**
   with a 1.5s fade-in. A round **`.music-toggle`** button (bottom-left,
   speaker icon) mutes/unmutes; choice persisted in localStorage
   (`polymachy-music`). Suspends the context when the tab is hidden.
+- **2026-06-13 (owner tweaks):** gain lowered 0.5 → **0.25**; the
+  kick-off gesture list (`KICK_EVENTS`) gained `wheel`, `touchmove`
+  and `scroll` so scrolling starts the music too. NB a bare `scroll`
+  event does not grant audio activation by itself — `wheel`/`touchmove`
+  (the gestures that cause scrolling) are the ones that actually unlock
+  the AudioContext.
 - SCOPED to `index.html` only. The product subpages reload on
   navigation, so site-wide music would restart each time — not added
   there. To regenerate the loop, see the build steps in this entry

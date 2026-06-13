@@ -1980,7 +1980,7 @@
       if (!toggle || !(window.AudioContext || window.webkitAudioContext)) return;
 
       const SOURCES = ['audio/medieval-loop.ogg', 'audio/medieval-loop.mp3'];
-      const TARGET_GAIN = 0.5;
+      const TARGET_GAIN = 0.25;
       const STORE_KEY = 'polymachy-music';
       let ctx, gain, source, buffer, started = false, starting = false, kicked = false;
       let enabled = localStorage.getItem(STORE_KEY) !== 'off';
@@ -2053,16 +2053,19 @@
       });
 
       /* first gesture anywhere kicks off playback (autoplay policy);
-         ignore the toggle itself so its own handler stays in control */
+         ignore the toggle itself so its own handler stays in control.
+         `wheel`/`touchmove` cover scrolling — a bare `scroll` event does
+         not grant audio activation on its own, but the gesture that
+         causes it does, so we listen for those too. */
+      const KICK_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'touchmove', 'scroll'];
       function kick(e) {
         if (kicked) return;
         if (e && e.target && e.target.closest && e.target.closest('#musicToggle')) return;
         kicked = true;
-        ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.removeEventListener(ev, kick));
+        KICK_EVENTS.forEach(ev => window.removeEventListener(ev, kick));
         if (enabled) start();
       }
-      ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
-        window.addEventListener(ev, kick, { passive: true }));
+      KICK_EVENTS.forEach(ev => window.addEventListener(ev, kick, { passive: true }));
 
       /* save CPU while the tab is hidden */
       document.addEventListener('visibilitychange', () => {
