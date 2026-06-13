@@ -323,6 +323,34 @@ Each project's "Learn More →" links to a standalone page:
   (charactersheet still has a dead `.tenets-overlay` CSS block from
   the old overlay design — unreferenced, left in place.)
 
+## Background music
+
+- **2026-06-13:** owner supplied `medieval_magic.mp3` (~6 min) and
+  asked for a looping background track of ~the first 25s, prioritising
+  a clean loop over the exact length. Analysis (numpy/scipy, ffmpeg)
+  found the track is 120 BPM (2s bars); the cleanest loop point near
+  25s is exactly **24.000s = 12 bars** (highest seam cross-correlation,
+  lands on a downbeat). Built a seamless loop with a baked **0.75s
+  equal-power crossfade** that overlaps the decaying tail
+  (`original[L:L+C]`) back over the head, so at the wrap the audio is
+  the exact natural continuation (verified `final[0]==orig[L]`), then
+  crossfades into the head — removes the 0.14 hard-cut click.
+- Encoded to `audio/medieval-loop.ogg` (Vorbis q5, ~414KB, primary —
+  no encoder-delay so it loops gaplessly) and `audio/medieval-loop.mp3`
+  (160k, ~471KB, fallback). The MP3 is 24.048s — the +48ms is MP3
+  padding, exactly why OGG is preferred.
+- Playback (index.html, IIFE at end of the main `<script>`): **Web
+  Audio API** decodes the buffer and loops it (sample-accurate/gapless,
+  unlike `<audio loop>` which honours the codec padding). Starts on the
+  **first user gesture** (browsers block audio autoplay) at 0.5 gain
+  with a 1.5s fade-in. A round **`.music-toggle`** button (bottom-left,
+  speaker icon) mutes/unmutes; choice persisted in localStorage
+  (`polymachy-music`). Suspends the context when the tab is hidden.
+- SCOPED to `index.html` only. The product subpages reload on
+  navigation, so site-wide music would restart each time — not added
+  there. To regenerate the loop, see the build steps in this entry
+  (work WAV → `/tmp/build_loop.py` → ffmpeg encode).
+
 ## Other chapters
 
 `project-02`–`project-03` have `null` entries in `chapterVideoLoops`
