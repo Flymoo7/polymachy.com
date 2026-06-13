@@ -92,6 +92,23 @@ painting stays as the instant fallback; wiring + CSS already done).
   read “COMBAT COPILOT” — owner re-uploaded the corrected
   POLYMACHY version (gold wordmark, verified) and it's on the
   branch; no code change was needed.
+- **2026-06-12 PR #11 merged by owner** (loop v8 + overlay + 0.6x).
+  Owner reviewed it live and rejected v8: kneeling knight drops his
+  sword by the hilt and regrips it by the blade; bearded knight too
+  exaggerated vs the other three; drifting mist too distracting.
+  Also: god-rays painted across the letterbox bars on non-16:9
+  screens — fixed in code by clipping `#home .atmosphere` to the
+  same 16:9 contain box as the artwork (aspect-ratio + max
+  constraints, margin auto centering).
+- **2026-06-13 v9 (committed, pending owner verdict):** kneeling
+  knight now stays fixed and only hangs his head through weariness
+  (hands/sword never move); bearded knight holds his sword aloft
+  nearly still (never swings/thrusts/lowers); mist motion removed
+  from the prompt entirely — mist stays ambient, page CSS mist +
+  god-rays carry the atmosphere. Female knight + elf knight kept
+  word-for-word from v8. 6s, fresh seed; frame check incl.
+  kneeling-knight crops passed (head sinks, all else locked).
+  Needs a fresh PR to go live (post-#11 commits).
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
