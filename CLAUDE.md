@@ -230,6 +230,18 @@ painterly preserved. Owner deleted `bear.jpg` on main →
   canvas grain in EVERY frame, muted desaturated palette; NOT
   photorealistic, NOT 3D, NOT CGI, no glossy realism" up front and
   reinforced; consider lower CRF won't help (it's the model).
+- **2026-06-13 v3 (COMMITTED, pending owner verdict):** kept the
+  un-anchored one-way motion AND added a heavy painterly style lock
+  (front + back of prompt: "flat 2D oil painting on aged cracked
+  canvas, brushstrokes + canvas grain in EVERY frame, NOT photoreal/
+  3D/CGI"). Style HELD across all frames (grain/brushwork preserved,
+  muted palette); motion correct (elf flies back and away, blood
+  travels with head, bear leans forward, sword/shield fly off).
+  Wired into `chapterVideoLoops['project-02']`. NOTE: one-way =
+  no seamless loop, so there is a visible cut when it restarts
+  (elf travels a fair distance) — flagged to owner; a slower baked
+  loopSpeed softens the cadence. No project-02 loopSpeed baked yet
+  (owner may send tuner settings as for project-01).
 
 ## Other chapters
 
