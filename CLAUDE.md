@@ -120,6 +120,18 @@ painting stays as the instant fallback; wiring + CSS already done).
   box via min(vw,vh) so no font changes were needed. Owner sent
   tuner export `{"global":{"loopSpeed":0.3}}` — baked as the home
   chapter default (now 0.3, was 0.6; ~20s perceived loop).
+- **2026-06-13 hero hugs artwork + About moved (PR #14):** owner
+  still saw bars (the blurred .bg-fill's painted sky-rays) and the
+  fixed POLYMACHY nav title floating "off picture". Owner chose
+  "hero hugs the artwork" over cinematic black bars: `#home` height
+  now tracks the painting's 16:9 contain height (CSS
+  `min(100vh, max(56.25vw, 60vh))`, refined to exact px in
+  fitHeroLayers since 100vw counts the scrollbar). No bars on
+  squarer-than-16:9 screens; About peeks below; 60vh floor means
+  slim bands persist on portrait phones; .bg-fill dimmed
+  brightness 0.55→0.32 for those cases. About Us section moved to
+  slot 2 (after hero, before the three project chapters); nav dots
+  reordered and hero scroll cue now targets #about.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
