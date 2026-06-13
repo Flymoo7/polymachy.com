@@ -178,6 +178,16 @@
       to   { transform: scale(1.09); }
     }
 
+    /* stronger drift for the static project paintings (no video loop) —
+       more zoom plus a gentle horizontal pan so the still feels alive;
+       starts slightly zoomed so the pan never reveals an edge, and the
+       top stays anchored (transform-origin: top center) so it isn't
+       cropped */
+    @keyframes kenburns-project {
+      from { transform: scale(1.03) translateX(0); }
+      to   { transform: scale(1.20) translateX(-2.5%); }
+    }
+
     .bg-video {
       position: absolute;
       inset: 0;
@@ -442,7 +452,15 @@
 
     .project-bg .bg-art { background-position: center top; }
     #project-01 .bg-art { background-image: url('Archer_Claude.png'); }
-    #project-02 .bg-art { background-image: url('bear.jpg'); }
+    /* bear chapter has no video loop — stronger Ken Burns drift gives the
+       static painting life; longhands only, so the base rule's paused /
+       .chapter.live running play-state control is preserved (the
+       shorthand would reset it) */
+    #project-02 .bg-art {
+      background-image: url('Bear_Claude.png');
+      animation-name: kenburns-project;
+      animation-duration: 30s;
+    }
     #project-03 .bg-art { background-image: url('ogre.jpg'); }
 
     .project-content {

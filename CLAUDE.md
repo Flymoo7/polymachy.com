@@ -197,10 +197,86 @@ Omnibus chapter (`chapterVideoLoops['project-01']`).
   sunAngle 50, mistDensity 1.5` are now the chapter defaults
   (replaced the previous ray values; ~17s perceived loop).
 
+## Bear loop task — status
+
+Goal: a subtle 6s loop of `Bear_Claude.png` behind the Omni Matrix
+chapter (`chapterVideoLoops['project-02']`). Owner direction: the
+bear has ALREADY struck (paw only follows through, never strikes
+again), the airborne elf keeps falling backwards (arms/legs/head
+trail), the head-blood keeps travelling, all slo-mo subtle,
+painterly preserved. Owner deleted `bear.jpg` on main →
+`#project-02 .bg-art` switched to `Bear_Claude.png` (committed).
+
+- **2026-06-13 v1 (REJECTED by Claude's check, NOT committed, owner
+  reviewing):** mid-loop (~3s) the elf LANDS and stands upright
+  facing the bear before easing back to airborne — the same
+  start/end frame return path routed through "standing". If
+  re-rolling: add "the elf remains airborne in EVERY frame, his
+  feet never touch the ground", clamp amplitudes ("each movement
+  only a few centimetres"), and consider repeating the never-lands
+  language twice.
+- **2026-06-13 v2 (REJECTED by Claude's check, NOT committed):**
+  dropped the `last_image` end anchor to allow one-way forward
+  motion. MOTION fixed — elf flies backwards and away (never
+  dragged back), feet never touch ground, blood travels with his
+  head, bear leans weight forward (no backstep). BUT the painterly
+  oil texture DRIFTED to glossy photoreal CGI partway through
+  (realistic fur/metal/sky) — fails artistic integrity. Root
+  cause: the end anchor was also holding the painterly STYLE, not
+  just position. So anchored = motion reversal (v1),
+  un-anchored = style drift (v2). v3 plan: stay un-anchored
+  (motion was right) and hammer the style lock — "flat 2D oil
+  painting on aged cracked canvas, heavy visible brushstrokes and
+  canvas grain in EVERY frame, muted desaturated palette; NOT
+  photorealistic, NOT 3D, NOT CGI, no glossy realism" up front and
+  reinforced; consider lower CRF won't help (it's the model).
+- **2026-06-13 v3 (COMMITTED, pending owner verdict):** kept the
+  un-anchored one-way motion AND added a heavy painterly style lock
+  (front + back of prompt: "flat 2D oil painting on aged cracked
+  canvas, brushstrokes + canvas grain in EVERY frame, NOT photoreal/
+  3D/CGI"). Style HELD across all frames (grain/brushwork preserved,
+  muted palette); motion correct (elf flies back and away, blood
+  travels with head, bear leans forward, sword/shield fly off).
+  Wired into `chapterVideoLoops['project-02']`. NOTE: one-way =
+  no seamless loop, so there is a visible cut when it restarts
+  (elf travels a fair distance) — flagged to owner; a slower baked
+  loopSpeed softens the cadence. No project-02 loopSpeed baked yet
+  (owner may send tuner settings as for project-01).
+- **2026-06-13 v4 (REJECTED by Claude's check, NOT committed):**
+  the "suspended-moment" micro-motion plan — end anchor restored,
+  v3 style lock kept, every element told to move only a few inches
+  and ease back. FAILED on both counts: the painterly oil style
+  drifted hard to glossy photoreal CGI by ~1.5s (worse than v2),
+  and the elf showed large central displacement/blur by the end.
+  The model will not respect the micro-motion clamp on this scene;
+  it escalates to photoreal action regardless. Pattern across all
+  four: anchored→motion reversal (v1); un-anchored + LARGE motion +
+  heavy style lock→correct (v3, the only good one); un-anchored or
+  anchored + SMALL motion→style drift (v2, v4). The bear scene only
+  holds its style when given permission to animate freely (large
+  displacement), which forces a visible restart cut.
+- **2026-06-13 BEAR LOOP DROPPED (owner decision):** owner chose to
+  abandon the video loop entirely rather than ship v3's visible
+  restart cut — "no loop beats a bad loop." `chapterVideoLoops
+  ['project-02']` set back to `null`; `bear-loop.mp4` (the v3 file)
+  deleted from the repo. `#project-02 .bg-art` keeps the static
+  `Bear_Claude.png`. To compensate, the project chapters' Ken Burns
+  drift was AMPED UP: new `kenburns-project` keyframe (scale
+  1.03→1.20 plus a -2.5% horizontal pan, 30s) applied to
+  `#project-02 .bg-art` via longhands (`animation-name` +
+  `animation-duration`) so the base rule's paused / `.chapter.live`
+  running play-state control is preserved. Was scale 1→1.09 over
+  36s with no pan. SCOPED to the bear chapter only — project-01
+  (archer, still has a video loop) and project-03 (ogre) keep the
+  original subtle 1.09/36s drift, since amping the archer would
+  over-zoom its playing video. If the owner wants the stronger
+  drift everywhere, move the override to `.project-bg .bg-art`.
+
 ## Other chapters
 
 `project-02`–`project-03` have `null` entries in `chapterVideoLoops`
 and the same `.bg-video` slot, ready for loops if the owner asks.
-Note: the project chapters' `.bg-art` runs the kenburns drift, so a
-chapter video inherits the slow zoom from its parent (the hero's
-bg-art has `animation: none`, so the hero loop does not).
+Note: the project chapters' `.bg-art` runs the (now amped)
+kenburns-project drift, so any future chapter video inherits the
+slow zoom from its parent (the hero's bg-art has `animation: none`,
+so the hero loop does not).
