@@ -108,7 +108,18 @@ painting stays as the instant fallback; wiring + CSS already done).
   god-rays carry the atmosphere. Female knight + elf knight kept
   word-for-word from v8. 6s, fresh seed; frame check incl.
   kneeling-knight crops passed (head sinks, all else locked).
-  Needs a fresh PR to go live (post-#11 commits).
+  Shipped via PR #12 with the first letterbox fix attempt.
+- **2026-06-13 letterbox fix v2 + tuned speed:** the pure-CSS
+  aspect-ratio clip in PR #12 didn't work (with inset:0 an abspos
+  box takes height from the insets and IGNORES aspect-ratio), so
+  god-rays still painted the bars and the frame line cut through
+  the taglines on non-16:9 screens. Replaced with `fitHeroLayers()`
+  JS: sizes `#home .atmosphere` AND `.hero-tagline-wrap` to the
+  artwork's 16:9 contain rect on load/resize (registered before the
+  canvas resize handlers). Tagline font clamps already track the
+  box via min(vw,vh) so no font changes were needed. Owner sent
+  tuner export `{"global":{"loopSpeed":0.3}}` — baked as the home
+  chapter default (now 0.3, was 0.6; ~20s perceived loop).
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 

@@ -280,19 +280,10 @@
       pointer-events: none;
     }
 
-    /* the hero atmosphere (god rays, mist, dust) clips to the same
-       16:9 contain box as the artwork/loop/overlay, so the effects
-       only ever play across the painting — never the letterbox fill
-       bars that appear on non-16:9 screens. max-width/max-height
-       transfer through the aspect-ratio, giving the contain fit. */
-    #home .atmosphere {
-      inset: 0;
-      margin: auto;
-      width: 100%;
-      max-width: 100%;
-      max-height: 100%;
-      aspect-ratio: 16 / 9;
-    }
+    /* the hero atmosphere and taglines are sized to the artwork's 16:9
+       contain box by fitHeroLayers() (JS): with inset:0 an abspos box
+       takes its height from the insets and ignores aspect-ratio, so a
+       pure-CSS contain rect is not possible here */
 
     /* cinematic letterbox fill: a blurred, darkened extension of the
        painting covers any bars left by contain, so the screen is always
@@ -1527,7 +1518,7 @@
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
-      'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8, loopSpeed: 0.6 },
+      'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8, loopSpeed: 0.3 },
       'project-01': { rayBrightness: 1, sunX: 96, sunY: -35, sunAngle: 56 },
       'project-02': { rayBrightness: 0.75, sunX: 3, sunY: -93, sunAngle: -24 },
       'project-03': { rayBrightness: 1, sunX: 16, sunY: -30, sunAngle: -34 }
@@ -1549,6 +1540,30 @@
       });
     }
     applyLoopSpeeds();
+
+    /* hero layers (god-ray/mist atmosphere + taglines) must track the
+       artwork's 16:9 contain box so the rays never spill onto the
+       letterbox bars and the text keeps its designed position relative
+       to the painted frame on every screen shape */
+    const heroChapter = document.getElementById('home');
+    function fitHeroLayers() {
+      const w = heroChapter.clientWidth, h = heroChapter.clientHeight;
+      const scale = Math.min(w / 16, h / 9);
+      const boxW = Math.round(scale * 16), boxH = Math.round(scale * 9);
+      const left = Math.round((w - boxW) / 2), top = Math.round((h - boxH) / 2);
+      heroChapter.querySelectorAll('.atmosphere, .hero-tagline-wrap').forEach(el => {
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.width = boxW + 'px';
+        el.style.height = boxH + 'px';
+      });
+    }
+    fitHeroLayers();
+    /* registered before the atmosphere canvases' own resize handlers
+       so the canvas reads the already-fitted box size */
+    window.addEventListener('resize', fitHeroLayers);
 
     const atmospheres = [];
 
