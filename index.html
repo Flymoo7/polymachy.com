@@ -59,6 +59,33 @@
 
     .site-logo span { color: var(--accent); }
 
+    /* ── BACKGROUND MUSIC TOGGLE ── */
+    .music-toggle {
+      position: fixed;
+      bottom: 1.6rem; left: 2.5rem;
+      z-index: 200;
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      border: 1px solid rgba(245,244,240,0.3);
+      background: rgba(10,10,10,0.45);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      transition: border-color 0.25s, transform 0.25s, color 0.25s;
+    }
+    .music-toggle:hover { border-color: var(--accent); transform: scale(1.08); }
+    .music-toggle svg { width: 18px; height: 18px; display: block; }
+    .music-toggle .icon-off { display: none; }
+    .music-toggle.is-muted { color: rgba(245,244,240,0.5); }
+    .music-toggle.is-muted .icon-on { display: none; }
+    .music-toggle.is-muted .icon-off { display: block; }
+    @media (max-width: 600px) {
+      .music-toggle { bottom: 1rem; left: 1rem; width: 38px; height: 38px; }
+    }
+
     /* ── SIDE CHAPTER NAVIGATION ── */
     .chapter-nav {
       position: fixed;
@@ -1116,6 +1143,20 @@
   <!-- FIXED LOGO -->
   <a href="#home" class="site-logo">POLY<span>MACHY</span></a>
 
+  <!-- BACKGROUND MUSIC TOGGLE -->
+  <button id="musicToggle" class="music-toggle is-muted" type="button" aria-label="Play background music" aria-pressed="false">
+    <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+      <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+      <path d="M18.8 5.5a9 9 0 0 1 0 13"/>
+    </svg>
+    <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+      <line x1="22" y1="9" x2="16" y2="15"/>
+      <line x1="16" y1="9" x2="22" y2="15"/>
+    </svg>
+  </button>
+
   <!-- SIDE CHAPTER NAVIGATION -->
   <nav class="chapter-nav" id="chapterNav" aria-label="Sections">
     <a href="#home" data-chapter="home"><span class="dot-label">Home</span></a>
@@ -1925,6 +1966,111 @@
         refreshInputs();
       }
     }
+
+    /* ── BACKGROUND MUSIC ──────────────────────────────────────────────
+       A ~24s medieval loop plays site-wide. Browsers block audio autoplay,
+       so it starts on the first user gesture (or the toggle). Playback uses
+       the Web Audio API looping a decoded buffer, which is sample-accurate
+       and gapless — unlike <audio loop>, which inserts a small gap from the
+       codec's encoder delay. The OGG decodes without that delay (MP3 is a
+       fallback for browsers that can't decode OGG). The user's choice is
+       remembered in localStorage. */
+    (function () {
+      const toggle = document.getElementById('musicToggle');
+      if (!toggle || !(window.AudioContext || window.webkitAudioContext)) return;
+
+      const SOURCES = ['audio/medieval-loop.ogg', 'audio/medieval-loop.mp3'];
+      const TARGET_GAIN = 0.5;
+      const STORE_KEY = 'polymachy-music';
+      let ctx, gain, source, buffer, started = false, starting = false, kicked = false;
+      let enabled = localStorage.getItem(STORE_KEY) !== 'off';
+
+      function setMutedUI(muted) {
+        toggle.classList.toggle('is-muted', muted);
+        toggle.setAttribute('aria-pressed', String(!muted));
+        toggle.setAttribute('aria-label', muted ? 'Play background music' : 'Mute background music');
+      }
+
+      function fadeTo(v, secs) {
+        if (!gain) return;
+        const now = ctx.currentTime;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(v, now + secs);
+      }
+
+      async function decodeFirst(urls) {
+        for (const url of urls) {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) continue;
+            const data = await res.arrayBuffer();
+            return await ctx.decodeAudioData(data);
+          } catch (e) { /* try next source */ }
+        }
+        return null;
+      }
+
+      async function start() {
+        if (started || starting) return;
+        starting = true;
+        try {
+          ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') await ctx.resume();
+          if (!buffer) buffer = await decodeFirst(SOURCES);
+          if (!buffer) { starting = false; return; }
+          gain = ctx.createGain();
+          gain.gain.value = 0;
+          gain.connect(ctx.destination);
+          source = ctx.createBufferSource();
+          source.buffer = buffer;
+          source.loop = true;
+          source.connect(gain);
+          source.start(0);
+          started = true;
+          fadeTo(TARGET_GAIN, 1.5);
+          setMutedUI(false);
+        } catch (e) { /* leave muted */ }
+        starting = false;
+      }
+
+      toggle.addEventListener('click', () => {
+        kicked = true;
+        if (!started) {
+          enabled = true; localStorage.setItem(STORE_KEY, 'on');
+          start();
+          return;
+        }
+        const muted = !toggle.classList.contains('is-muted');
+        if (muted) {
+          fadeTo(0, 0.4); setMutedUI(true);
+          enabled = false; localStorage.setItem(STORE_KEY, 'off');
+        } else {
+          if (ctx && ctx.state === 'suspended') ctx.resume();
+          fadeTo(TARGET_GAIN, 0.6); setMutedUI(false);
+          enabled = true; localStorage.setItem(STORE_KEY, 'on');
+        }
+      });
+
+      /* first gesture anywhere kicks off playback (autoplay policy);
+         ignore the toggle itself so its own handler stays in control */
+      function kick(e) {
+        if (kicked) return;
+        if (e && e.target && e.target.closest && e.target.closest('#musicToggle')) return;
+        kicked = true;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.removeEventListener(ev, kick));
+        if (enabled) start();
+      }
+      ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
+        window.addEventListener(ev, kick, { passive: true }));
+
+      /* save CPU while the tab is hidden */
+      document.addEventListener('visibilitychange', () => {
+        if (!ctx || !started) return;
+        if (document.hidden) ctx.suspend();
+        else if (enabled) ctx.resume();
+      });
+    })();
   </script>
 </body>
 </html>
