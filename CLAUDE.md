@@ -215,6 +215,21 @@ painterly preserved. Owner deleted `bear.jpg` on main →
   feet never touch the ground", clamp amplitudes ("each movement
   only a few centimetres"), and consider repeating the never-lands
   language twice.
+- **2026-06-13 v2 (REJECTED by Claude's check, NOT committed):**
+  dropped the `last_image` end anchor to allow one-way forward
+  motion. MOTION fixed — elf flies backwards and away (never
+  dragged back), feet never touch ground, blood travels with his
+  head, bear leans weight forward (no backstep). BUT the painterly
+  oil texture DRIFTED to glossy photoreal CGI partway through
+  (realistic fur/metal/sky) — fails artistic integrity. Root
+  cause: the end anchor was also holding the painterly STYLE, not
+  just position. So anchored = motion reversal (v1),
+  un-anchored = style drift (v2). v3 plan: stay un-anchored
+  (motion was right) and hammer the style lock — "flat 2D oil
+  painting on aged cracked canvas, heavy visible brushstrokes and
+  canvas grain in EVERY frame, muted desaturated palette; NOT
+  photorealistic, NOT 3D, NOT CGI, no glossy realism" up front and
+  reinforced; consider lower CRF won't help (it's the model).
 
 ## Other chapters
 
