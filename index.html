@@ -452,16 +452,17 @@
 
     .project-bg .bg-art { background-position: center top; }
     #project-01 .bg-art { background-image: url('Archer_Claude.png'); }
-    /* bear chapter has no video loop — stronger Ken Burns drift gives the
-       static painting life; longhands only, so the base rule's paused /
-       .chapter.live running play-state control is preserved (the
+    /* bear + ogre chapters have no video loop — stronger Ken Burns drift
+       gives the static paintings life; longhands only, so the base rule's
+       paused / .chapter.live running play-state control is preserved (the
        shorthand would reset it) */
-    #project-02 .bg-art {
-      background-image: url('Bear_Claude.png');
+    #project-02 .bg-art,
+    #project-03 .bg-art {
       animation-name: kenburns-project;
       animation-duration: 30s;
     }
-    #project-03 .bg-art { background-image: url('ogre.jpg'); }
+    #project-02 .bg-art { background-image: url('Bear_Claude.png'); }
+    #project-03 .bg-art { background-image: url('Ogre_Claude.png'); }
 
     .project-content {
       position: relative;
@@ -1557,7 +1558,7 @@
     const ATMO_CHAPTER_DEFAULTS = {
       'home':       { rayCount: 9, mistCount: 9, mistDensity: 0.8, loopSpeed: 0.3 },
       'project-01': { rayBrightness: 0.8, sunX: 100, sunY: -40, sunAngle: 50, mistDensity: 1.5, loopSpeed: 0.35 },
-      'project-02': { rayBrightness: 0.75, sunX: 3, sunY: -93, sunAngle: -24 },
+      'project-02': { rayBrightness: 1.5, sunX: 0, sunY: -31, sunAngle: -60 },
       'project-03': { rayBrightness: 1, sunX: 16, sunY: -30, sunAngle: -34 }
     };
     let atmoStore = { global: {}, chapters: {} };
