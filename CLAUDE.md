@@ -140,6 +140,15 @@ painting stays as the instant fallback; wiring + CSS already done).
   bright accent lacked contrast on light). `#about .section-rule`
   darkened like merch. 'about' removed from lightChapters so the
   nav/logo stay light over it.
+- **2026-06-13 disciplines panel + dark Contact (PR #16):** owner
+  found the cream disciplines panel too bright → now warm dark-grey
+  #262119, light text, accent-gold list restored. Get In Contact
+  restyled to match the Register Interest interstitial (#immersed):
+  black bg, #1a1a1a top border, light text, dark form fields
+  (#1a1a1a/#2a2a2a, accent focus), submit button now matches
+  .btn-primary (gold bg, black text, white hover). lightChapters
+  is now empty (the whole site is dark; on-light CSS kept for
+  future use).
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 

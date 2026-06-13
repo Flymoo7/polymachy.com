@@ -634,16 +634,17 @@
       padding: 2rem;
     }
 
-    /* inverted against the dark section, as it was against the white */
+    /* warm dark-grey: stands apart from the section without the
+       brightness of the old cream panel */
     .stat-box--disciplines {
-      background: var(--light);
+      background: #262119;
       grid-column: span 3;
       padding: 2rem;
     }
 
     .disciplines-text {
       font-size: 0.82rem;
-      color: rgba(10,10,10,0.75);
+      color: rgba(245,244,240,0.75);
       line-height: 1.7;
       margin-bottom: 1rem;
     }
@@ -661,8 +662,7 @@
       font-size: 0.65rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      /* deepened gold: the bright accent lacks contrast on the light panel */
-      color: #8c6f3f;
+      color: var(--accent);
       padding-left: 1rem;
       position: relative;
       line-height: 1.5;
@@ -672,7 +672,7 @@
       content: '—';
       position: absolute;
       left: 0;
-      color: #8c6f3f;
+      color: var(--accent);
     }
 
     .stat-num {
@@ -692,11 +692,14 @@
     }
 
     /* ── CONTACT ── */
+    /* same treatment as the Register Interest interstitial (#immersed) */
     #contact {
-      background: var(--white);
-      color: var(--black);
-      border-top: 1px solid var(--rule);
+      background: var(--black);
+      color: var(--white);
+      border-top: 1px solid #1a1a1a;
     }
+
+    #contact .section-rule { background: #1e1e1e; }
 
     .contact-grid {
       display: grid;
@@ -706,7 +709,7 @@
 
     .contact-info p {
       font-size: 1.05rem;
-      color: var(--mid);
+      color: rgba(245,244,240,0.7);
       margin-bottom: 2rem;
       line-height: 1.8;
     }
@@ -735,7 +738,7 @@
 
     .contact-item-val {
       font-size: 0.9rem;
-      color: var(--black);
+      color: var(--white);
     }
 
     .contact-form {
@@ -761,18 +764,18 @@
       font-size: 0.65rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--mid);
+      color: rgba(245,244,240,0.55);
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-      background: var(--light);
-      border: 1px solid var(--rule);
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
       padding: 0.85rem 1rem;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.9rem;
-      color: var(--black);
+      color: var(--white);
       outline: none;
       transition: border-color 0.2s;
       resize: none;
@@ -782,18 +785,19 @@
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
-      border-color: var(--black);
+      border-color: var(--accent);
     }
 
     .form-group textarea { height: 120px; }
 
+    /* matches .btn-primary so both dark panels share the same CTA look */
     .form-submit {
       font-family: 'DM Mono', monospace;
       font-size: 0.75rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--white);
-      background: var(--black);
+      color: var(--black);
+      background: var(--accent);
       border: none;
       padding: 1rem 2rem;
       cursor: pointer;
@@ -801,7 +805,7 @@
       align-self: flex-start;
     }
 
-    .form-submit:hover { background: var(--accent); }
+    .form-submit:hover { background: var(--white); }
 
     /* ── MERCH ── */
     #merch {
@@ -1438,7 +1442,7 @@
 
     /* ── ACTIVE CHAPTER DOT ── */
     const navLinks = document.querySelectorAll('#chapterNav a');
-    const lightChapters = ['contact'];
+    const lightChapters = [];
     const chapterObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
