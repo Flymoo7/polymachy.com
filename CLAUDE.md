@@ -266,16 +266,32 @@ painterly preserved. Owner deleted `bear.jpg` on main →
   `#project-02 .bg-art` via longhands (`animation-name` +
   `animation-duration`) so the base rule's paused / `.chapter.live`
   running play-state control is preserved. Was scale 1→1.09 over
-  36s with no pan. SCOPED to the bear chapter only — project-01
-  (archer, still has a video loop) and project-03 (ogre) keep the
-  original subtle 1.09/36s drift, since amping the archer would
-  over-zoom its playing video. If the owner wants the stronger
-  drift everywhere, move the override to `.project-bg .bg-art`.
+  36s with no pan. SCOPED to the static project paintings — at
+  first project-02 only; project-03 (ogre/TEMPUS) added later when
+  the owner chose Ken Burns over a loop for it too (see below).
+  project-01 (archer) keeps the original subtle 1.09/36s drift since
+  amping it would over-zoom its playing video. Selector is
+  `#project-02 .bg-art, #project-03 .bg-art`.
 - **2026-06-13 owner tuner export baked for project-02:**
   `rayBrightness 1.5, sunX 0, sunY -31, sunAngle -60` are now the
   chapter defaults (replaced the previous `0.75 / 3 / -93 / -24`).
   No loopSpeed (chapter is static now). God-rays now break in
   brighter from the top-left.
+
+## TEMPUS loop task — status
+
+Goal was a loop of the ogre painting behind the TEMPUS chapter
+(`project-03`); owner decided up front to SKIP the video loop
+(same style-drift/restart-cut problems as the bear) and use the
+amped Ken Burns drift instead.
+
+- **2026-06-13 (committed):** owner replaced `ogre.jpg` with
+  `Ogre_Claude.png` on main (old file deleted). `#project-03 .bg-art`
+  switched to `Ogre_Claude.png` and added to the `kenburns-project`
+  amped-drift selector alongside the bear. `chapterVideoLoops
+  ['project-03']` stays `null`. project-03's god-ray defaults
+  (`rayBrightness 1, sunX 16, sunY -30, sunAngle -34`) unchanged —
+  owner may send tuner settings later.
 
 ## Other chapters
 

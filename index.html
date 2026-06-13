@@ -452,16 +452,17 @@
 
     .project-bg .bg-art { background-position: center top; }
     #project-01 .bg-art { background-image: url('Archer_Claude.png'); }
-    /* bear chapter has no video loop — stronger Ken Burns drift gives the
-       static painting life; longhands only, so the base rule's paused /
-       .chapter.live running play-state control is preserved (the
+    /* bear + ogre chapters have no video loop — stronger Ken Burns drift
+       gives the static paintings life; longhands only, so the base rule's
+       paused / .chapter.live running play-state control is preserved (the
        shorthand would reset it) */
-    #project-02 .bg-art {
-      background-image: url('Bear_Claude.png');
+    #project-02 .bg-art,
+    #project-03 .bg-art {
       animation-name: kenburns-project;
       animation-duration: 30s;
     }
-    #project-03 .bg-art { background-image: url('ogre.jpg'); }
+    #project-02 .bg-art { background-image: url('Bear_Claude.png'); }
+    #project-03 .bg-art { background-image: url('Ogre_Claude.png'); }
 
     .project-content {
       position: relative;
