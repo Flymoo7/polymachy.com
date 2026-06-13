@@ -120,6 +120,18 @@ painting stays as the instant fallback; wiring + CSS already done).
   box via min(vw,vh) so no font changes were needed. Owner sent
   tuner export `{"global":{"loopSpeed":0.3}}` — baked as the home
   chapter default (now 0.3, was 0.6; ~20s perceived loop).
+- **2026-06-13 hero crossfade removed:** owner saw a "definite
+  transition" on load — the still painting showed, then the loop
+  crossfaded in over 1.5s (`.bg-video` opacity 0→1 on `.ready`).
+  Killed the fade for the hero only: `#home .bg-video { opacity: 1;
+  transition: none; }` and gave the home video a `poster`
+  (CLEAN_HERO.png, the painting the loop was generated from) via a
+  new `chapterVideoPosters` map. First painted frame is now the
+  artwork itself, which animates seamlessly — no fade, no pop, no
+  black flash. `.bg-art` still (CLEAN_HERO.png) is kept underneath
+  as the reduced-motion fallback (those users get no video). The
+  archer chapter (project-01) keeps its 1.5s crossfade — change was
+  scoped to `#home` since only the landing page was flagged.
 - **2026-06-13 hero hugs artwork + About moved (PR #14):** owner
   still saw bars (the blurred .bg-fill's painted sky-rays) and the
   fixed POLYMACHY nav title floating "off picture". Owner chose

@@ -285,6 +285,16 @@
        register with the frame/logo overlay */
     .hero-bg .bg-video { object-fit: contain; }
 
+    /* the hero loop shows from the very first paint — no crossfade from a
+       static still. The video's poster (CLEAN_HERO.png) is the painting
+       the loop was generated from, so the first painted frame is the
+       artwork itself, which then animates seamlessly (no fade, no pop,
+       no black flash while the file loads). */
+    #home .bg-video {
+      opacity: 1;
+      transition: none;
+    }
+
     /* owner-supplied frame line + logo (Logo_Overlay.png, 1920x1080
        RGBA) layered over the clean artwork and loop; identical contain
        fit keeps it pixel-registered with both at any viewport size.
@@ -1527,6 +1537,13 @@
 
     const chapterVideos = {};
 
+    /* poster = the painting a loop was generated from, so a video shown
+       without a crossfade (see #home .bg-video) paints the artwork on the
+       first frame instead of black while the file loads */
+    const chapterVideoPosters = {
+      'home': 'CLEAN_HERO.png'
+    };
+
     Object.entries(chapterVideoLoops).forEach(([id, src]) => {
       if (!src || reducedMotion) return;
       const art = document.querySelector('#' + id + ' .bg-art');
@@ -1536,6 +1553,7 @@
       video.autoplay = true;
       video.playsInline = true;
       video.setAttribute('playsinline', '');
+      if (chapterVideoPosters[id]) video.poster = chapterVideoPosters[id];
       video.src = src;
       video.className = 'bg-video';
       video.addEventListener('canplay', () => video.classList.add('ready'), { once: true });
