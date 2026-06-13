@@ -600,10 +600,14 @@
     }
 
     /* ── ABOUT ── */
+    /* near-black per owner (rgb 14,14,14): a quiet break after the
+       landing painting rather than a bright white jump */
     #about {
-      background: var(--white);
-      color: var(--black);
+      background: rgb(14, 14, 14);
+      color: var(--white);
     }
+
+    #about .section-rule { background: #1e1e1e; }
 
     .about-grid {
       display: grid;
@@ -614,7 +618,7 @@
 
     .about-body p {
       font-size: 1.05rem;
-      color: #3a3a3a;
+      color: rgba(245,244,240,0.78);
       margin-bottom: 1.5rem;
       line-height: 1.8;
     }
@@ -626,19 +630,20 @@
     }
 
     .stat-box {
-      background: var(--light);
+      background: #1a1a1a;
       padding: 2rem;
     }
 
+    /* inverted against the dark section, as it was against the white */
     .stat-box--disciplines {
-      background: var(--black);
+      background: var(--light);
       grid-column: span 3;
       padding: 2rem;
     }
 
     .disciplines-text {
       font-size: 0.82rem;
-      color: rgba(245,244,240,0.75);
+      color: rgba(10,10,10,0.75);
       line-height: 1.7;
       margin-bottom: 1rem;
     }
@@ -656,7 +661,8 @@
       font-size: 0.65rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--accent);
+      /* deepened gold: the bright accent lacks contrast on the light panel */
+      color: #8c6f3f;
       padding-left: 1rem;
       position: relative;
       line-height: 1.5;
@@ -666,14 +672,14 @@
       content: '—';
       position: absolute;
       left: 0;
-      color: var(--accent);
+      color: #8c6f3f;
     }
 
     .stat-num {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 3.5rem;
       line-height: 1;
-      color: var(--black);
+      color: var(--white);
       margin-bottom: 0.5rem;
     }
 
@@ -682,7 +688,7 @@
       font-size: 0.65rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--mid);
+      color: rgba(245,244,240,0.55);
     }
 
     /* ── CONTACT ── */
@@ -1432,7 +1438,7 @@
 
     /* ── ACTIVE CHAPTER DOT ── */
     const navLinks = document.querySelectorAll('#chapterNav a');
-    const lightChapters = ['about', 'contact'];
+    const lightChapters = ['contact'];
     const chapterObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {

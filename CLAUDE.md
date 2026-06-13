@@ -132,6 +132,14 @@ painting stays as the instant fallback; wiring + CSS already done).
   brightness 0.55→0.32 for those cases. About Us section moved to
   slot 2 (after hero, before the three project chapters); nav dots
   reordered and hero scroll cue now targets #about.
+- **2026-06-13 About goes dark (PR #15):** owner: white About bg
+  too bright after the landing page. #about now rgb(14,14,14),
+  body text light, stat boxes #1a1a1a with white numerals, the
+  "multiple disciplines" box INVERTED to the light panel
+  (var(--light), dark text, deepened gold #8c6f3f list items —
+  bright accent lacked contrast on light). `#about .section-rule`
+  darkened like merch. 'about' removed from lightChapters so the
+  nav/logo stay light over it.
 
 ### Owner's creative direction (authoritative — restated 2026-06-12)
 
