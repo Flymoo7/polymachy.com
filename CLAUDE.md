@@ -271,6 +271,11 @@ painterly preserved. Owner deleted `bear.jpg` on main →
   original subtle 1.09/36s drift, since amping the archer would
   over-zoom its playing video. If the owner wants the stronger
   drift everywhere, move the override to `.project-bg .bg-art`.
+- **2026-06-13 owner tuner export baked for project-02:**
+  `rayBrightness 1.5, sunX 0, sunY -31, sunAngle -60` are now the
+  chapter defaults (replaced the previous `0.75 / 3 / -93 / -24`).
+  No loopSpeed (chapter is static now). God-rays now break in
+  brighter from the top-left.
 
 ## Other chapters
 
