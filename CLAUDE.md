@@ -242,11 +242,41 @@ painterly preserved. Owner deleted `bear.jpg` on main →
   (elf travels a fair distance) — flagged to owner; a slower baked
   loopSpeed softens the cadence. No project-02 loopSpeed baked yet
   (owner may send tuner settings as for project-01).
+- **2026-06-13 v4 (REJECTED by Claude's check, NOT committed):**
+  the "suspended-moment" micro-motion plan — end anchor restored,
+  v3 style lock kept, every element told to move only a few inches
+  and ease back. FAILED on both counts: the painterly oil style
+  drifted hard to glossy photoreal CGI by ~1.5s (worse than v2),
+  and the elf showed large central displacement/blur by the end.
+  The model will not respect the micro-motion clamp on this scene;
+  it escalates to photoreal action regardless. Pattern across all
+  four: anchored→motion reversal (v1); un-anchored + LARGE motion +
+  heavy style lock→correct (v3, the only good one); un-anchored or
+  anchored + SMALL motion→style drift (v2, v4). The bear scene only
+  holds its style when given permission to animate freely (large
+  displacement), which forces a visible restart cut.
+- **2026-06-13 BEAR LOOP DROPPED (owner decision):** owner chose to
+  abandon the video loop entirely rather than ship v3's visible
+  restart cut — "no loop beats a bad loop." `chapterVideoLoops
+  ['project-02']` set back to `null`; `bear-loop.mp4` (the v3 file)
+  deleted from the repo. `#project-02 .bg-art` keeps the static
+  `Bear_Claude.png`. To compensate, the project chapters' Ken Burns
+  drift was AMPED UP: new `kenburns-project` keyframe (scale
+  1.03→1.20 plus a -2.5% horizontal pan, 30s) applied to
+  `#project-02 .bg-art` via longhands (`animation-name` +
+  `animation-duration`) so the base rule's paused / `.chapter.live`
+  running play-state control is preserved. Was scale 1→1.09 over
+  36s with no pan. SCOPED to the bear chapter only — project-01
+  (archer, still has a video loop) and project-03 (ogre) keep the
+  original subtle 1.09/36s drift, since amping the archer would
+  over-zoom its playing video. If the owner wants the stronger
+  drift everywhere, move the override to `.project-bg .bg-art`.
 
 ## Other chapters
 
 `project-02`–`project-03` have `null` entries in `chapterVideoLoops`
 and the same `.bg-video` slot, ready for loops if the owner asks.
-Note: the project chapters' `.bg-art` runs the kenburns drift, so a
-chapter video inherits the slow zoom from its parent (the hero's
-bg-art has `animation: none`, so the hero loop does not).
+Note: the project chapters' `.bg-art` runs the (now amped)
+kenburns-project drift, so any future chapter video inherits the
+slow zoom from its parent (the hero's bg-art has `animation: none`,
+so the hero loop does not).
