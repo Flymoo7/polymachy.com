@@ -179,7 +179,26 @@ The painted white frame line and POLYMACHY logo must stay perfectly
 static. Loop speed slider = video `playbackRate` control in the ?tune
 panel.
 
+## Archer loop task — status
+
+Goal: a subtle 6s loop of `Archer_Claude.png` behind the Rules
+Omnibus chapter (`chapterVideoLoops['project-01']`).
+
+- **2026-06-13 v1 (committed, pending owner verdict):** owner
+  uploaded `Archer_Claude.png` (1920x1080) to main and DELETED
+  `archer.jpg` (the `#project-01 .bg-art` reference was switched
+  accordingly). Direction: archer kneels in the tree aiming at the
+  motionless group below, only flexing the bowstring in preparation,
+  never releasing. Prompt built on all hero-loop learnings (single
+  subtle action, everything else locked, ambient mist, no new
+  figures). 6s; frame check incl. archer + group crops passed.
+  Plays at default 1x (no loopSpeed baked for project-01 yet —
+  owner may send tuner settings).
+
 ## Other chapters
 
-`project-01`–`project-03` have `null` entries in `chapterVideoLoops`
+`project-02`–`project-03` have `null` entries in `chapterVideoLoops`
 and the same `.bg-video` slot, ready for loops if the owner asks.
+Note: the project chapters' `.bg-art` runs the kenburns drift, so a
+chapter video inherits the slow zoom from its parent (the hero's
+bg-art has `animation: none`, so the hero loop does not).
