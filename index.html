@@ -238,8 +238,17 @@
     }
 
     /* ── HERO ── */
+    /* the landing chapter hugs the artwork: its height tracks the
+       16:9 painting's contain height so no letterbox bars appear on
+       screens squarer than 16:9 — About Us peeks up from below
+       instead. The max() floor keeps the hero usable on narrow
+       portrait screens (slim dark bands return there), and it never
+       exceeds the viewport. fitHeroLayers() refines this to exact
+       pixels (scrollbars make 100vw slightly oversized). */
     #home {
       align-items: center;
+      min-height: 0;
+      height: min(100vh, max(56.25vw, 60vh));
     }
 
     .hero-bg {
@@ -294,7 +303,7 @@
       background-image: url('CLEAN_HERO.png');
       background-size: cover;
       background-position: center;
-      filter: blur(26px) brightness(0.55) saturate(1.1);
+      filter: blur(26px) brightness(0.32) saturate(1.1);
       animation: kenburns 36s ease-in-out infinite alternate;
       animation-play-state: paused;
       will-change: transform;
@@ -1071,10 +1080,10 @@
   <!-- SIDE CHAPTER NAVIGATION -->
   <nav class="chapter-nav" id="chapterNav" aria-label="Sections">
     <a href="#home" data-chapter="home"><span class="dot-label">Home</span></a>
+    <a href="#about" data-chapter="about"><span class="dot-label">About Us</span></a>
     <a href="#project-01" data-chapter="project-01"><span class="dot-label">Rules Omnibus</span></a>
     <a href="#project-02" data-chapter="project-02"><span class="dot-label">The Omni Matrix</span></a>
     <a href="#project-03" data-chapter="project-03"><span class="dot-label">Tempus</span></a>
-    <a href="#about" data-chapter="about"><span class="dot-label">About Us</span></a>
     <a href="#contact" data-chapter="contact"><span class="dot-label">Get In Contact</span></a>
     <a href="#merch" data-chapter="merch"><span class="dot-label">Merchandise</span></a>
   </nav>
@@ -1092,10 +1101,58 @@
       <p class="hero-rotating-tagline" id="rotatingTagline"></p>
     </div>
 
-    <a href="#project-01" class="hero-scroll">
+    <a href="#about" class="hero-scroll">
       <span>Scroll</span>
       <div class="hero-scroll-line"></div>
     </a>
+  </section>
+
+  <!-- CHAPTER · ABOUT -->
+  <section id="about" class="chapter section-pad">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About Us</h2>
+      <div class="section-rule"></div>
+    </div>
+    <div class="about-grid">
+      <div class="about-body reveal delay-1">
+        <p>
+          Polymachy Ltd. was created by gamers, for gamers. Its two founders share a deep passion for immersive storytelling and a firm belief that rules and calculations should never get in the way of a great adventure.
+        </p>
+        <p>
+          Storytelling is fundamental to the human experience — from survival knowledge shared around ancient campfires to the social bonds forged through shared narrative. Today's TTRPG market is the natural evolution of that drive, transforming passive story consumption into active, collaborative world-building.
+        </p>
+        <p>
+          Even as AI reshapes industries, the appetite for authentic storytelling grows stronger. TTRPGs thrive because they speak to our desire to inhabit other worlds and create epic tales through human creativity and spontaneity.
+        </p>
+        <p>
+          Our products remove the mechanical friction that interrupts narrative flow — automating calculations, streamlining rules, and handling administrative overhead — so players spend less time in the rulebook and more time in the story.
+        </p>
+      </div>
+      <div class="about-stats reveal delay-2">
+        <div class="stat-box stat-box--disciplines">
+          <p class="disciplines-text">Multiple disciplines and talents — all coming together to deliver an unprecedented gameplay experience, incorporating</p>
+          <ul class="disciplines-list">
+            <li>AAA game development</li>
+            <li>TTRPGs</li>
+            <li>Military and martial arts combat experience</li>
+            <li>Professional expertise in arms, armour and metallurgy</li>
+          </ul>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Passionate founder-gamers</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">1</div>
+          <div class="stat-label">Vision: story first</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" style="font-family: Georgia, serif; font-size: 3rem;">&#8734;</div>
+          <div class="stat-label">Campaigns awaiting</div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- CHAPTER · PROJECT 01 -->
@@ -1159,54 +1216,6 @@
     </p>
     <div class="reveal delay-2">
       <a href="#contact" class="btn-primary">Register Interest</a>
-    </div>
-  </section>
-
-  <!-- CHAPTER · ABOUT -->
-  <section id="about" class="chapter section-pad">
-    <div class="section-header reveal">
-      <span class="section-num">01</span>
-      <h2 class="section-title">About Us</h2>
-      <div class="section-rule"></div>
-    </div>
-    <div class="about-grid">
-      <div class="about-body reveal delay-1">
-        <p>
-          Polymachy Ltd. was created by gamers, for gamers. Its two founders share a deep passion for immersive storytelling and a firm belief that rules and calculations should never get in the way of a great adventure.
-        </p>
-        <p>
-          Storytelling is fundamental to the human experience — from survival knowledge shared around ancient campfires to the social bonds forged through shared narrative. Today's TTRPG market is the natural evolution of that drive, transforming passive story consumption into active, collaborative world-building.
-        </p>
-        <p>
-          Even as AI reshapes industries, the appetite for authentic storytelling grows stronger. TTRPGs thrive because they speak to our desire to inhabit other worlds and create epic tales through human creativity and spontaneity.
-        </p>
-        <p>
-          Our products remove the mechanical friction that interrupts narrative flow — automating calculations, streamlining rules, and handling administrative overhead — so players spend less time in the rulebook and more time in the story.
-        </p>
-      </div>
-      <div class="about-stats reveal delay-2">
-        <div class="stat-box stat-box--disciplines">
-          <p class="disciplines-text">Multiple disciplines and talents — all coming together to deliver an unprecedented gameplay experience, incorporating</p>
-          <ul class="disciplines-list">
-            <li>AAA game development</li>
-            <li>TTRPGs</li>
-            <li>Military and martial arts combat experience</li>
-            <li>Professional expertise in arms, armour and metallurgy</li>
-          </ul>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num">2</div>
-          <div class="stat-label">Passionate founder-gamers</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num">1</div>
-          <div class="stat-label">Vision: story first</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num" style="font-family: Georgia, serif; font-size: 3rem;">&#8734;</div>
-          <div class="stat-label">Campaigns awaiting</div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -1547,6 +1556,11 @@
        to the painted frame on every screen shape */
     const heroChapter = document.getElementById('home');
     function fitHeroLayers() {
+      /* hug the artwork: exact-pixel version of the #home height rule
+         (clientWidth excludes the scrollbar that 100vw would count) */
+      const vh = window.innerHeight;
+      heroChapter.style.height =
+        Math.round(Math.min(vh, Math.max(heroChapter.clientWidth * 9 / 16, vh * 0.6))) + 'px';
       const w = heroChapter.clientWidth, h = heroChapter.clientHeight;
       const scale = Math.min(w / 16, h / 9);
       const boxW = Math.round(scale * 16), boxH = Math.round(scale * 9);
