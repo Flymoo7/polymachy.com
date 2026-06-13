@@ -293,6 +293,24 @@ amped Ken Burns drift instead.
   (`rayBrightness 1, sunX 16, sunY -30, sunAngle -34`) unchanged —
   owner may send tuner settings later.
 
+## Product subpages
+
+Each project's "Learn More →" links to a standalone page:
+`distiller.html` (01 Rules Omnibus), `charactersheet.html`
+(02 Omni Matrix), `app.html` (03 Tempus).
+
+- **2026-06-13:** these pages used to open with a full-viewport
+  `.product-hero` whose background image (`archer.jpg` / `bear.jpg` /
+  `ogre.jpg`) the owner deleted, leaving a blank top panel. Owner
+  asked to drop the image panel and keep only the text. Removed the
+  `.product-hero` / `.product-hero-bg` blocks and their CSS; the
+  product name+eyebrow were preserved by moving them into a new
+  centred `.product-header` at the top of the dark `.product-body`
+  (white title on black, no image). The text details (`.coming-soon`,
+  plus the five `.tenet` cards on charactersheet) are unchanged.
+  (charactersheet still has a dead `.tenets-overlay` CSS block from
+  the old overlay design — unreferenced, left in place.)
+
 ## Other chapters
 
 `project-02`–`project-03` have `null` entries in `chapterVideoLoops`
