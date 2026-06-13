@@ -192,8 +192,10 @@ Omnibus chapter (`chapterVideoLoops['project-01']`).
   never releasing. Prompt built on all hero-loop learnings (single
   subtle action, everything else locked, ambient mist, no new
   figures). 6s; frame check incl. archer + group crops passed.
-  Plays at default 1x (no loopSpeed baked for project-01 yet —
-  owner may send tuner settings).
+- **2026-06-13 owner tuner export baked for project-01:**
+  `loopSpeed 0.35, sunX 100, sunY -40, rayBrightness 0.8,
+  sunAngle 50, mistDensity 1.5` are now the chapter defaults
+  (replaced the previous ray values; ~17s perceived loop).
 
 ## Other chapters
 
