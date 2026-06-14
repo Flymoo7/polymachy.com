@@ -352,6 +352,22 @@ Each project's "Learn More →" links to a standalone page:
   event does not grant audio activation by itself — `wheel`/`touchmove`
   (the gestures that cause scrolling) are the ones that actually unlock
   the AudioContext.
+- **2026-06-13 (BUG FIX — "permanently muted"):** adding bare `scroll`
+  to `KICK_EVENTS` broke playback completely. The browser fires a
+  `scroll` event on load (scroll-position restoration) with NO user
+  activation; that consumed the one-shot kick, created a suspended
+  `AudioContext`, and hit `await ctx.resume()`, which hangs forever
+  without activation — leaving `starting=true` so every later attempt
+  (including the toggle) hit `if (starting) return` and did nothing.
+  Fixes: (1) removed bare `scroll` from `KICK_EVENTS` (kept
+  `wheel`/`touchmove`, which require activation and cover real
+  scrolling); (2) `resume()` is now raced against a 1s timeout in
+  `ensureRunning()` so it can never hang the start path; (3) the start
+  guard is `playing`/`building` (building always reset in `finally`),
+  and gesture listeners persist until playback actually succeeds, so a
+  failed unlock just retries on the next gesture; (4) the toggle button
+  always starts/unmutes regardless of autostart state. A persisted
+  `off` still suppresses autostart, but the toggle reliably recovers it.
 - SCOPED to `index.html` only. The product subpages reload on
   navigation, so site-wide music would restart each time — not added
   there. To regenerate the loop, see the build steps in this entry

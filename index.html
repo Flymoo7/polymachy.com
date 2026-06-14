@@ -1982,7 +1982,7 @@
       const SOURCES = ['audio/medieval-loop.ogg', 'audio/medieval-loop.mp3'];
       const TARGET_GAIN = 0.25;
       const STORE_KEY = 'polymachy-music';
-      let ctx, gain, source, buffer, started = false, starting = false, kicked = false;
+      let ctx, gain, source, buffer, playing = false, building = false;
       let enabled = localStorage.getItem(STORE_KEY) !== 'off';
 
       function setMutedUI(muted) {
@@ -2011,14 +2011,25 @@
         return null;
       }
 
+      /* Resume can hang indefinitely if called without a real user
+         activation, so race it against a timeout — we never await it
+         forever, and a failed unlock just lets the next gesture retry. */
+      async function ensureRunning() {
+        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state !== 'running') {
+          try { await Promise.race([ctx.resume(), new Promise(r => setTimeout(r, 1000))]); }
+          catch (e) { /* ignore */ }
+        }
+        return ctx.state === 'running';
+      }
+
       async function start() {
-        if (started || starting) return;
-        starting = true;
+        if (playing || building) return;
+        building = true;
         try {
-          ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-          if (ctx.state === 'suspended') await ctx.resume();
+          if (!(await ensureRunning())) return;   // not unlocked yet; retry on next gesture
           if (!buffer) buffer = await decodeFirst(SOURCES);
-          if (!buffer) { starting = false; return; }
+          if (!buffer || playing) return;
           gain = ctx.createGain();
           gain.gain.value = 0;
           gain.connect(ctx.destination);
@@ -2027,49 +2038,50 @@
           source.loop = true;
           source.connect(gain);
           source.start(0);
-          started = true;
+          playing = true;
           fadeTo(TARGET_GAIN, 1.5);
           setMutedUI(false);
         } catch (e) { /* leave muted */ }
-        starting = false;
+        finally { building = false; }
       }
 
+      /* the toggle always works: it starts/unmutes when silent and mutes
+         when playing — independent of the autostart path */
       toggle.addEventListener('click', () => {
-        kicked = true;
-        if (!started) {
+        if (!playing) {
           enabled = true; localStorage.setItem(STORE_KEY, 'on');
           start();
           return;
         }
-        const muted = !toggle.classList.contains('is-muted');
-        if (muted) {
+        const willMute = !toggle.classList.contains('is-muted');
+        if (willMute) {
           fadeTo(0, 0.4); setMutedUI(true);
           enabled = false; localStorage.setItem(STORE_KEY, 'off');
         } else {
-          if (ctx && ctx.state === 'suspended') ctx.resume();
+          ensureRunning();
           fadeTo(TARGET_GAIN, 0.6); setMutedUI(false);
           enabled = true; localStorage.setItem(STORE_KEY, 'on');
         }
       });
 
-      /* first gesture anywhere kicks off playback (autoplay policy);
-         ignore the toggle itself so its own handler stays in control.
-         `wheel`/`touchmove` cover scrolling — a bare `scroll` event does
-         not grant audio activation on its own, but the gesture that
-         causes it does, so we listen for those too. */
-      const KICK_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'touchmove', 'scroll'];
+      /* first real interaction kicks off playback (autoplay policy).
+         Only activation-granting gestures are used — `wheel`/`touchmove`
+         cover scrolling. A bare `scroll` event is deliberately NOT used:
+         it grants no audio activation and the browser fires it on load
+         (scroll restoration), which would create a context that can never
+         resume. Listeners stay until playback actually succeeds. */
+      const KICK_EVENTS = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'touchmove'];
+      function removeKick() { KICK_EVENTS.forEach(ev => window.removeEventListener(ev, kick)); }
       function kick(e) {
-        if (kicked) return;
         if (e && e.target && e.target.closest && e.target.closest('#musicToggle')) return;
-        kicked = true;
-        KICK_EVENTS.forEach(ev => window.removeEventListener(ev, kick));
-        if (enabled) start();
+        if (!enabled) { removeKick(); return; }
+        start().then(() => { if (playing) removeKick(); });
       }
-      KICK_EVENTS.forEach(ev => window.addEventListener(ev, kick, { passive: true }));
+      if (enabled) KICK_EVENTS.forEach(ev => window.addEventListener(ev, kick, { passive: true }));
 
       /* save CPU while the tab is hidden */
       document.addEventListener('visibilitychange', () => {
-        if (!ctx || !started) return;
+        if (!ctx || !playing) return;
         if (document.hidden) ctx.suspend();
         else if (enabled) ctx.resume();
       });
