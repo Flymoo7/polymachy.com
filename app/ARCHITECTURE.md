@@ -107,6 +107,12 @@ dashboard-builder pattern; candidate libs: `dnd-kit`,
 `react-grid-layout`). The layout editor is therefore a **first-class part
 of the build**, not an afterthought.
 
+**Placement model (locked 2026-06-15): snap-to-grid.** Blocks snap to a
+uniform grid and can be scaled, but always conform to the grid system —
+no freeform pixel placement. This keeps every sheet tidy, readable, and
+device-independent. Layout positions/sizes are stored in grid units, not
+pixels.
+
 ### Where it lives — `polymachy.com/app`
 
 - Built as static files into the **`app/` subfolder of this repo** and
