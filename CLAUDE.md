@@ -62,10 +62,25 @@ Progress:
   system — a d10 success-pool with a "Strain" complication die; all names
   invented). No UI/build tooling scaffolded yet. Docs now include the
   Lego/layout three-layer model (system def / character data / layout
-  document) per owner direction 2026-06-15. Next: the sandboxed
-  formula/mechanics evaluator + data models, then Phase 1 (block canvas
-  editor). No Figma/mock-ups exist — owner gives design direction in
-  chat; any sketches/screenshots are a bonus, not required.
+  document) per owner direction 2026-06-15. No Figma/mock-ups exist —
+  owner gives design direction in chat; any sketches/screenshots are a
+  bonus, not required.
+- **2026-06-15 P0 engine done:** `app/engine/` — dependency-free ES
+  modules with 18 passing tests (`npm test` / `node --test`):
+  `expression.mjs` (sandboxed evaluator for derived values + roll pools,
+  no JS eval) and `dice.mjs` (configurable `pool-success` resolver:
+  successes, criticals, complication sub-pool). Placement locked to
+  **snap-to-grid** (blocks scale but conform to a uniform grid).
+- **2026-06-15 P1 scaffolded & building:** React + TS + Vite app in
+  `app/` (npm verified to work in this env; `base:'/app/'`). Renders the
+  sample system as a **snap-to-grid canvas of draggable/resizable blocks**
+  (`react-grid-layout`), with live derived values via the engine, working
+  dice rolls + roll log, field renderers (dots/pool/track/number/text/
+  list/select/toggle), localStorage persistence, and character/layout
+  JSON export. `npm run build` is green. node_modules/dist/*.tsbuildinfo
+  gitignored; package-lock committed. NEXT: deploy wiring (build dist to
+  the /app path — open question), then import + multi-character, then
+  Phase 2 (GM console).
 
 ## Hero loop task — status
 

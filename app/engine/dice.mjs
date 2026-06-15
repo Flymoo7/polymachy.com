@@ -33,7 +33,7 @@ export function rollPool(n, sides, rng = defaultRng) {
  * @returns {{
  *   successes:number, critical:boolean, success:boolean,
  *   complication: null | string,        // e.g. "overreach" | "ruin"
- *   detail: object
+ *   detail: { faces:number[], complicationFaces:number[], target:number }
  * }}
  */
 export function resolvePoolSuccess({ faces = [], complication = [], config }) {
