@@ -5,23 +5,11 @@ import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult
 import { computeResolved, performRoll } from './engineBridge';
 import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
+import { GmConsole } from './gm/GmConsole';
+import { KEY, save, rawLoad } from './storage';
 
 const Grid = WidthProvider(Responsive);
 const def = sampleDef as unknown as SystemDefinition;
-
-const KEY = (k: string) => `om:${def.system.id}:${k}`;
-
-function load<T>(k: string, fallback: () => T): T {
-  try {
-    const raw = localStorage.getItem(KEY(k));
-    if (raw) return JSON.parse(raw) as T;
-  } catch { /* ignore */ }
-  return fallback();
-}
-
-function save(k: string, v: unknown) {
-  try { localStorage.setItem(KEY(k), JSON.stringify(v)); } catch { /* ignore */ }
-}
 
 // migrate a pre-pages layout ({blocks}) into the paged shape
 function migrateLayout(lo: any): LayoutDoc {
@@ -49,8 +37,6 @@ function readFile(file: File): Promise<unknown> {
 }
 
 const SWATCHES = ['#c8a96e', '#7a1f1f', '#3a5a78', '#4a6b4a', '#6b4a6b', '#8a8a8a'];
-
-const rawLoad = (k: string): any => { try { const r = localStorage.getItem(KEY(k)); return r ? JSON.parse(r) : null; } catch { return null; } };
 
 // Initialise the roster, migrating any pre-roster single-character save.
 function boot(): { roster: RosterEntry[]; activeId: string; char: CharacterDoc; layout: LayoutDoc } {
@@ -89,6 +75,7 @@ export default function App() {
   const [showPalette, setShowPalette] = useState(false);
   const [configBlock, setConfigBlock] = useState<string | null>(null);
   const [pageIdx, setPageIdx] = useState(0);
+  const [view, setView] = useState<'player' | 'gm'>('player');
   const importRef = useRef<HTMLInputElement>(null);
 
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
@@ -217,6 +204,11 @@ export default function App() {
   const visibleBlocks = page.blocks.filter((b) => !b.hidden);
   const rglLayout: Layout[] = visibleBlocks.map((b) => ({ i: b.id, x: b.x, y: b.y, w: b.w, h: b.h, minW: 2, minH: 2 }));
 
+  if (view === 'gm') return (
+    <GmConsole def={def} onExit={() => setView('player')}
+      onOpenChar={(id) => { openChar(id); setView('player'); }} />
+  );
+
   return (
     <div className={`app ${edit ? 'editing' : ''}`}>
       <header className="topbar">
@@ -233,6 +225,7 @@ export default function App() {
           )}
         </div>
         <div className="actions">
+          <button className="btn" onClick={() => setView('gm')}>GM view</button>
           <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
             {edit ? 'Done arranging' : 'Arrange blocks'}
           </button>
