@@ -9,6 +9,7 @@ import { GmConsole } from './gm/GmConsole';
 import { KEY, save, rawLoad } from './storage';
 import { useSession } from './net/SessionProvider';
 import { SessionBar } from './net/SessionBar';
+import { ProposePanel } from './net/ProposePanel';
 
 const Grid = WidthProvider(Responsive);
 const def = sampleDef as unknown as SystemDefinition;
@@ -253,6 +254,7 @@ export default function App() {
       </header>
 
       <SessionBar defaultName={char.meta.name} />
+      <ProposePanel def={def} charId={char.id} charName={char.meta.name} />
 
       <nav className="pagebar">
         {layout.pages.map((p, i) => (

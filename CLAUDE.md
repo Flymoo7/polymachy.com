@@ -124,8 +124,16 @@ Progress:
   Signalling: public `wss://signaling.yjs.dev` (the ONE bit to self-host
   for production reliability — see ARCHITECTURE open questions). NOT
   runtime-verified here (needs 2 browsers + https; test via the deployed
-  gated file). Bundle ~140KB gz. NEXT (P3b): propose→approve→execute,
-  finer roles/permissions, character-leave cleanup, self-hosted signalling.
+  gated file). Bundle ~140KB gz.
+- **2026-06-15 P3b propose→approve→execute + leave cleanup:** shared
+  `proposals` (Y.Array) in the session. Player view shows a **ProposePanel**
+  (when live): request a roll or describe an action → queued. GM console
+  shows a **Requests** panel: Approve (roll proposals execute via the
+  engine and hit the shared log; actions log as approved) / Deny (logs
+  denied), then removed from the queue. Leave cleanup: player advertises
+  owned `charId` in awareness, removes its own character on `leave()` and
+  on `beforeunload`. Build green; 18 tests pass. NEXT (P3c): finer role
+  permissions, abrupt-disconnect pruning by host, self-hosted signalling.
 
 ## Hero loop task — status
 

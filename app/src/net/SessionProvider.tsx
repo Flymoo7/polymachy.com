@@ -15,10 +15,14 @@ const SYS = (sampleDef as any).system.id as string;
 const SIGNALING = ['wss://signaling.yjs.dev'];
 
 export type Role = 'gm' | 'player';
-export interface Identity { id: string; name: string; role: Role }
+export interface Identity { id: string; name: string; role: Role; charId?: string }
 export interface LogEntry { at: number; text: string; by: string }
 export interface Combatant { id: string; name: string; init: number }
 export interface Initiative { list: Combatant[]; turn: number }
+export interface Proposal {
+  id: string; at: number; by: string; charId: string; charName: string;
+  kind: 'roll' | 'action'; label: string; rollId?: string; text?: string;
+}
 
 export type Status = 'offline' | 'connecting' | 'connected';
 
@@ -32,6 +36,7 @@ interface SessionAPI {
   log: LogEntry[];
   initiative: Initiative;
   statuses: Record<string, string[]>;
+  proposals: Proposal[];
   host: (name: string) => string;
   join: (room: string, name: string, role: Role) => void;
   leave: () => void;
@@ -40,6 +45,8 @@ interface SessionAPI {
   appendLog: (text: string) => void;
   setInitiative: (init: Initiative) => void;
   setCharacterStatuses: (charId: string, list: string[]) => void;
+  propose: (p: Omit<Proposal, 'id' | 'at'>) => void;
+  removeProposal: (id: string) => void;
 }
 
 const EMPTY_INIT: Initiative = { list: [], turn: 0 };
@@ -53,6 +60,7 @@ const roomCode = () => {
 export function SessionProvider({ children }: { children: ReactNode }) {
   const docRef = useRef<Y.Doc | null>(null);
   const provRef = useRef<WebrtcProvider | null>(null);
+  const ownedRef = useRef<string | null>(null);
 
   const [status, setStatus] = useState<Status>('offline');
   const [room, setRoom] = useState<string | null>(null);
@@ -62,17 +70,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [log, setLog] = useState<LogEntry[]>([]);
   const [initiative, setInit] = useState<Initiative>(EMPTY_INIT);
   const [statuses, setStatuses] = useState<Record<string, string[]>>({});
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const teardown = useCallback(() => {
     provRef.current?.destroy();
     docRef.current?.destroy();
     provRef.current = null;
     docRef.current = null;
+    ownedRef.current = null;
     setStatus('offline'); setRoom(null); setIdentity(null); setPeers([]);
-    setCharacters({}); setLog([]); setInit(EMPTY_INIT); setStatuses({});
+    setCharacters({}); setLog([]); setInit(EMPTY_INIT); setStatuses({}); setProposals([]);
   }, []);
 
   useEffect(() => () => teardown(), [teardown]);
+
+  // best-effort: drop our own character from the session if the tab closes
+  useEffect(() => {
+    const onUnload = () => {
+      if (docRef.current && ownedRef.current) {
+        try { docRef.current.getMap('characters').delete(ownedRef.current); } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('beforeunload', onUnload);
+    return () => window.removeEventListener('beforeunload', onUnload);
+  }, []);
 
   const connect = useCallback((code: string, id: Identity) => {
     teardown();
@@ -87,6 +108,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const charMap = doc.getMap('characters');
     const logArr = doc.getArray<LogEntry>('log');
     const sessMap = doc.getMap('session');
+    const propArr = doc.getArray<Proposal>('proposals');
 
     const readChars = () => {
       const out: Record<string, CharacterDoc> = {};
@@ -98,9 +120,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setInit((sessMap.get('initiative') as Initiative) ?? EMPTY_INIT);
       setStatuses((sessMap.get('statuses') as Record<string, string[]>) ?? {});
     };
+    const readProps = () => setProposals((propArr.toArray() as Proposal[]).slice());
     charMap.observe(readChars);
     logArr.observe(readLog);
     sessMap.observe(readSess);
+    propArr.observe(readProps);
 
     const aw = provider.awareness;
     aw.setLocalState(id);
@@ -112,7 +136,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     aw.on('change', readPeers);
 
     setIdentity(id); setRoom(code); setStatus('connected');
-    readChars(); readLog(); readSess(); readPeers();
+    readChars(); readLog(); readSess(); readProps(); readPeers();
+  }, [teardown]);
+
+  const leave = useCallback(() => {
+    if (docRef.current && ownedRef.current) {
+      try { docRef.current.getMap('characters').delete(ownedRef.current); } catch { /* ignore */ }
+    }
+    // small delay so the deletion can propagate before we tear down
+    setTimeout(teardown, 200);
   }, [teardown]);
 
   const host = useCallback((name: string) => {
@@ -128,8 +160,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const withDoc = (fn: (doc: Y.Doc) => void) => { if (docRef.current) docRef.current.transact(() => fn(docRef.current!)); };
 
-  const publishCharacter = useCallback((char: CharacterDoc) => withDoc((d) => d.getMap('characters').set(char.id, char)), []);
+  const publishCharacter = useCallback((char: CharacterDoc) => {
+    ownedRef.current = char.id;
+    provRef.current?.awareness.setLocalStateField('charId', char.id);
+    withDoc((d) => d.getMap('characters').set(char.id, char));
+  }, []);
   const removeCharacter = useCallback((id: string) => withDoc((d) => d.getMap('characters').delete(id)), []);
+
+  const propose = useCallback((p: Omit<Proposal, 'id' | 'at'>) => withDoc((d) =>
+    d.getArray<Proposal>('proposals').push([{ ...p, id: `p-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`, at: Date.now() }])), []);
+  const removeProposal = useCallback((id: string) => withDoc((d) => {
+    const arr = d.getArray<Proposal>('proposals');
+    const items = arr.toArray() as Proposal[];
+    const i = items.findIndex((x) => x.id === id);
+    if (i >= 0) arr.delete(i, 1);
+  }), []);
   const appendLog = useCallback((text: string) => withDoc((d) => {
     const by = (provRef.current?.awareness.getLocalState() as Identity)?.name ?? 'Someone';
     d.getArray<LogEntry>('log').push([{ at: Date.now(), text, by }]);
@@ -143,9 +188,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const api: SessionAPI = {
     status, connected: status === 'connected', room, identity, peers,
-    characters, log, initiative, statuses,
-    host, join, leave: teardown,
+    characters, log, initiative, statuses, proposals,
+    host, join, leave,
     publishCharacter, removeCharacter, appendLog, setInitiative, setCharacterStatuses,
+    propose, removeProposal,
   };
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;

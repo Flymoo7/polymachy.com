@@ -4,8 +4,9 @@ import { loadRoster, loadCharacter, load, save } from '../storage';
 import { genId } from '../defaults';
 import { CharacterSummary } from './CharacterSummary';
 import { useSession } from '../net/SessionProvider';
-import type { LogEntry, Initiative } from '../net/SessionProvider';
+import type { LogEntry, Initiative, Proposal } from '../net/SessionProvider';
 import { SessionBar } from '../net/SessionBar';
+import { computeResolved, performRoll } from '../engineBridge';
 
 interface Props {
   def: SystemDefinition;
@@ -68,6 +69,22 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
     pushLog(`${cName} ${cur.includes(statusId) ? 'cleared' : 'gained'} ${sName}`);
   };
 
+  const approve = (p: Proposal) => {
+    if (p.kind === 'roll' && p.rollId) {
+      const char = characters[p.charId];
+      if (char) {
+        const r = performRoll(def, p.rollId, computeResolved(def, char.data));
+        pushLog(`✔ ${p.charName} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
+      } else {
+        pushLog(`✔ approved ${p.charName} · ${p.label}`);
+      }
+    } else {
+      pushLog(`✔ ${p.charName}: ${p.label} (approved)`);
+    }
+    s.removeProposal(p.id);
+  };
+  const deny = (p: Proposal) => { pushLog(`✗ ${p.charName}: ${p.label} (denied)`); s.removeProposal(p.id); };
+
   const commitInit = (next: Initiative) => { if (live) s.setInitiative(next); else { setLocalInit(next); save('gm:initiative', next); } };
   const addCombatant = (name: string, value: number) => {
     if (!name.trim()) return;
@@ -122,6 +139,25 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
         </main>
 
         <aside className="gm-rail">
+          {live && (
+            <section className="gm-panel">
+              <h3 className="gm-panel-title">Requests {s.proposals.length > 0 && <span className="req-count">{s.proposals.length}</span>}</h3>
+              {s.proposals.length === 0 && <p className="muted">No pending requests.</p>}
+              {s.proposals.map((p) => (
+                <div className="req-row" key={p.id}>
+                  <div className="req-info">
+                    <span className="req-by">{p.charName}</span>
+                    <span className="req-label">{p.kind === 'roll' ? `🎲 ${p.label}` : p.label}</span>
+                  </div>
+                  <div className="req-actions">
+                    <button className="btn btn-on" onClick={() => approve(p)}>Approve</button>
+                    <button className="btn" onClick={() => deny(p)}>Deny</button>
+                  </div>
+                </div>
+              ))}
+            </section>
+          )}
+
           <section className="gm-panel">
             <h3 className="gm-panel-title">Initiative</h3>
             <div className="init-add">
