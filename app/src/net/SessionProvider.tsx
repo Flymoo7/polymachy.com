@@ -26,9 +26,12 @@ export interface Proposal {
 
 export type Status = 'offline' | 'connecting' | 'connected';
 
+type AwarenessChange = { added: number[]; updated: number[]; removed: number[] };
+
 interface SessionAPI {
   status: Status;
   connected: boolean;
+  isGm: boolean;
   room: string | null;
   identity: Identity | null;
   peers: Identity[];
@@ -61,6 +64,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const docRef = useRef<Y.Doc | null>(null);
   const provRef = useRef<WebrtcProvider | null>(null);
   const ownedRef = useRef<string | null>(null);
+  // tracks clientId → charId so GM can prune on abrupt disconnect
+  const peerCharsRef = useRef<Map<number, string>>(new Map());
 
   const [status, setStatus] = useState<Status>('offline');
   const [room, setRoom] = useState<string | null>(null);
@@ -78,6 +83,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     provRef.current = null;
     docRef.current = null;
     ownedRef.current = null;
+    peerCharsRef.current = new Map();
     setStatus('offline'); setRoom(null); setIdentity(null); setPeers([]);
     setCharacters({}); setLog([]); setInit(EMPTY_INIT); setStatuses({}); setProposals([]);
   }, []);
@@ -133,7 +139,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       aw.getStates().forEach((s) => { if (s && (s as any).id) list.push(s as Identity); });
       setPeers(list);
     };
-    aw.on('change', readPeers);
+    aw.on('change', ({ removed }: AwarenessChange) => {
+      // keep peerCharsRef up to date for current peers
+      aw.getStates().forEach((s, clientId) => {
+        const charId = (s as any)?.charId as string | undefined;
+        if (charId) peerCharsRef.current.set(clientId, charId);
+      });
+      // GM removes characters whose owner just disconnected abruptly
+      if (id.role === 'gm' && removed.length > 0 && docRef.current) {
+        const d = docRef.current;
+        removed.forEach((clientId) => {
+          const charId = peerCharsRef.current.get(clientId);
+          if (charId) {
+            try { d.transact(() => d.getMap('characters').delete(charId)); } catch { /* ignore */ }
+            peerCharsRef.current.delete(clientId);
+          }
+        });
+      }
+      readPeers();
+    });
 
     setIdentity(id); setRoom(code); setStatus('connected');
     readChars(); readLog(); readSess(); readProps(); readPeers();
@@ -177,7 +201,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }), []);
   const appendLog = useCallback((text: string) => withDoc((d) => {
     const by = (provRef.current?.awareness.getLocalState() as Identity)?.name ?? 'Someone';
-    d.getArray<LogEntry>('log').push([{ at: Date.now(), text, by }]);
+    const arr = d.getArray<LogEntry>('log');
+    arr.push([{ at: Date.now(), text, by }]);
+    const MAX_LOG = 200;
+    if (arr.length > MAX_LOG) arr.delete(0, arr.length - MAX_LOG);
   }), []);
   const setInitiative = useCallback((init: Initiative) => withDoc((d) => d.getMap('session').set('initiative', init)), []);
   const setCharacterStatuses = useCallback((charId: string, list: string[]) => withDoc((d) => {
@@ -187,7 +214,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }), []);
 
   const api: SessionAPI = {
-    status, connected: status === 'connected', room, identity, peers,
+    status, connected: status === 'connected', isGm: identity?.role === 'gm', room, identity, peers,
     characters, log, initiative, statuses, proposals,
     host, join, leave,
     publishCharacter, removeCharacter, appendLog, setInitiative, setCharacterStatuses,

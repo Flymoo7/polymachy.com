@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSession } from './SessionProvider';
 
 // Host/join controls + presence. Shown in both player and GM views.
-export function SessionBar({ defaultName = '' }: { defaultName?: string }) {
+export function SessionBar({ defaultName = '', hostOnly = false }: { defaultName?: string; hostOnly?: boolean }) {
   const s = useSession();
   const [mode, setMode] = useState<null | 'host' | 'join'>(null);
   const [name, setName] = useState(defaultName);
@@ -32,7 +32,7 @@ export function SessionBar({ defaultName = '' }: { defaultName?: string }) {
       {!mode && (
         <>
           <button className="btn" onClick={() => { setMode('host'); setName(defaultName || 'GM'); }}>Host session (GM)</button>
-          <button className="btn" onClick={() => { setMode('join'); setName(defaultName); }}>Join session</button>
+          {!hostOnly && <button className="btn" onClick={() => { setMode('join'); setName(defaultName); }}>Join session</button>}
         </>
       )}
 
