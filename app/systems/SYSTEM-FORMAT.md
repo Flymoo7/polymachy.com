@@ -88,11 +88,19 @@ the remaining keys depend on the type.
 
 ---
 
-## Sections (layout)
+## Sections (the DEFAULT layout — users rearrange freely)
 
-`sections` is an **ordered** array describing the sheet's visual structure.
-The renderer walks it top to bottom. A section is either a **tab** or an
-inline **group**.
+> **The sheet is a user-configurable canvas of draggable blocks** (the
+> "Lego" model — see `../ARCHITECTURE.md`). `sections` here define only a
+> **sensible default arrangement** ("a pre-built kit"). The user then
+> moves, resizes, recolours, hides, and reconfigures blocks to taste;
+> those customisations live in a separate **Layout document** (below),
+> NOT in the system definition. A definition author is laying out a good
+> starting point, not dictating the final look.
+
+`sections` is an **ordered** array describing that default structure. Each
+group becomes a default **block** on the canvas. A section is either a
+**tab** or an inline **group**.
 
 ```jsonc
 "sections": [
@@ -257,3 +265,37 @@ A saved character references its system and stores only values:
 
 Portable, exportable, and CRDT-friendly for P2P sync. See
 `sample-ashes-of-the-verge.json` for a complete worked definition.
+
+---
+
+## Layout document (the user's "Lego" build — separate again)
+
+The user's arrangement is its OWN document, distinct from both the
+definition and the character. This keeps the three layers independent: the
+same character can be re-skinned without touching its data, and a layout
+can be shared without sharing a character.
+
+```jsonc
+{
+  "schemaVersion": 0,
+  "system": "ashes-of-the-verge",   // which definition it skins
+  "name": "Tom's compact combat layout",
+  "blocks": [
+    {
+      "id": "blk-attrs",
+      "source": "group:Attributes", // or "field:might", "roll:strike_melee", etc.
+      "x": 0, "y": 0, "w": 6, "h": 4,   // grid position & size
+      "colour": "#7a1f1f",           // user-chosen accent
+      "hidden": false,
+      "fields": ["might","grace","vigor"]  // optional: which fields show
+    }
+  ],
+  "meta": { "created": "…", "updated": "…" }
+}
+```
+
+A new sheet starts from the definition's `sections` as the default block
+set; user edits are written here. Layouts are exportable/importable and
+shareable, the same as characters. Block sizing/positioning uses a grid
+(units, not pixels) so layouts are device-independent.
+

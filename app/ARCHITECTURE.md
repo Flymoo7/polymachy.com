@@ -79,6 +79,34 @@ publisher's IP (copyright/trademark exposure). Hard rules:
   but their *expression* (names, descriptions, text, trademarks) is — so
   we stay on the mechanics side and keep all expression original.
 
+### Layout — user-configurable block canvas (the "Lego" model)
+
+The sheet is **not** a fixed layout the system imposes. It is a **canvas
+of draggable blocks the user arranges themselves** — like assembling a
+Lego kit: the user chooses each block's placement, size, colour, and which
+fields/numbers it shows. This is a core product requirement, not a
+nice-to-have.
+
+This forces a clean **three-layer data model**, each independently owned,
+saved, and portable:
+
+1. **System definition** — *what blocks exist and how they behave* (the
+   bag of pieces + the rules). Authored once per game.
+2. **Character data** — *the values* (`{ system, data, meta }`).
+3. **Layout document** — *how THIS user arranged and skinned their
+   blocks*: per-block position, size, colour/theme, visibility, and field
+   selection. Owned per user, **exportable and shareable** (share a
+   layout without sharing a character; re-skin a character without
+   touching its data). Reinforces the Ownership/Portability tenets.
+
+The system definition's `sections` provide a **sensible default
+arrangement** (a "pre-built kit") — the user starts from that and is free
+to rearrange/recolour/hide blocks, never from a blank canvas unless they
+choose. Technically this is a drag-and-drop grid editor (a well-trodden
+dashboard-builder pattern; candidate libs: `dnd-kit`,
+`react-grid-layout`). The layout editor is therefore a **first-class part
+of the build**, not an afterthought.
+
 ### Where it lives — `polymachy.com/app`
 
 - Built as static files into the **`app/` subfolder of this repo** and
@@ -113,14 +141,21 @@ publisher's IP (copyright/trademark exposure). Hard rules:
    automation system-agnostic.
 3. **Character model** — portable `{ system, schemaVersion, data, meta }`,
    export/import, CRDT-friendly for sync.
+3b. **Layout model** — the third data layer (see the "Lego" decision
+   above): per-user/per-character block arrangement, sizes, colours,
+   visibility, and field selection. Separate document, export/import,
+   shareable, CRDT-friendly.
 4. **Session layer** — rooms, presence, roster, the **action log as an
    event stream** (propose → GM approve/deny → execute with resource
    deltas), whispers/chat, initiative/combat, auto-save, roles &
    permissions (player edits own sheet + proposes; GM edits all +
    approves).
-5. **Rendering shell + themes** — renders a definition into the player
-   view or GM console; density modes (Full/Compact/Minimal), Tabs/List,
-   1/2/4 multi-sheet; swappable themes/layouts.
+5. **Rendering shell + block layout editor** — renders the definition's
+   blocks onto a **drag-and-drop grid canvas** the user configures
+   (placement, size, colour, visibility, field selection — the "Lego"
+   model). Persists/loads the Layout document; supports default kits,
+   density modes, and 1/2/4 multi-sheet in the GM console; layouts are
+   export/importable and shareable.
 
 ## Phased roadmap
 
@@ -129,11 +164,14 @@ Each phase is independently demoable.
 - **Phase 0 — Foundations (no UI):** system-definition format spec; an
   original/neutral sample definition; character model; the sandboxed
   mechanics/formula evaluator with tests. *(In progress.)*
-- **Phase 1 — Player sheet:** render screen 1 from the definition,
-  matched to the owner's Figma; dots/pools/tabs; density modes; the d10
-  pool builder driven by system config; local save/load + export file.
+- **Phase 1 — Player sheet (block canvas):** render the definition's
+  blocks onto the drag-and-drop grid; the "Lego" editor (move/resize/
+  recolour/hide blocks) with the definition's default kit as the starting
+  arrangement; the dice pool builder driven by system config; local
+  save/load + export of both character and layout documents.
 - **Phase 2 — GM console:** roster, 1/2/4 multi-sheet, action-log UI,
-  combat/initiative, status effects — still single-device.
+  combat/initiative, status effects, shareable layout kits — still
+  single-device.
 - **Phase 3 — Go live:** stand up P2P sync; presence/roster/action-log
   sync; propose→approve→execute; whispers; roles; auto-save.
 - **Phase 4 — Prove agnostic + polish:** add a second original sample

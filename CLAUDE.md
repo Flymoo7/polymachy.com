@@ -36,6 +36,13 @@ Key locked decisions (full detail in that doc):
   no accounts needed.
 - **Hosting:** built into the `app/` subfolder, served at
   `polymachy.com/app` from the existing GitHub Pages deploy.
+- **Layout = user-configurable "Lego" canvas (core requirement):** the
+  sheet is a drag-and-drop grid of blocks the user arranges themselves
+  (placement, size, colour, visibility, field selection). This forces a
+  THREE-layer data model — system definition (what blocks exist) /
+  character data (values) / **layout document** (the user's arrangement &
+  skin, separate, exportable, shareable). Definition `sections` are only
+  the DEFAULT starting kit. The block editor is first-class, in Phase 1.
 - **Stack:** React + TypeScript + Vite (static build) + Yjs-over-WebRTC
   for sync.
 - **IP guardrail (critical):** the engine ships **no branded content**.
@@ -53,9 +60,12 @@ Progress:
   `app/systems/SYSTEM-FORMAT.md` (the definition format spec, v0), and
   `app/systems/sample-ashes-of-the-verge.json` (first ORIGINAL sample
   system — a d10 success-pool with a "Strain" complication die; all names
-  invented). No UI/build tooling scaffolded yet. Next: the sandboxed
-  formula/mechanics evaluator + character model, then Phase 1 (awaiting
-  owner's Figma for the three screens).
+  invented). No UI/build tooling scaffolded yet. Docs now include the
+  Lego/layout three-layer model (system def / character data / layout
+  document) per owner direction 2026-06-15. Next: the sandboxed
+  formula/mechanics evaluator + data models, then Phase 1 (block canvas
+  editor). No Figma/mock-ups exist — owner gives design direction in
+  chat; any sketches/screenshots are a bonus, not required.
 
 ## Hero loop task — status
 
