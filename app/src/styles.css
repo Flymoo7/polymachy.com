@@ -267,6 +267,26 @@ body {
 .gm-log-time { font-family: 'DM Mono', monospace; color: var(--mid); font-size: 0.66rem; flex-shrink: 0; }
 .gm-log-text { color: var(--white); }
 
+/* ---- session bar ---- */
+.sessbar {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  padding: 0.5rem 1.5rem; border-bottom: 1px solid var(--line);
+  background: var(--panel); position: sticky; top: 47px; z-index: 16;
+}
+.sessbar.online { background: rgba(74,107,74,0.12); border-bottom-color: #2c4a2c; }
+.sessbar .field-input { max-width: 14ch; }
+.sess-code { max-width: 8ch; text-transform: uppercase; letter-spacing: 0.2em; }
+.sess-pill { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mid); }
+.sess-pill.live { color: #7fd17f; }
+.sess-room, .sess-role { font-family: 'DM Mono', monospace; font-size: 0.74rem; color: var(--white); }
+.sess-room b { color: var(--accent); letter-spacing: 0.2em; }
+.sess-role { color: var(--mid); }
+.sess-peers { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--mid); }
+.peer { padding: 0.12rem 0.5rem; border-radius: 999px; border: 1px solid var(--line); color: var(--white); }
+.peer.gm { border-color: var(--accent); color: var(--accent); }
+
 /* react-grid-layout polish */
 .react-grid-item.react-grid-placeholder { background: var(--accent); opacity: 0.18; border-radius: 6px; }
 .react-resizable-handle { filter: invert(0.7); }

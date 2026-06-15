@@ -3,6 +3,9 @@ import type { SystemDefinition, CharacterDoc, RosterEntry, RollResult } from '..
 import { loadRoster, loadCharacter, load, save } from '../storage';
 import { genId } from '../defaults';
 import { CharacterSummary } from './CharacterSummary';
+import { useSession } from '../net/SessionProvider';
+import type { LogEntry, Initiative } from '../net/SessionProvider';
+import { SessionBar } from '../net/SessionBar';
 
 interface Props {
   def: SystemDefinition;
@@ -10,56 +13,69 @@ interface Props {
   onOpenChar: (id: string) => void;
 }
 
-interface LogEntry { at: number; text: string }
-interface Combatant { id: string; name: string; init: number }
-interface Initiative { list: Combatant[]; turn: number }
-
-const byInit = (a: Combatant, b: Combatant) => b.init - a.init;
+const byInit = (a: { init: number }, b: { init: number }) => b.init - a.init;
+const EMPTY_INIT: Initiative = { list: [], turn: 0 };
 
 export function GmConsole({ def, onExit, onOpenChar }: Props) {
-  const [roster] = useState<RosterEntry[]>(loadRoster);
-  const [chars] = useState<Record<string, CharacterDoc>>(() => {
+  const s = useSession();
+
+  // local (offline) state
+  const [localRoster] = useState<RosterEntry[]>(loadRoster);
+  const [localChars] = useState<Record<string, CharacterDoc>>(() => {
     const m: Record<string, CharacterDoc> = {};
     for (const r of loadRoster()) { const c = loadCharacter(r.id); if (c) m[r.id] = c; }
     return m;
   });
-  const [shown, setShown] = useState<string[]>(() => roster.slice(0, 2).map((r) => r.id));
+  const [shown, setShown] = useState<string[]>(() => loadRoster().slice(0, 2).map((r) => r.id));
   const [cols, setCols] = useState(2);
-  const [log, setLog] = useState<LogEntry[]>(() => load('gm:log', () => []));
-  const [statusMap, setStatusMap] = useState<Record<string, string[]>>(() => load('gm:status', () => ({})));
-  const [init, setInit] = useState<Initiative>(() => load('gm:initiative', () => ({ list: [], turn: 0 })));
+  const [localLog, setLocalLog] = useState<LogEntry[]>(() => load('gm:log', () => []));
+  const [localStatuses, setLocalStatuses] = useState<Record<string, string[]>>(() => load('gm:status', () => ({})));
+  const [localInit, setLocalInit] = useState<Initiative>(() => load('gm:initiative', () => EMPTY_INIT));
   const [noteText, setNoteText] = useState('');
   const [addName, setAddName] = useState('');
   const [addInit, setAddInit] = useState(10);
 
-  const pushLog = (text: string) => setLog((l) => { const next = [{ at: Date.now(), text }, ...l].slice(0, 100); save('gm:log', next); return next; });
-  const clearLog = () => { setLog([]); save('gm:log', []); };
+  // when live, everything comes from / goes to the shared session
+  const live = s.connected;
+  const characters = live ? s.characters : localChars;
+  const roster: RosterEntry[] = live
+    ? Object.values(s.characters).map((c) => ({ id: c.id, name: c.meta.name }))
+    : localRoster;
+  const log = live ? s.log : localLog;
+  const initiative = live ? s.initiative : localInit;
+  const statuses = live ? s.statuses : localStatuses;
+  const displayed = live ? Object.keys(characters) : shown;
+
+  const pushLog = (text: string) => {
+    if (live) { s.appendLog(text); return; }
+    setLocalLog((l) => { const next = [{ at: Date.now(), text, by: 'GM' }, ...l].slice(0, 100); save('gm:log', next); return next; });
+  };
+  const clearLog = () => { if (live) return; setLocalLog([]); save('gm:log', []); };
 
   const onRoll = (charName: string, r: RollResult) => {
     pushLog(`${charName} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
   };
 
-  const toggleShown = (id: string) => setShown((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
+  const toggleShown = (id: string) => setShown((sh) => sh.includes(id) ? sh.filter((x) => x !== id) : [...sh, id]);
 
-  const toggleStatus = (charId: string, statusId: string) => setStatusMap((m) => {
-    const cur = m[charId] ?? [];
-    const next = { ...m, [charId]: cur.includes(statusId) ? cur.filter((x) => x !== statusId) : [...cur, statusId] };
-    save('gm:status', next);
-    const cName = chars[charId]?.meta.name ?? 'Character';
-    const sName = ((def.statusEffects ?? []) as any[]).find((s) => s.id === statusId)?.label ?? statusId;
+  const toggleStatus = (charId: string, statusId: string) => {
+    const cur = statuses[charId] ?? [];
+    const next = cur.includes(statusId) ? cur.filter((x) => x !== statusId) : [...cur, statusId];
+    const cName = characters[charId]?.meta.name ?? 'Character';
+    const sName = ((def.statusEffects ?? []) as any[]).find((x) => x.id === statusId)?.label ?? statusId;
+    if (live) { s.setCharacterStatuses(charId, next); }
+    else { const m = { ...localStatuses, [charId]: next }; setLocalStatuses(m); save('gm:status', m); }
     pushLog(`${cName} ${cur.includes(statusId) ? 'cleared' : 'gained'} ${sName}`);
-    return next;
-  });
+  };
 
-  const setInitiative = (next: Initiative) => { setInit(next); save('gm:initiative', next); };
+  const commitInit = (next: Initiative) => { if (live) s.setInitiative(next); else { setLocalInit(next); save('gm:initiative', next); } };
   const addCombatant = (name: string, value: number) => {
     if (!name.trim()) return;
-    const list = [...init.list, { id: genId('cb'), name: name.trim(), init: value }].sort(byInit);
-    setInitiative({ list, turn: 0 });
+    commitInit({ list: [...initiative.list, { id: genId('cb'), name: name.trim(), init: value }].sort(byInit), turn: 0 });
   };
-  const removeCombatant = (id: string) => setInitiative({ list: init.list.filter((c) => c.id !== id), turn: 0 });
-  const nextTurn = () => { if (init.list.length) setInitiative({ ...init, turn: (init.turn + 1) % init.list.length }); };
-  const clearInit = () => setInitiative({ list: [], turn: 0 });
+  const removeCombatant = (id: string) => commitInit({ list: initiative.list.filter((c) => c.id !== id), turn: 0 });
+  const nextTurn = () => { if (initiative.list.length) commitInit({ ...initiative, turn: (initiative.turn + 1) % initiative.list.length }); };
+  const clearInit = () => commitInit(EMPTY_INIT);
 
   return (
     <div className="gm">
@@ -70,14 +86,21 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
         </div>
       </header>
 
+      <SessionBar defaultName="GM" />
+
       <div className="gm-body">
         <main className="gm-main">
           <div className="gm-controls">
-            <span className="gm-ctl-label">Show:</span>
-            {roster.length === 0 && <span className="muted">No characters yet — create one in Player view.</span>}
-            {roster.map((r) => (
-              <button key={r.id} className={`chip ${shown.includes(r.id) ? 'chip-on' : ''}`} onClick={() => toggleShown(r.id)}>{r.name}</button>
-            ))}
+            {!live && (
+              <>
+                <span className="gm-ctl-label">Show:</span>
+                {roster.length === 0 && <span className="muted">No characters yet — create one in Player view.</span>}
+                {roster.map((r) => (
+                  <button key={r.id} className={`chip ${shown.includes(r.id) ? 'chip-on' : ''}`} onClick={() => toggleShown(r.id)}>{r.name}</button>
+                ))}
+              </>
+            )}
+            {live && <span className="gm-ctl-label">Live session · showing all {roster.length} character(s)</span>}
             <span className="gm-ctl-label" style={{ marginLeft: 'auto' }}>Columns:</span>
             {[1, 2, 4].map((n) => (
               <button key={n} className={`chip ${cols === n ? 'chip-on' : ''}`} onClick={() => setCols(n)}>{n}</button>
@@ -85,16 +108,16 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
           </div>
 
           <div className="gm-grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-            {shown.map((id) => chars[id] && (
+            {displayed.map((id) => characters[id] && (
               <CharacterSummary
-                key={id} def={def} char={chars[id]}
-                statuses={statusMap[id] ?? []}
+                key={id} def={def} char={characters[id]}
+                statuses={statuses[id] ?? []}
                 onRoll={onRoll}
                 onToggleStatus={(sid) => toggleStatus(id, sid)}
-                onOpen={() => onOpenChar(id)}
+                onOpen={live ? undefined : () => onOpenChar(id)}
               />
             ))}
-            {shown.length === 0 && <p className="muted">Pick characters above to display them side by side.</p>}
+            {displayed.length === 0 && <p className="muted">{live ? 'Waiting for players to join and share their characters…' : 'Pick characters above to display them side by side.'}</p>}
           </div>
         </main>
 
@@ -110,16 +133,16 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
               {roster.map((r) => <button key={r.id} className="chip" onClick={() => addCombatant(r.name, addInit)}>+ {r.name}</button>)}
             </div>
             <ol className="init-list">
-              {init.list.map((c, i) => (
-                <li key={c.id} className={`init-row ${i === init.turn ? 'turn' : ''}`}>
+              {initiative.list.map((c, i) => (
+                <li key={c.id} className={`init-row ${i === initiative.turn ? 'turn' : ''}`}>
                   <span className="init-val">{c.init}</span>
                   <span className="init-name">{c.name}</span>
                   <button className="row-del" onClick={() => removeCombatant(c.id)}>×</button>
                 </li>
               ))}
-              {init.list.length === 0 && <p className="muted">No combatants.</p>}
+              {initiative.list.length === 0 && <p className="muted">No combatants.</p>}
             </ol>
-            {init.list.length > 0 && (
+            {initiative.list.length > 0 && (
               <div className="init-controls">
                 <button className="btn btn-on" onClick={nextTurn}>Next turn →</button>
                 <button className="btn" onClick={clearInit}>Clear</button>
@@ -128,7 +151,7 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
           </section>
 
           <section className="gm-panel">
-            <h3 className="gm-panel-title">Action log</h3>
+            <h3 className="gm-panel-title">Action log{live ? ' · live' : ''}</h3>
             <div className="init-add">
               <input className="field-input" placeholder="Add a note…" value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
@@ -137,14 +160,14 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
             </div>
             <div className="gm-log">
               {log.length === 0 && <p className="muted">Nothing logged yet.</p>}
-              {log.map((e, i) => (
+              {(live ? [...log].reverse() : log).map((e, i) => (
                 <div className="gm-log-row" key={i}>
                   <span className="gm-log-time">{new Date(e.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  <span className="gm-log-text">{e.text}</span>
+                  <span className="gm-log-text">{e.text}{live && e.by ? ` — ${e.by}` : ''}</span>
                 </div>
               ))}
             </div>
-            {log.length > 0 && <button className="btn" onClick={clearLog}>Clear log</button>}
+            {!live && log.length > 0 && <button className="btn" onClick={clearLog}>Clear log</button>}
           </section>
         </aside>
       </div>
