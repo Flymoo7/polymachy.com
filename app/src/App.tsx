@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useRef } from 'react';
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { Responsive, WidthProvider, type Layout } from 'react-grid-layout';
 import sampleDef from '../systems/sample-ashes-of-the-verge.json';
 import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult, RosterEntry } from './types';
@@ -7,6 +7,9 @@ import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
 import { GmConsole } from './gm/GmConsole';
 import { KEY, save, rawLoad } from './storage';
+import { useSession } from './net/SessionProvider';
+import { SessionBar } from './net/SessionBar';
+import { ProposePanel } from './net/ProposePanel';
 
 const Grid = WidthProvider(Responsive);
 const def = sampleDef as unknown as SystemDefinition;
@@ -77,8 +80,14 @@ export default function App() {
   const [pageIdx, setPageIdx] = useState(0);
   const [view, setView] = useState<'player' | 'gm'>('player');
   const importRef = useRef<HTMLInputElement>(null);
+  const session = useSession();
 
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
+
+  // when in a live session, share the active character and keep it updated
+  useEffect(() => {
+    if (session.connected) session.publishCharacter(char);
+  }, [session.connected, char]);
 
   const persistChar = (next: CharacterDoc) => { save(`char:${activeId}`, next); return next; };
   const persistLayout = (next: LayoutDoc) => { save(`layout:${activeId}`, next); return next; };
@@ -125,8 +134,13 @@ export default function App() {
   };
 
   const roll = useCallback((id: string) => {
-    setLog((l) => [performRoll(def, id, resolved), ...l].slice(0, 50));
-  }, [resolved]);
+    const r = performRoll(def, id, resolved);
+    if (session.connected) {
+      session.appendLog(`${char.meta.name} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
+    } else {
+      setLog((l) => [r, ...l].slice(0, 50));
+    }
+  }, [resolved, session.connected, char.meta.name]);
 
   // ---- block ops (scoped to the active page) ----
   const mutateBlocks = (fn: (b: LayoutBlock[]) => LayoutBlock[]) =>
@@ -239,6 +253,9 @@ export default function App() {
         </div>
       </header>
 
+      <SessionBar defaultName={char.meta.name} />
+      <ProposePanel def={def} charId={char.id} charName={char.meta.name} />
+
       <nav className="pagebar">
         {layout.pages.map((p, i) => (
           <span key={p.id} className={`page-tab ${i === idx ? 'on' : ''}`}>
@@ -336,7 +353,19 @@ export default function App() {
                 </div>
               )}
 
-              {b.source === 'log' && (
+              {b.source === 'log' && session.connected && (
+                <div className="rolllog">
+                  {session.log.length === 0 && <p className="muted">No rolls yet.</p>}
+                  {[...session.log].reverse().map((e, i) => (
+                    <div key={i} className="logentry ok">
+                      <span className="result">{e.text}</span>
+                      <span className="faces">— {e.by}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {b.source === 'log' && !session.connected && (
                 <div className="rolllog">
                   {log.length === 0 && <p className="muted">No rolls yet.</p>}
                   {log.map((r, i) => (

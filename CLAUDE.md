@@ -112,8 +112,28 @@ Progress:
   tracker (`gm:initiative`), per-character status toggles (`gm:status`),
   and 'open in player view'. Shared storage helpers extracted to
   `src/storage.ts`. Still SINGLE-DEVICE (reads the same localStorage).
-  NEXT: Phase 3 = real P2P multiplayer (Yjs/WebRTC) — host/join by room
-  code, live sync of roster/log/rolls, propose→approve→execute, roles.
+- **2026-06-15 P3 live multiplayer (v1):** real P2P sync via **Yjs +
+  y-webrtc**. `src/net/SessionProvider.tsx` (React context): hosts/joins a
+  room by 4-char code, end-to-end encrypted with the code as password,
+  shared Y.Doc holds `characters` (Y.Map), `log` (Y.Array), `session`
+  (initiative + statuses); presence via awareness. `src/net/SessionBar
+  .tsx` = host/join/presence UI (in both views). Player view publishes its
+  active character + routes rolls to the shared log when connected; GM
+  console becomes session-aware (shows ALL live characters, shared log/
+  initiative/statuses) when connected, falls back to localStorage offline.
+  Signalling: public `wss://signaling.yjs.dev` (the ONE bit to self-host
+  for production reliability — see ARCHITECTURE open questions). NOT
+  runtime-verified here (needs 2 browsers + https; test via the deployed
+  gated file). Bundle ~140KB gz.
+- **2026-06-15 P3b propose→approve→execute + leave cleanup:** shared
+  `proposals` (Y.Array) in the session. Player view shows a **ProposePanel**
+  (when live): request a roll or describe an action → queued. GM console
+  shows a **Requests** panel: Approve (roll proposals execute via the
+  engine and hit the shared log; actions log as approved) / Deny (logs
+  denied), then removed from the queue. Leave cleanup: player advertises
+  owned `charId` in awareness, removes its own character on `leave()` and
+  on `beforeunload`. Build green; 18 tests pass. NEXT (P3c): finer role
+  permissions, abrupt-disconnect pruning by host, self-hosted signalling.
 
 ## Hero loop task — status
 
