@@ -29,8 +29,34 @@ body {
 .brand span { color: var(--accent); }
 .brand em { font-style: normal; font-family: 'DM Mono', monospace; font-size: 0.65rem;
   letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid); margin-left: 0.8rem; }
-.char-name { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--mid); }
-.actions { margin-left: auto; display: flex; gap: 0.5rem; }
+.char-name-input {
+  font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--white);
+  background: transparent; border: 1px solid transparent; border-radius: 4px;
+  padding: 0.25rem 0.4rem; min-width: 12ch;
+}
+.char-name-input:hover { border-color: var(--line); }
+.char-name-input:focus { outline: none; border-color: var(--accent); }
+.actions { margin-left: auto; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* block palette */
+.palette {
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  padding: 0.6rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.palette-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mid); }
+.chip { background: var(--panel-2); border: 1px solid var(--line); color: var(--white);
+  border-radius: 999px; padding: 0.3rem 0.7rem; cursor: pointer; font-size: 0.78rem; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+
+/* per-block edit controls */
+.block-ctrl { display: flex; align-items: center; gap: 3px; }
+.swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3);
+  cursor: pointer; padding: 0; }
+.swatch:hover { transform: scale(1.2); }
+.block-hide { width: 20px; height: 20px; margin-left: 4px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--mid); border-radius: 4px; cursor: pointer; line-height: 1; }
+.block-hide:hover { border-color: #7a1f1f; color: #c97a7a; }
 
 .btn {
   font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em;
