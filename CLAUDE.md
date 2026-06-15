@@ -89,8 +89,22 @@ Progress:
   (localStorage roster: `roster`/`active`/`char:<id>`/`layout:<id>`;
   switcher dropdown + new/delete; each character has its own layout; old
   single-char save auto-migrates; importing a character adds a roster
-  entry). All builds green; 18 engine tests pass. NEXT: deploy wiring
-  (build dist to /app — still open), then Phase 2 (GM console).
+  entry). All builds green; 18 engine tests pass.
+- **2026-06-15 P1 gated deploy:** app shipped to the live site behind a
+  **password gate**. Build pipeline: `npm run build:preview` makes a
+  self-contained single-file build (`vite --mode singlefile`,
+  `vite-plugin-singlefile`); `npm run build:gated -- <password>`
+  (`app/scripts/build-gated.mjs`) then AES-encrypts it with **staticrypt**
+  and writes the served file to repo-root **`omni-matrix.html`** (the only
+  app artifact committed; node_modules/dist/preview/.gated-tmp/
+  .staticrypt.json gitignored). index.html's Omni Matrix chapter
+  (project-02) gained a gold **"Launch App →"** button → `omni-matrix.html`
+  (Learn More still → charactersheet.html). NB: static gate = SOFT
+  security (no server; browser-side decrypt) — fine for a private beta,
+  not true lockdown. To rotate the password, re-run build:gated with a new
+  one and recommit `omni-matrix.html`. Password is NOT stored in the repo
+  (only a salted hash in the encrypted file). NEXT: deploy wiring for the
+  un-gated /app build is still open; Phase 2 (GM console).
 
 ## Hero loop task — status
 
