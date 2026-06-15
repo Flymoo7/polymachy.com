@@ -84,11 +84,17 @@ export interface LayoutBlock {
   fields?: string[];     // which fields this block shows
 }
 
+export interface LayoutPage {
+  id: string;
+  name: string;
+  blocks: LayoutBlock[];
+}
+
 export interface LayoutDoc {
   schemaVersion: number;
   system: string;
   name: string;
-  blocks: LayoutBlock[];
+  pages: LayoutPage[];
   meta: { created: string; updated: string };
 }
 

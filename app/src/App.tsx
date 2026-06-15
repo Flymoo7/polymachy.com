@@ -23,6 +23,14 @@ function save(k: string, v: unknown) {
   try { localStorage.setItem(KEY(k), JSON.stringify(v)); } catch { /* ignore */ }
 }
 
+// migrate a pre-pages layout ({blocks}) into the paged shape
+function migrateLayout(lo: any): LayoutDoc {
+  if (lo && !lo.pages && Array.isArray(lo.blocks)) {
+    return { ...lo, pages: [{ id: 'page-1', name: 'Sheet', blocks: lo.blocks }] };
+  }
+  return lo as LayoutDoc;
+}
+
 function download(name: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -40,22 +48,25 @@ function readFile(file: File): Promise<unknown> {
   });
 }
 
-// palette of accent colours the user can paint blocks with
 const SWATCHES = ['#c8a96e', '#7a1f1f', '#3a5a78', '#4a6b4a', '#6b4a6b', '#8a8a8a'];
 
 export default function App() {
   const [char, setChar] = useState<CharacterDoc>(() => load('char', () => newCharacter(def)));
-  const [layout, setLayout] = useState<LayoutDoc>(() => load('layout', () => defaultLayout(def)));
+  const [layout, setLayout] = useState<LayoutDoc>(() => migrateLayout(load('layout', () => defaultLayout(def))));
   const [log, setLog] = useState<RollResult[]>([]);
   const [edit, setEdit] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [configBlock, setConfigBlock] = useState<string | null>(null);
+  const [pageIdx, setPageIdx] = useState(0);
   const importRef = useRef<HTMLInputElement>(null);
 
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
 
   const persistChar = (next: CharacterDoc) => { save('char', next); return next; };
   const persistLayout = (next: LayoutDoc) => { save('layout', next); return next; };
+
+  const idx = Math.min(pageIdx, layout.pages.length - 1);
+  const page = layout.pages[idx];
 
   const updateField = useCallback((id: string, value: unknown) => {
     setChar((c) => persistChar({ ...c, data: { ...c.data, [id]: value }, meta: { ...c.meta, updated: new Date().toISOString() } }));
@@ -67,8 +78,13 @@ export default function App() {
     setLog((l) => [performRoll(def, id, resolved), ...l].slice(0, 50));
   }, [resolved]);
 
+  // ---- block ops (scoped to the active page) ----
   const mutateBlocks = (fn: (b: LayoutBlock[]) => LayoutBlock[]) =>
-    setLayout((lo) => persistLayout({ ...lo, blocks: fn(lo.blocks), meta: { ...lo.meta, updated: new Date().toISOString() } }));
+    setLayout((lo) => {
+      const i = Math.min(pageIdx, lo.pages.length - 1);
+      const pages = lo.pages.map((p, pi) => pi === i ? { ...p, blocks: fn(p.blocks) } : p);
+      return persistLayout({ ...lo, pages, meta: { ...lo.meta, updated: new Date().toISOString() } });
+    });
 
   const onLayoutChange = useCallback((items: Layout[]) => {
     const byId = new Map(items.map((i) => [i.i, i]));
@@ -76,7 +92,7 @@ export default function App() {
       const it = byId.get(b.id);
       return it ? { ...b, x: it.x, y: it.y, w: it.w, h: it.h } : b;
     }));
-  }, []);
+  }, [pageIdx]);
 
   const setColour = (id: string, colour: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, colour } : b));
   const hideBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: true } : b));
@@ -90,19 +106,37 @@ export default function App() {
   }));
 
   const addNewBlock = () => {
-    const maxY = layout.blocks.reduce((m, b) => (b.hidden ? m : Math.max(m, b.y + b.h)), 0);
+    const maxY = page.blocks.reduce((m, b) => (b.hidden ? m : Math.max(m, b.y + b.h)), 0);
     const id = `group:custom-${Date.now()}`;
     mutateBlocks((bs) => [...bs, { id, source: 'group', title: 'New block', fields: [], x: 0, y: maxY, w: 4, h: 5, hidden: false }]);
     setConfigBlock(id);
   };
 
-  const resetLayout = () => setLayout(persistLayout(defaultLayout(def)));
+  // ---- page ops ----
+  const addPage = () => {
+    const newIdx = layout.pages.length;
+    setLayout((lo) => persistLayout({
+      ...lo,
+      pages: [...lo.pages, { id: `page:custom-${Date.now()}`, name: `Page ${lo.pages.length + 1}`, blocks: [] }],
+      meta: { ...lo.meta, updated: new Date().toISOString() },
+    }));
+    setPageIdx(newIdx);
+  };
+  const renamePage = (i: number, name: string) =>
+    setLayout((lo) => persistLayout({ ...lo, pages: lo.pages.map((p, pi) => pi === i ? { ...p, name } : p) }));
+  const deletePage = (i: number) => {
+    if (layout.pages.length <= 1) return;
+    setLayout((lo) => persistLayout({ ...lo, pages: lo.pages.filter((_, pi) => pi !== i) }));
+    setPageIdx((cur) => Math.max(0, cur > i ? cur - 1 : cur));
+  };
+
+  const resetLayout = () => { setLayout(persistLayout(defaultLayout(def))); setPageIdx(0); };
 
   const importDoc = async (file: File) => {
     try {
       const doc = await readFile(file) as any;
-      if (doc && doc.blocks && doc.system === def.system.id) {
-        setLayout(persistLayout(doc as LayoutDoc));
+      if (doc && (doc.pages || doc.blocks) && doc.system === def.system.id) {
+        setLayout(persistLayout(migrateLayout(doc))); setPageIdx(0);
       } else if (doc && doc.data && doc.system === def.system.id) {
         setChar(persistChar(doc as CharacterDoc));
       } else {
@@ -111,8 +145,8 @@ export default function App() {
     } catch { alert('Could not read that file.'); }
   };
 
-  const hiddenBlocks = layout.blocks.filter((b) => b.hidden);
-  const visibleBlocks = layout.blocks.filter((b) => !b.hidden);
+  const hiddenBlocks = page.blocks.filter((b) => b.hidden);
+  const visibleBlocks = page.blocks.filter((b) => !b.hidden);
   const rglLayout: Layout[] = visibleBlocks.map((b) => ({ i: b.id, x: b.x, y: b.y, w: b.w, h: b.h, minW: 2, minH: 2 }));
 
   return (
@@ -135,9 +169,23 @@ export default function App() {
         </div>
       </header>
 
+      <nav className="pagebar">
+        {layout.pages.map((p, i) => (
+          <span key={p.id} className={`page-tab ${i === idx ? 'on' : ''}`}>
+            {edit && i === idx
+              ? <input className="page-name-input" value={p.name} onChange={(e) => renamePage(i, e.target.value)} aria-label="Page name" />
+              : <button className="page-name" onClick={() => setPageIdx(i)}>{p.name}</button>}
+            {edit && i === idx && layout.pages.length > 1 && (
+              <button className="page-del" title="Delete page" onClick={() => deletePage(i)}>×</button>
+            )}
+          </span>
+        ))}
+        {edit && <button className="page-add" title="Add page" onClick={addPage}>+ Page</button>}
+      </nav>
+
       {edit && showPalette && (
         <div className="palette">
-          <span className="palette-label">Add a block:</span>
+          <span className="palette-label">Add a block to “{page.name}”:</span>
           <button className="chip chip-new" onClick={addNewBlock}>+ New empty block</button>
           {hiddenBlocks.map((b) => (
             <button key={b.id} className="chip" onClick={() => showBlock(b.id)}>+ {b.title}</button>
@@ -147,6 +195,8 @@ export default function App() {
 
       <Grid
         className="canvas"
+        // key forces a clean remount per page so positions never bleed across pages
+        key={page.id}
         layouts={{ lg: rglLayout, md: rglLayout, sm: rglLayout, xs: rglLayout, xxs: rglLayout }}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 12, sm: 8, xs: 4, xxs: 2 }}
@@ -183,8 +233,8 @@ export default function App() {
               {edit && configBlock === b.id && b.source === 'group' && (
                 <div className="fieldpick">
                   <div className="fieldpick-head">Show fields in “{b.title}”</div>
-                  {def.sections.map((sec) => (
-                    <div key={sec.tab} className="fieldpick-group">
+                  {def.sections.map((sec, si) => (
+                    <div key={sec.tab ?? si} className="fieldpick-group">
                       <div className="fieldpick-tab">{sec.tab}</div>
                       {sec.groups.flatMap((g) => g.fields).map((fid) => {
                         const fd = def.fields[fid];
@@ -201,6 +251,7 @@ export default function App() {
                   ))}
                 </div>
               )}
+
               {b.source === 'group' && (b.fields ?? []).map((fid) => {
                 const fdef = def.fields[fid];
                 if (!fdef) return null;

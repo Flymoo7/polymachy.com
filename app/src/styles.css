@@ -86,7 +86,32 @@ body {
 .btn:hover { border-color: var(--accent); color: var(--accent); }
 .btn-on { background: var(--accent); color: var(--black); border-color: var(--accent); }
 
-.canvas { min-height: calc(100vh - 60px); }
+/* page bar */
+.pagebar {
+  display: flex; align-items: center; gap: 0.25rem; flex-wrap: wrap;
+  padding: 0.4rem 1.5rem; border-bottom: 1px solid var(--line); background: var(--panel);
+  position: sticky; top: 47px; z-index: 15;
+}
+.page-tab { display: inline-flex; align-items: center; }
+.page-name, .page-add {
+  background: transparent; border: 1px solid transparent; color: var(--mid);
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; padding: 0.35rem 0.7rem; border-radius: 4px;
+}
+.page-tab.on .page-name { color: var(--accent); border-color: var(--line); background: var(--panel-2); }
+.page-name:hover, .page-add:hover { color: var(--white); }
+.page-add { border: 1px dashed var(--line); color: var(--accent); margin-left: 0.4rem; }
+.page-name-input {
+  background: var(--panel-2); color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 4px; padding: 0.3rem 0.5rem; font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; max-width: 14ch;
+}
+.page-name-input:focus { outline: none; }
+.page-del { width: 20px; height: 20px; margin-left: 2px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--mid); border-radius: 4px; cursor: pointer; line-height: 1; }
+.page-del:hover { border-color: #7a1f1f; color: #c97a7a; }
+
+.canvas { min-height: calc(100vh - 90px); }
 
 .block {
   background: var(--panel);
