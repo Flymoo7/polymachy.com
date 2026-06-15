@@ -204,6 +204,69 @@ body {
 .logentry .faces { font-family: 'DM Mono', monospace; font-size: 0.66rem; color: var(--mid); }
 .muted { color: var(--mid); font-size: 0.8rem; }
 
+/* ---- GM console ---- */
+.gm { min-height: 100vh; }
+.gm-topbar { justify-content: space-between; }
+.gm-body { display: grid; grid-template-columns: 1fr 340px; gap: 1rem; padding: 1rem 1.5rem; align-items: start; }
+@media (max-width: 900px) { .gm-body { grid-template-columns: 1fr; } }
+
+.gm-controls { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.gm-ctl-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--mid); }
+.chip-on { background: var(--accent); color: var(--black); border-color: var(--accent); }
+
+.gm-grid { display: grid; gap: 1rem; }
+
+.gm-card { background: var(--panel); border: 1px solid var(--line); border-top: 2px solid var(--accent);
+  border-radius: 6px; padding: 0.8rem; }
+.gm-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+.gm-card-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 0.05em; }
+.gm-open { background: transparent; border: 1px solid var(--line); color: var(--mid);
+  border-radius: 4px; cursor: pointer; font-size: 0.65rem; padding: 0.2rem 0.4rem; font-family: 'DM Mono', monospace; }
+.gm-open:hover { border-color: var(--accent); color: var(--accent); }
+
+.gm-traits { display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; margin-bottom: 0.5rem; }
+.gm-trait { font-size: 0.78rem; color: var(--white); }
+.gm-trait b { color: var(--accent); font-family: 'DM Mono', monospace; }
+
+.gm-meters { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+.gm-meter { font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 0.15rem 0.45rem;
+  border: 1px solid var(--line); border-radius: 999px; color: var(--mid); }
+.gm-meter.pool { border-color: var(--accent); color: var(--accent); }
+.gm-meter.track { border-color: #7a1f1f; color: #c97a7a; }
+
+.gm-statuses { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+.gm-status { font-size: 0.7rem; padding: 0.2rem 0.5rem; border: 1px dashed var(--line);
+  background: transparent; color: var(--mid); border-radius: 4px; cursor: pointer; }
+.gm-status.on { border-style: solid; border-color: var(--accent); color: var(--black); background: var(--accent); }
+
+.gm-rolls { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.gm-roll { font-size: 0.72rem; background: var(--panel-2); border: 1px solid var(--line);
+  color: var(--white); border-radius: 4px; padding: 0.25rem 0.5rem; cursor: pointer; }
+.gm-roll:hover { border-color: var(--accent); color: var(--accent); }
+
+.gm-rail { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 60px; }
+.gm-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 0.8rem; }
+.gm-panel-title { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.08em; font-size: 1.05rem;
+  margin-bottom: 0.6rem; color: var(--white); }
+
+.init-add { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; }
+.init-add .field-input { flex: 1; min-width: 0; }
+.init-num { max-width: 4.5rem; }
+.init-quick { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+.init-list { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; margin: 0.4rem 0; }
+.init-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.5rem;
+  background: var(--panel-2); border-left: 3px solid var(--line); border-radius: 0 4px 4px 0; }
+.init-row.turn { border-left-color: var(--accent); background: rgba(200,169,110,0.12); }
+.init-val { font-family: 'DM Mono', monospace; color: var(--accent); min-width: 2ch; text-align: right; }
+.init-name { flex: 1; }
+.init-controls { display: flex; gap: 0.4rem; }
+
+.gm-log { display: flex; flex-direction: column; gap: 0.3rem; max-height: 320px; overflow: auto; margin-bottom: 0.5rem; }
+.gm-log-row { display: flex; gap: 0.5rem; font-size: 0.76rem; }
+.gm-log-time { font-family: 'DM Mono', monospace; color: var(--mid); font-size: 0.66rem; flex-shrink: 0; }
+.gm-log-text { color: var(--white); }
+
 /* react-grid-layout polish */
 .react-grid-item.react-grid-placeholder { background: var(--accent); opacity: 0.18; border-radius: 6px; }
 .react-resizable-handle { filter: invert(0.7); }

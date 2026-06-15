@@ -103,8 +103,17 @@ Progress:
   security (no server; browser-side decrypt) — fine for a private beta,
   not true lockdown. To rotate the password, re-run build:gated with a new
   one and recommit `omni-matrix.html`. Password is NOT stored in the repo
-  (only a salted hash in the encrypted file). NEXT: deploy wiring for the
-  un-gated /app build is still open; Phase 2 (GM console).
+  (only a salted hash in the encrypted file).
+- **2026-06-15 P2 GM console (single-device):** Player/GM view switch in
+  `App` (`view` state). `src/gm/GmConsole.tsx` + `src/gm/CharacterSummary
+  .tsx`: multi-sheet overview (1/2/4 cols) of the local roster, compact
+  read-only cards (dots/pools/tracks/statuses + roll buttons), roll-on-
+  behalf into a persisted shared action log (`gm:log`), initiative
+  tracker (`gm:initiative`), per-character status toggles (`gm:status`),
+  and 'open in player view'. Shared storage helpers extracted to
+  `src/storage.ts`. Still SINGLE-DEVICE (reads the same localStorage).
+  NEXT: Phase 3 = real P2P multiplayer (Yjs/WebRTC) — host/join by room
+  code, live sync of roster/log/rolls, propose→approve→execute, roles.
 
 ## Hero loop task — status
 
