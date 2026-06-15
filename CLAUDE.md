@@ -20,6 +20,92 @@ Everything lives in `index.html`; artwork files sit in the repo root.
 - Compress delivered video for web (H.264, faststart, no audio, aim for
   well under 10MB) before committing.
 
+## Omni Matrix app (character-sheet platform) — status
+
+New major workstream (product 02, `charactersheet.html`). Building a
+**system-agnostic, peer-to-peer character-sheet platform / lightweight
+VTT** to be served from `polymachy.com/app`. **Source of truth:
+`app/ARCHITECTURE.md` — read it before touching anything under `app/`.**
+
+Key locked decisions (full detail in that doc):
+- **Networking:** static SPA with **peer-to-peer (WebRTC), GM-hosted**
+  sessions — owner runs/pays for NO server. Effectively unlimited
+  concurrent groups (each table runs on the players' own browsers); the
+  only practical limit is players-per-table (comfortable for normal
+  groups). Data lives with players (localStorage + portable export file);
+  no accounts needed.
+- **Hosting:** built into the `app/` subfolder, served at
+  `polymachy.com/app` from the existing GitHub Pages deploy.
+- **Layout = user-configurable "Lego" canvas (core requirement):** the
+  sheet is a drag-and-drop grid of blocks the user arranges themselves
+  (placement, size, colour, visibility, field selection). This forces a
+  THREE-layer data model — system definition (what blocks exist) /
+  character data (values) / **layout document** (the user's arrangement &
+  skin, separate, exportable, shareable). Definition `sections` are only
+  the DEFAULT starting kit. The block editor is first-class, in Phase 1.
+- **Stack:** React + TypeScript + Vite (static build) + Yjs-over-WebRTC
+  for sync.
+- **IP guardrail (critical):** the engine ships **no branded content**.
+  Only original/neutral sample definitions ship; communities author their
+  own definitions for branded games. Vampire/WoD was an internal design
+  reference ONLY — never shipped. Mechanics aren't copyrightable;
+  expression (names/text/trademarks) is, so keep all shipped expression
+  original.
+- **Phasing:** P0 foundations (format + engine, no UI) → P1 player sheet
+  (match owner's Figma) → P2 GM console → P3 go live (P2P) → P4 second
+  sample system + polish.
+
+Progress:
+- **2026-06-15 P0 started:** `app/ARCHITECTURE.md` (decision record),
+  `app/systems/SYSTEM-FORMAT.md` (the definition format spec, v0), and
+  `app/systems/sample-ashes-of-the-verge.json` (first ORIGINAL sample
+  system — a d10 success-pool with a "Strain" complication die; all names
+  invented). No UI/build tooling scaffolded yet. Docs now include the
+  Lego/layout three-layer model (system def / character data / layout
+  document) per owner direction 2026-06-15. No Figma/mock-ups exist —
+  owner gives design direction in chat; any sketches/screenshots are a
+  bonus, not required.
+- **2026-06-15 P0 engine done:** `app/engine/` — dependency-free ES
+  modules with 18 passing tests (`npm test` / `node --test`):
+  `expression.mjs` (sandboxed evaluator for derived values + roll pools,
+  no JS eval) and `dice.mjs` (configurable `pool-success` resolver:
+  successes, criticals, complication sub-pool). Placement locked to
+  **snap-to-grid** (blocks scale but conform to a uniform grid).
+- **2026-06-15 P1 scaffolded & building:** React + TS + Vite app in
+  `app/` (npm verified to work in this env; `base:'/app/'`). Renders the
+  sample system as a **snap-to-grid canvas of draggable/resizable blocks**
+  (`react-grid-layout`), with live derived values via the engine, working
+  dice rolls + roll log, field renderers (dots/pool/track/number/text/
+  list/select/toggle), localStorage persistence, and character/layout
+  JSON export. `npm run build` is green. node_modules/dist/*.tsbuildinfo
+  gitignored; package-lock committed.
+- **2026-06-15 P1 feature rounds:** per-block colour swatches; hide/add
+  blocks via an "Add block" palette; character + layout JSON import (to
+  match export); editable character name; **per-block field selection**
+  (⚙ picker — choose which fields each block shows) + editable block
+  titles + "New empty block"; **multi-page layouts** (tabs — layout doc
+  now `pages[]`, one page per definition tab, page bar with add/rename/
+  delete, old single-page layouts auto-migrate); **multiple characters**
+  (localStorage roster: `roster`/`active`/`char:<id>`/`layout:<id>`;
+  switcher dropdown + new/delete; each character has its own layout; old
+  single-char save auto-migrates; importing a character adds a roster
+  entry). All builds green; 18 engine tests pass.
+- **2026-06-15 P1 gated deploy:** app shipped to the live site behind a
+  **password gate**. Build pipeline: `npm run build:preview` makes a
+  self-contained single-file build (`vite --mode singlefile`,
+  `vite-plugin-singlefile`); `npm run build:gated -- <password>`
+  (`app/scripts/build-gated.mjs`) then AES-encrypts it with **staticrypt**
+  and writes the served file to repo-root **`omni-matrix.html`** (the only
+  app artifact committed; node_modules/dist/preview/.gated-tmp/
+  .staticrypt.json gitignored). index.html's Omni Matrix chapter
+  (project-02) gained a gold **"Launch App →"** button → `omni-matrix.html`
+  (Learn More still → charactersheet.html). NB: static gate = SOFT
+  security (no server; browser-side decrypt) — fine for a private beta,
+  not true lockdown. To rotate the password, re-run build:gated with a new
+  one and recommit `omni-matrix.html`. Password is NOT stored in the repo
+  (only a salted hash in the encrypted file). NEXT: deploy wiring for the
+  un-gated /app build is still open; Phase 2 (GM console).
+
 ## Hero loop task — status
 
 Goal: an AI-generated slow-motion loop of `hero.png` that plays behind
