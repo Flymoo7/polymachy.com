@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 0,
+  "system": {
+    "id": "ashes-of-the-verge",
+    "name": "Ashes of the Verge",
+    "version": "1.0.0",
+    "author": "Polymachy",
+    "summary": "An original d10 dice-pool sample system used to exercise the Omni Matrix engine. All names and wording are invented; it is not derived from any published game.",
+    "diceModel": "pool-success"
+  },
+
+  "fields": {
+    "might":     { "type": "dots", "label": "Might",     "max": 5, "default": 1, "help": "Raw physical force." },
+    "grace":     { "type": "dots", "label": "Grace",     "max": 5, "default": 1, "help": "Speed and finesse." },
+    "vigor":     { "type": "dots", "label": "Vigor",     "max": 5, "default": 1, "help": "Stamina and toughness." },
+    "wits":      { "type": "dots", "label": "Wits",      "max": 5, "default": 1, "help": "Quick thinking." },
+    "insight":   { "type": "dots", "label": "Insight",   "max": 5, "default": 1, "help": "Perception and reason." },
+    "presence":  { "type": "dots", "label": "Presence",  "max": 5, "default": 1, "help": "Force of personality." },
+    "composure": { "type": "dots", "label": "Composure", "max": 5, "default": 1, "help": "Calm under pressure." },
+
+    "athletics": { "type": "dots", "label": "Athletics", "max": 5, "default": 0 },
+    "brawl":     { "type": "dots", "label": "Brawl",     "max": 5, "default": 0 },
+    "stealth":   { "type": "dots", "label": "Stealth",   "max": 5, "default": 0 },
+    "melee":     { "type": "dots", "label": "Melee",     "max": 5, "default": 0 },
+    "awareness": { "type": "dots", "label": "Awareness", "max": 5, "default": 0 },
+    "lore":      { "type": "dots", "label": "Lore",      "max": 5, "default": 0 },
+    "persuade":  { "type": "dots", "label": "Persuade",  "max": 5, "default": 0 },
+    "intimidate":{ "type": "dots", "label": "Intimidate","max": 5, "default": 0 },
+
+    "vitality_len": { "type": "number", "label": "Vitality boxes", "editable": "none", "derived": "3 + vigor" },
+    "vitality": {
+      "type": "track", "label": "Vitality",
+      "length": { "derived": "vitality_len" },
+      "states": ["ok", "grazed", "broken"],
+      "help": "Mark grazed for superficial harm, broken for grievous harm."
+    },
+
+    "resolve_max": { "type": "number", "label": "Resolve max", "editable": "none", "derived": "composure + wits" },
+    "resolve": {
+      "type": "pool", "label": "Resolve",
+      "max": { "derived": "resolve_max" },
+      "help": "Spend to push through fear, fatigue, or coercion."
+    },
+
+    "focus_pool": {
+      "type": "pool", "label": "Focus", "max": { "derived": "presence + 1" },
+      "help": "The inner reserve powers draw upon."
+    },
+
+    "strain": {
+      "type": "dots", "label": "Strain", "min": 0, "max": 5, "default": 0,
+      "help": "Rising instability. This many dice in every pool become Strain dice."
+    },
+    "standing": {
+      "type": "dots", "label": "Standing", "min": 0, "max": 10, "default": 7,
+      "help": "Your character's moral footing. Falls as they compromise themselves."
+    },
+
+    "powers": {
+      "type": "list", "label": "Powers",
+      "item": {
+        "name":   { "type": "text", "label": "Name" },
+        "rank":   { "type": "dots", "label": "Rank", "max": 5, "default": 1 },
+        "cost":   { "type": "number", "label": "Focus cost", "min": 0, "default": 1 },
+        "effect": { "type": "longtext", "label": "Effect" }
+      }
+    },
+    "gear": {
+      "type": "list", "label": "Gear",
+      "item": {
+        "name":   { "type": "text", "label": "Item" },
+        "weight": { "type": "number", "label": "Weight", "min": 0, "default": 0 },
+        "notes":  { "type": "text", "label": "Notes" }
+      }
+    },
+    "load": { "type": "number", "label": "Load", "editable": "none", "derived": "sum(gear, \"weight\")" },
+
+    "concept":    { "type": "text", "label": "Concept" },
+    "background": { "type": "longtext", "label": "Background" },
+    "notes":      { "type": "longtext", "label": "Notes" }
+  },
+
+  "sections": [
+    { "tab": "Core", "groups": [
+      { "title": "Identity", "columns": 2, "fields": ["concept", "standing"] },
+      { "title": "Attributes", "columns": 4,
+        "fields": ["might", "grace", "vigor", "wits", "insight", "presence", "composure"] },
+      { "title": "Skills", "columns": 4,
+        "fields": ["athletics", "brawl", "stealth", "melee", "awareness", "lore", "persuade", "intimidate"] },
+      { "title": "Condition", "columns": 2,
+        "fields": ["vitality", "resolve", "focus_pool", "strain"] }
+    ]},
+    { "tab": "Powers", "groups": [
+      { "title": "Powers", "fields": ["powers"] }
+    ]},
+    { "tab": "Gear", "groups": [
+      { "title": "Carried", "fields": ["gear", "load"] }
+    ]},
+    { "tab": "Notes", "groups": [
+      { "fields": ["background", "notes"] }
+    ]}
+  ],
+
+  "dice": {
+    "model": "pool-success",
+    "die": 10,
+    "target": 6,
+    "double": { "value": 10, "perPair": 2 },
+    "complication": {
+      "enabled": true,
+      "label": "Strain",
+      "fromField": "strain",
+      "critOn": 10,
+      "botchOn": 1,
+      "critOutcome": "overreach",
+      "botchOutcome": "ruin"
+    }
+  },
+
+  "rolls": {
+    "strike_melee": { "label": "Strike (melee)", "pool": "might + melee" },
+    "strike_brawl": { "label": "Strike (brawl)", "pool": "might + brawl" },
+    "dodge":        { "label": "Dodge",          "pool": "grace + athletics" },
+    "sneak":        { "label": "Sneak",          "pool": "grace + stealth" },
+    "notice":       { "label": "Notice",         "pool": "insight + awareness" },
+    "recall":       { "label": "Recall lore",    "pool": "insight + lore" },
+    "sway":         { "label": "Sway",           "pool": "presence + persuade" },
+    "cow":          { "label": "Intimidate",     "pool": "presence + intimidate" },
+    "resolve_test": { "label": "Resolve test",   "pool": "composure + resolve.current" }
+  },
+
+  "resources": [
+    { "id": "focus", "label": "Focus", "field": "focus_pool",
+      "costs": [
+        { "id": "channel", "label": "Channel a power", "amount": 1 }
+      ] },
+    { "id": "resolve", "label": "Resolve", "field": "resolve",
+      "costs": [
+        { "id": "push", "label": "Push through", "amount": 1 }
+      ] }
+  ],
+
+  "statusEffects": [
+    { "id": "staggered", "label": "Staggered",
+      "modifiers": [ { "applies": "rolls", "delta": -2 } ],
+      "help": "-2 dice to all rolls until cleared." },
+    { "id": "inspired", "label": "Inspired",
+      "modifiers": [ { "applies": "rolls", "delta": 1 } ],
+      "help": "+1 die to all rolls until the scene ends." },
+    { "id": "exposed", "label": "Exposed",
+      "modifiers": [ { "applies": "dodge", "delta": -2 } ],
+      "help": "-2 dice to Dodge until the character takes cover." }
+  ],
+
+  "character": {
+    "newSheet": {
+      "meta": { "name": "New Verge-walker" }
+    }
+  }
+}

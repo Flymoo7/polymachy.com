@@ -20,6 +20,43 @@ Everything lives in `index.html`; artwork files sit in the repo root.
 - Compress delivered video for web (H.264, faststart, no audio, aim for
   well under 10MB) before committing.
 
+## Omni Matrix app (character-sheet platform) — status
+
+New major workstream (product 02, `charactersheet.html`). Building a
+**system-agnostic, peer-to-peer character-sheet platform / lightweight
+VTT** to be served from `polymachy.com/app`. **Source of truth:
+`app/ARCHITECTURE.md` — read it before touching anything under `app/`.**
+
+Key locked decisions (full detail in that doc):
+- **Networking:** static SPA with **peer-to-peer (WebRTC), GM-hosted**
+  sessions — owner runs/pays for NO server. Effectively unlimited
+  concurrent groups (each table runs on the players' own browsers); the
+  only practical limit is players-per-table (comfortable for normal
+  groups). Data lives with players (localStorage + portable export file);
+  no accounts needed.
+- **Hosting:** built into the `app/` subfolder, served at
+  `polymachy.com/app` from the existing GitHub Pages deploy.
+- **Stack:** React + TypeScript + Vite (static build) + Yjs-over-WebRTC
+  for sync.
+- **IP guardrail (critical):** the engine ships **no branded content**.
+  Only original/neutral sample definitions ship; communities author their
+  own definitions for branded games. Vampire/WoD was an internal design
+  reference ONLY — never shipped. Mechanics aren't copyrightable;
+  expression (names/text/trademarks) is, so keep all shipped expression
+  original.
+- **Phasing:** P0 foundations (format + engine, no UI) → P1 player sheet
+  (match owner's Figma) → P2 GM console → P3 go live (P2P) → P4 second
+  sample system + polish.
+
+Progress:
+- **2026-06-15 P0 started:** `app/ARCHITECTURE.md` (decision record),
+  `app/systems/SYSTEM-FORMAT.md` (the definition format spec, v0), and
+  `app/systems/sample-ashes-of-the-verge.json` (first ORIGINAL sample
+  system — a d10 success-pool with a "Strain" complication die; all names
+  invented). No UI/build tooling scaffolded yet. Next: the sandboxed
+  formula/mechanics evaluator + character model, then Phase 1 (awaiting
+  owner's Figma for the three screens).
+
 ## Hero loop task — status
 
 Goal: an AI-generated slow-motion loop of `hero.png` that plays behind
