@@ -56,6 +56,29 @@ to run or pay for**, keeps data with the players (reinforcing the
 Ownership/Portability/Security tenets), and needs no sign-up friction for
 a public tool discovered from the marketing site.
 
+### IP / legal guardrail — product-agnostic, ship nothing branded
+
+The platform must be **genuinely game-agnostic and not tied to any one
+product**, both as a product goal and to avoid stepping on any
+publisher's IP (copyright/trademark exposure). Hard rules:
+
+- **The engine ships no branded content.** Mechanic primitives are
+  generic (success-pools, polyhedral rolls, damage tracks, resource
+  spends); no game's terminology, names, descriptions, lore, or
+  trademarks are baked in anywhere.
+- **Polymachy distributes only ORIGINAL/neutral sample definitions** —
+  invented names and our own wording — to demonstrate the engine.
+- **Communities supply their own definitions** for branded games they
+  play. Definitions are just data that users author or import, so
+  Polymachy never distributes a third party's IP. This is both the
+  product vision and the legal shield.
+- **Vampire: the Masquerade (and similar) is an internal design
+  reference ONLY** — used privately to pressure-test the format. It is
+  never shipped, and no WoD-specific names/text/trademarks appear in any
+  committed file. The legal line: game *mechanics* aren't copyrightable,
+  but their *expression* (names, descriptions, text, trademarks) is — so
+  we stay on the mechanics side and keep all expression original.
+
 ### Where it lives — `polymachy.com/app`
 
 - Built as static files into the **`app/` subfolder of this repo** and
@@ -80,8 +103,9 @@ a public tool discovered from the marketing site.
 1. **System definition** — declarative description of one game system:
    fields, sections/tabs, derived formulas, dice/roller config, special
    mechanics, resources & costs, status effects. See
-   `systems/SYSTEM-FORMAT.md`. First definition: `systems/wod-vampire.json`
-   (the owner's *By Night in Prague* / Vampire 5e chronicle).
+   `systems/SYSTEM-FORMAT.md`. First shipped definition is an **original,
+   neutral sample system** (invented names, our own wording) — see the IP
+   guardrail above; no branded game content ships.
 2. **Mechanics layer** — a **sandboxed** formula + mechanics evaluator.
    NOT arbitrary JS (unsafe in shared sessions): a safe expression
    evaluator plus parameterized primitives (e.g. "roll pool, count
@@ -102,9 +126,9 @@ a public tool discovered from the marketing site.
 
 Each phase is independently demoable.
 
-- **Phase 0 — Foundations (no UI):** system-definition format spec; the
-  Vampire 5e definition; character model; the sandboxed mechanics/formula
-  evaluator with tests. *(In progress — this commit starts it.)*
+- **Phase 0 — Foundations (no UI):** system-definition format spec; an
+  original/neutral sample definition; character model; the sandboxed
+  mechanics/formula evaluator with tests. *(In progress.)*
 - **Phase 1 — Player sheet:** render screen 1 from the definition,
   matched to the owner's Figma; dots/pools/tabs; density modes; the d10
   pool builder driven by system config; local save/load + export file.
@@ -112,7 +136,8 @@ Each phase is independently demoable.
   combat/initiative, status effects — still single-device.
 - **Phase 3 — Go live:** stand up P2P sync; presence/roster/action-log
   sync; propose→approve→execute; whispers; roles; auto-save.
-- **Phase 4 — Prove agnostic + polish:** add a second, non-WoD system;
+- **Phase 4 — Prove agnostic + polish:** add a second original sample
+  system (different dice model, e.g. polyhedral) to prove agnosticism;
   themes; print/export; optional cloud-save bolt-on.
 
 ## Open questions (revisit before the phase that needs them)
