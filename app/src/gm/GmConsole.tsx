@@ -103,7 +103,7 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
         </div>
       </header>
 
-      <SessionBar defaultName="GM" />
+      <SessionBar defaultName="GM" hostOnly />
 
       <div className="gm-body">
         <main className="gm-main">
