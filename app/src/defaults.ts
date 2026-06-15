@@ -3,6 +3,10 @@
 
 import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, LayoutPage } from './types';
 
+export function genId(prefix = 'c'): string {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export function newCharacter(def: SystemDefinition): CharacterDoc {
   const data: Record<string, unknown> = {};
   for (const [id, f] of Object.entries(def.fields)) {
@@ -15,6 +19,7 @@ export function newCharacter(def: SystemDefinition): CharacterDoc {
   const name = (def.character?.newSheet?.meta?.name as string) ?? 'New character';
   return {
     schemaVersion: 0,
+    id: genId(),
     system: def.system.id,
     systemVersion: def.system.version,
     data,

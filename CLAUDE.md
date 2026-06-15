@@ -78,9 +78,19 @@ Progress:
   dice rolls + roll log, field renderers (dots/pool/track/number/text/
   list/select/toggle), localStorage persistence, and character/layout
   JSON export. `npm run build` is green. node_modules/dist/*.tsbuildinfo
-  gitignored; package-lock committed. NEXT: deploy wiring (build dist to
-  the /app path — open question), then import + multi-character, then
-  Phase 2 (GM console).
+  gitignored; package-lock committed.
+- **2026-06-15 P1 feature rounds:** per-block colour swatches; hide/add
+  blocks via an "Add block" palette; character + layout JSON import (to
+  match export); editable character name; **per-block field selection**
+  (⚙ picker — choose which fields each block shows) + editable block
+  titles + "New empty block"; **multi-page layouts** (tabs — layout doc
+  now `pages[]`, one page per definition tab, page bar with add/rename/
+  delete, old single-page layouts auto-migrate); **multiple characters**
+  (localStorage roster: `roster`/`active`/`char:<id>`/`layout:<id>`;
+  switcher dropdown + new/delete; each character has its own layout; old
+  single-char save auto-migrates; importing a character adds a roster
+  entry). All builds green; 18 engine tests pass. NEXT: deploy wiring
+  (build dist to /app — still open), then Phase 2 (GM console).
 
 ## Hero loop task — status
 

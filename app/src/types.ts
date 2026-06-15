@@ -67,11 +67,14 @@ export interface SystemDefinition {
 // A character stores only values, keyed by fieldId.
 export interface CharacterDoc {
   schemaVersion: number;
+  id: string;
   system: string;
   systemVersion: string;
   data: Record<string, unknown>;
   meta: { name: string; created: string; updated: string };
 }
+
+export interface RosterEntry { id: string; name: string }
 
 // The user's "Lego" arrangement — separate, exportable, shareable.
 export interface LayoutBlock {

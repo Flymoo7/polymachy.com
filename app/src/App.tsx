@@ -1,9 +1,9 @@
 import { useMemo, useState, useCallback, useRef } from 'react';
 import { Responsive, WidthProvider, type Layout } from 'react-grid-layout';
 import sampleDef from '../systems/sample-ashes-of-the-verge.json';
-import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult } from './types';
+import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult, RosterEntry } from './types';
 import { computeResolved, performRoll } from './engineBridge';
-import { newCharacter, defaultLayout } from './defaults';
+import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
 
 const Grid = WidthProvider(Responsive);
@@ -50,9 +50,40 @@ function readFile(file: File): Promise<unknown> {
 
 const SWATCHES = ['#c8a96e', '#7a1f1f', '#3a5a78', '#4a6b4a', '#6b4a6b', '#8a8a8a'];
 
+const rawLoad = (k: string): any => { try { const r = localStorage.getItem(KEY(k)); return r ? JSON.parse(r) : null; } catch { return null; } };
+
+// Initialise the roster, migrating any pre-roster single-character save.
+function boot(): { roster: RosterEntry[]; activeId: string; char: CharacterDoc; layout: LayoutDoc } {
+  let roster: RosterEntry[] | null = rawLoad('roster');
+  if (!roster || !roster.length) {
+    const old = rawLoad('char') as CharacterDoc | null;
+    if (old) {
+      const id = old.id || genId();
+      old.id = id;
+      const oldLayout = migrateLayout(rawLoad('layout') || defaultLayout(def));
+      save(`char:${id}`, old); save(`layout:${id}`, oldLayout);
+      roster = [{ id, name: old.meta.name }];
+    } else {
+      const c = newCharacter(def);
+      save(`char:${c.id}`, c); save(`layout:${c.id}`, defaultLayout(def));
+      roster = [{ id: c.id, name: c.meta.name }];
+    }
+    save('roster', roster);
+  }
+  let activeId: string = rawLoad('active');
+  if (!activeId || !roster.find((r) => r.id === activeId)) activeId = roster[0].id;
+  save('active', activeId);
+  const char = (rawLoad(`char:${activeId}`) as CharacterDoc) ?? newCharacter(def);
+  const layout = migrateLayout(rawLoad(`layout:${activeId}`) || defaultLayout(def));
+  return { roster, activeId, char, layout };
+}
+
 export default function App() {
-  const [char, setChar] = useState<CharacterDoc>(() => load('char', () => newCharacter(def)));
-  const [layout, setLayout] = useState<LayoutDoc>(() => migrateLayout(load('layout', () => defaultLayout(def))));
+  const [start] = useState(boot);
+  const [roster, setRoster] = useState<RosterEntry[]>(start.roster);
+  const [activeId, setActiveId] = useState<string>(start.activeId);
+  const [char, setChar] = useState<CharacterDoc>(start.char);
+  const [layout, setLayout] = useState<LayoutDoc>(start.layout);
   const [log, setLog] = useState<RollResult[]>([]);
   const [edit, setEdit] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
@@ -62,17 +93,49 @@ export default function App() {
 
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
 
-  const persistChar = (next: CharacterDoc) => { save('char', next); return next; };
-  const persistLayout = (next: LayoutDoc) => { save('layout', next); return next; };
+  const persistChar = (next: CharacterDoc) => { save(`char:${activeId}`, next); return next; };
+  const persistLayout = (next: LayoutDoc) => { save(`layout:${activeId}`, next); return next; };
+  const persistRoster = (next: RosterEntry[]) => { save('roster', next); return next; };
 
   const idx = Math.min(pageIdx, layout.pages.length - 1);
   const page = layout.pages[idx];
 
   const updateField = useCallback((id: string, value: unknown) => {
     setChar((c) => persistChar({ ...c, data: { ...c.data, [id]: value }, meta: { ...c.meta, updated: new Date().toISOString() } }));
-  }, []);
+  }, [activeId]);
 
-  const renameChar = (name: string) => setChar((c) => persistChar({ ...c, meta: { ...c.meta, name } }));
+  const renameChar = (name: string) => {
+    setChar((c) => persistChar({ ...c, meta: { ...c.meta, name } }));
+    setRoster((r) => persistRoster(r.map((x) => x.id === activeId ? { ...x, name } : x)));
+  };
+
+  // ---- roster / character ops ----
+  const openChar = (id: string) => {
+    setActiveId(id); save('active', id);
+    setChar((rawLoad(`char:${id}`) as CharacterDoc) ?? newCharacter(def));
+    setLayout(migrateLayout(rawLoad(`layout:${id}`) || defaultLayout(def)));
+    setPageIdx(0); setLog([]); setConfigBlock(null);
+  };
+
+  const switchChar = (id: string) => { if (id !== activeId) openChar(id); };
+
+  const addCharacter = () => {
+    const c = newCharacter(def); const l = defaultLayout(def);
+    save(`char:${c.id}`, c); save(`layout:${c.id}`, l);
+    setRoster((r) => persistRoster([...r, { id: c.id, name: c.meta.name }]));
+    setActiveId(c.id); save('active', c.id);
+    setChar(c); setLayout(l); setPageIdx(0); setLog([]); setConfigBlock(null);
+  };
+
+  const deleteCharacter = (id: string) => {
+    if (roster.length <= 1) return;
+    if (!confirm('Delete this character? This cannot be undone.')) return;
+    localStorage.removeItem(KEY(`char:${id}`));
+    localStorage.removeItem(KEY(`layout:${id}`));
+    const next = roster.filter((r) => r.id !== id);
+    setRoster(persistRoster(next));
+    if (id === activeId) openChar(next[0].id);
+  };
 
   const roll = useCallback((id: string) => {
     setLog((l) => [performRoll(def, id, resolved), ...l].slice(0, 50));
@@ -92,7 +155,7 @@ export default function App() {
       const it = byId.get(b.id);
       return it ? { ...b, x: it.x, y: it.y, w: it.w, h: it.h } : b;
     }));
-  }, [pageIdx]);
+  }, [pageIdx, activeId]);
 
   const setColour = (id: string, colour: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, colour } : b));
   const hideBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: true } : b));
@@ -136,9 +199,14 @@ export default function App() {
     try {
       const doc = await readFile(file) as any;
       if (doc && (doc.pages || doc.blocks) && doc.system === def.system.id) {
+        // layout import applies to the active character
         setLayout(persistLayout(migrateLayout(doc))); setPageIdx(0);
       } else if (doc && doc.data && doc.system === def.system.id) {
-        setChar(persistChar(doc as CharacterDoc));
+        // character import becomes a new roster entry (fresh id avoids clashes)
+        const c = doc as CharacterDoc; c.id = genId();
+        save(`char:${c.id}`, c); save(`layout:${c.id}`, defaultLayout(def));
+        setRoster((r) => persistRoster([...r, { id: c.id, name: c.meta.name }]));
+        openChar(c.id);
       } else {
         alert('That file is not a character or layout for this system.');
       }
@@ -153,8 +221,17 @@ export default function App() {
     <div className={`app ${edit ? 'editing' : ''}`}>
       <header className="topbar">
         <div className="brand">POLY<span>MACHY</span><em>Omni Matrix</em></div>
-        <input className="char-name-input" value={char.meta.name}
-          onChange={(e) => renameChar(e.target.value)} aria-label="Character name" />
+        <div className="charbar">
+          <select className="char-select" value={activeId} onChange={(e) => switchChar(e.target.value)} aria-label="Switch character">
+            {roster.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
+          </select>
+          <input className="char-name-input" value={char.meta.name}
+            onChange={(e) => renameChar(e.target.value)} aria-label="Character name" />
+          <button className="char-mini" title="New character" onClick={addCharacter}>+</button>
+          {roster.length > 1 && (
+            <button className="char-mini danger" title="Delete character" onClick={() => deleteCharacter(activeId)}>🗑</button>
+          )}
+        </div>
         <div className="actions">
           <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
             {edit ? 'Done arranging' : 'Arrange blocks'}
