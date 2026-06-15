@@ -49,6 +49,7 @@ export default function App() {
   const [log, setLog] = useState<RollResult[]>([]);
   const [edit, setEdit] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
+  const [configBlock, setConfigBlock] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
@@ -80,6 +81,20 @@ export default function App() {
   const setColour = (id: string, colour: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, colour } : b));
   const hideBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: true } : b));
   const showBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: false } : b));
+  const setTitle = (id: string, title: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, title } : b));
+
+  const toggleField = (id: string, fid: string) => mutateBlocks((bs) => bs.map((b) => {
+    if (b.id !== id) return b;
+    const cur = b.fields ?? [];
+    return { ...b, fields: cur.includes(fid) ? cur.filter((f) => f !== fid) : [...cur, fid] };
+  }));
+
+  const addNewBlock = () => {
+    const maxY = layout.blocks.reduce((m, b) => (b.hidden ? m : Math.max(m, b.y + b.h)), 0);
+    const id = `group:custom-${Date.now()}`;
+    mutateBlocks((bs) => [...bs, { id, source: 'group', title: 'New block', fields: [], x: 0, y: maxY, w: 4, h: 5, hidden: false }]);
+    setConfigBlock(id);
+  };
 
   const resetLayout = () => setLayout(persistLayout(defaultLayout(def)));
 
@@ -123,7 +138,7 @@ export default function App() {
       {edit && showPalette && (
         <div className="palette">
           <span className="palette-label">Add a block:</span>
-          {hiddenBlocks.length === 0 && <span className="muted">All blocks are on the sheet.</span>}
+          <button className="chip chip-new" onClick={addNewBlock}>+ New empty block</button>
           {hiddenBlocks.map((b) => (
             <button key={b.id} className="chip" onClick={() => showBlock(b.id)}>+ {b.title}</button>
           ))}
@@ -146,9 +161,16 @@ export default function App() {
         {visibleBlocks.map((b) => (
           <section key={b.id} className="block" style={{ ['--block-accent' as any]: b.colour ?? 'var(--accent)' }}>
             <div className="block-head">
-              <span className="block-title">{b.title}</span>
+              {edit
+                ? <input className="block-title-input block-ctrl" value={b.title ?? ''}
+                    onChange={(e) => setTitle(b.id, e.target.value)} aria-label="Block title" />
+                : <span className="block-title">{b.title}</span>}
               {edit && (
                 <span className="block-ctrl">
+                  {b.source === 'group' && (
+                    <button className={`block-cfg ${configBlock === b.id ? 'on' : ''}`} title="Choose fields"
+                      onClick={() => setConfigBlock((c) => c === b.id ? null : b.id)}>⚙</button>
+                  )}
                   {SWATCHES.map((c) => (
                     <button key={c} className="swatch" style={{ background: c }} title={c}
                       onClick={() => setColour(b.id, c)} />
@@ -158,6 +180,27 @@ export default function App() {
               )}
             </div>
             <div className="block-body">
+              {edit && configBlock === b.id && b.source === 'group' && (
+                <div className="fieldpick">
+                  <div className="fieldpick-head">Show fields in “{b.title}”</div>
+                  {def.sections.map((sec) => (
+                    <div key={sec.tab} className="fieldpick-group">
+                      <div className="fieldpick-tab">{sec.tab}</div>
+                      {sec.groups.flatMap((g) => g.fields).map((fid) => {
+                        const fd = def.fields[fid];
+                        if (!fd) return null;
+                        return (
+                          <label key={fid} className="pick">
+                            <input type="checkbox" checked={(b.fields ?? []).includes(fid)}
+                              onChange={() => toggleField(b.id, fid)} />
+                            <span>{fd.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              )}
               {b.source === 'group' && (b.fields ?? []).map((fid) => {
                 const fdef = def.fields[fid];
                 if (!fdef) return null;

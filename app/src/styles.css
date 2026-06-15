@@ -57,6 +57,24 @@ body {
 .block-hide { width: 20px; height: 20px; margin-left: 4px; border: 1px solid var(--line);
   background: var(--panel); color: var(--mid); border-radius: 4px; cursor: pointer; line-height: 1; }
 .block-hide:hover { border-color: #7a1f1f; color: #c97a7a; }
+.block-cfg { width: 20px; height: 20px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--mid); border-radius: 4px; cursor: pointer; line-height: 1; }
+.block-cfg:hover, .block-cfg.on { border-color: var(--accent); color: var(--accent); }
+.block-title-input { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; font-size: 1rem;
+  background: var(--panel); color: var(--white); border: 1px solid var(--line); border-radius: 4px;
+  padding: 0.1rem 0.4rem; max-width: 60%; }
+.block-title-input:focus { outline: none; border-color: var(--accent); }
+.chip-new { border-style: dashed; color: var(--accent); }
+
+/* field picker */
+.fieldpick { border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2);
+  padding: 0.5rem; margin-bottom: 0.6rem; max-height: 240px; overflow: auto; }
+.fieldpick-head { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+.fieldpick-tab { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--mid); margin: 0.4rem 0 0.2rem; }
+.pick { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding: 0.12rem 0; }
+.pick input { accent-color: var(--accent); }
 
 .btn {
   font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em;
