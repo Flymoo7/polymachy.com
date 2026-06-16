@@ -83,6 +83,7 @@ export interface LayoutBlock {
   id: string;
   source: string;        // "group:Tab/Title" | "roll-panel" | ...
   title?: string;
+  icon?: string;         // icon name (see icons.tsx); falls back to guessIcon
   x: number; y: number; w: number; h: number;
   colour?: string;
   hidden?: boolean;

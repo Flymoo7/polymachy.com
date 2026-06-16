@@ -254,7 +254,32 @@ body {
   color: var(--ink); display: flex; align-items: center; gap: 0.5rem; min-width: 0;
 }
 .block-title span.txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* block icon takes the per-block accent colour (and therefore the theme) */
+.block-icon { color: var(--block-accent); flex-shrink: 0; }
+.block-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; padding: 0; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--block-accent); cursor: pointer; flex-shrink: 0; transition: all .15s;
+}
+.block-icon-btn:hover, .block-icon-btn.on { border-color: var(--accent); }
 .block-body { padding: 0.7rem 0.85rem; overflow: auto; flex: 1; }
+
+/* icon picker */
+.iconpick {
+  border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface-2);
+  padding: 0.55rem; margin-bottom: 0.65rem;
+}
+.iconpick-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 5px; margin-top: 0.4rem;
+}
+.iconpick-cell {
+  display: inline-flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; border: 1px solid var(--border); background: var(--surface);
+  color: var(--ink-dim); border-radius: var(--r-sm); cursor: pointer; transition: all .12s;
+}
+.iconpick-cell:hover { border-color: var(--accent); color: var(--accent); }
+.iconpick-cell.on { border-color: var(--accent); color: var(--accent); background: var(--surface-hi); }
 
 /* ── fields ───────────────────────────────────────────────────────────── */
 .field { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.65rem; }

@@ -4,6 +4,7 @@ import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult
 import { computeResolved, performRoll, rollResultText } from './engineBridge';
 import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
+import { Icon, ICON_NAMES, guessIcon } from './icons';
 import { GmConsole } from './gm/GmConsole';
 import { KEY, save, rawLoad } from './storage';
 import { useSession } from './net/SessionProvider';
@@ -86,6 +87,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const [edit, setEdit] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
   const [configBlock, setConfigBlock] = useState<string | null>(null);
+  const [iconPick, setIconPick] = useState<string | null>(null);
   const [pageIdx, setPageIdx] = useState(0);
   const [view, setView] = useState<'player' | 'gm'>('player');
   const importRef = useRef<HTMLInputElement>(null);
@@ -129,7 +131,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
     setActiveId(id); save('active', id);
     setChar((rawLoad(`char:${id}`) as CharacterDoc) ?? newCharacter(def));
     setLayout(migrateLayout(rawLoad(`layout:${id}`) || defaultLayout(def)));
-    setPageIdx(0); setLog([]); setConfigBlock(null);
+    setPageIdx(0); setLog([]); setConfigBlock(null); setIconPick(null);
   };
 
   const switchChar = (id: string) => { if (id !== activeId) openChar(id); };
@@ -139,7 +141,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
     save(`char:${c.id}`, c); save(`layout:${c.id}`, l);
     setRoster((r) => persistRoster([...r, { id: c.id, name: c.meta.name }]));
     setActiveId(c.id); save('active', c.id);
-    setChar(c); setLayout(l); setPageIdx(0); setLog([]); setConfigBlock(null);
+    setChar(c); setLayout(l); setPageIdx(0); setLog([]); setConfigBlock(null); setIconPick(null);
   };
 
   const deleteCharacter = (id: string) => {
@@ -181,6 +183,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const hideBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: true } : b));
   const showBlock = (id: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, hidden: false } : b));
   const setTitle = (id: string, title: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, title } : b));
+  const setIcon = (id: string, icon: string) => mutateBlocks((bs) => bs.map((b) => b.id === id ? { ...b, icon } : b));
 
   const toggleField = (id: string, fid: string) => mutateBlocks((bs) => bs.map((b) => {
     if (b.id !== id) return b;
@@ -330,10 +333,18 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
         {visibleBlocks.map((b) => (
           <section key={b.id} className="block" style={{ ['--block-accent' as any]: b.colour ?? 'var(--accent)' }}>
             <div className="block-head">
-              {edit
-                ? <input className="block-title-input block-ctrl" value={b.title ?? ''}
-                    onChange={(e) => setTitle(b.id, e.target.value)} aria-label="Block title" />
-                : <span className="block-title">{b.title}</span>}
+              <span className="block-title">
+                {edit
+                  ? <button className={`block-icon-btn block-ctrl ${iconPick === b.id ? 'on' : ''}`} title="Change icon"
+                      onClick={() => setIconPick((c) => c === b.id ? null : b.id)}>
+                      <Icon name={b.icon ?? guessIcon(b.title, b.source)} />
+                    </button>
+                  : <Icon name={b.icon ?? guessIcon(b.title, b.source)} className="block-icon" />}
+                {edit
+                  ? <input className="block-title-input block-ctrl" value={b.title ?? ''}
+                      onChange={(e) => setTitle(b.id, e.target.value)} aria-label="Block title" />
+                  : <span className="txt">{b.title}</span>}
+              </span>
               {edit && (
                 <span className="block-ctrl">
                   {b.source === 'group' && (
@@ -349,6 +360,20 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
               )}
             </div>
             <div className="block-body">
+              {edit && iconPick === b.id && (
+                <div className="iconpick">
+                  <div className="fieldpick-head">Icon for “{b.title}”</div>
+                  <div className="iconpick-grid">
+                    {ICON_NAMES.map((n) => (
+                      <button key={n} title={n}
+                        className={`iconpick-cell ${(b.icon ?? guessIcon(b.title, b.source)) === n ? 'on' : ''}`}
+                        onClick={() => { setIcon(b.id, n); setIconPick(null); }}>
+                        <Icon name={n} size={20} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {edit && configBlock === b.id && b.source === 'group' && (
                 <div className="fieldpick">
                   <div className="fieldpick-head">Show fields in “{b.title}”</div>
