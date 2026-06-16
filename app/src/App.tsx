@@ -98,9 +98,19 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
     if (session.connected) session.publishCharacter(char);
   }, [session.connected, char]);
 
+  // apply the active character's theme to <html> so the page background
+  // (painted on body, the ancestor of .app) picks up the token overrides
+  const theme = layout.theme ?? 'dark';
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    return () => { document.documentElement.removeAttribute('data-theme'); };
+  }, [theme]);
+
   const persistChar = (next: CharacterDoc) => { save(`char:${activeId}`, next); return next; };
   const persistLayout = (next: LayoutDoc) => { save(`layout:${activeId}`, next); return next; };
   const persistRoster = (next: RosterEntry[]) => { save('roster', next); return next; };
+  const setTheme = (t: string) =>
+    setLayout((lo) => persistLayout({ ...lo, theme: t, meta: { ...lo.meta, updated: new Date().toISOString() } }));
 
   const idx = Math.min(pageIdx, layout.pages.length - 1);
   const page = layout.pages[idx];
@@ -248,6 +258,16 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
           )}
         </div>
         <div className="actions">
+          <span className="theme-pick" title="Theme">
+            {(['dark', 'parchment', 'terminal'] as const).map((t) => (
+              <button
+                key={t}
+                className={`theme-swatch theme-swatch--${t} ${theme === t ? 'active' : ''}`}
+                title={t.charAt(0).toUpperCase() + t.slice(1)}
+                onClick={() => setTheme(t)}
+              />
+            ))}
+          </span>
           <button className="btn" onClick={onChangeDef}>Change system</button>
           <button className="btn" onClick={() => setView('gm')}>GM view</button>
           <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>

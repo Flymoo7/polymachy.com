@@ -508,3 +508,75 @@ body {
   letter-spacing: .12em; color: var(--accent-2);
 }
 .syspick-summary { font-size: .84rem; color: var(--muted); line-height: 1.55; font-weight: 300; }
+
+/* ═══ Themes ═══════════════════════════════════════════════════════════ */
+/* Applied via data-theme on <html> so the body background (painted on the
+   parent of .app) picks up the overridden tokens. Only changed values are
+   listed; everything else inherits the :root dark defaults. */
+
+[data-theme="parchment"] {
+  --bg:        #f0e8d5;
+  --bg-grad:   radial-gradient(140% 120% at 50% -10%, #f7f0e0 0%, #f0e8d5 60%);
+  --surface:   #e6d9be;
+  --surface-2: #ddd0b0;
+  --surface-3: #d3c59e;
+  --surface-hi:#cfc09a;
+  --border:    #b8a882;
+  --border-hi: #9a8c6a;
+  --ink:       #2a1f0e;
+  --ink-dim:   #4a3820;
+  --muted:     #7a6545;
+  --accent:    #8c5c1a;
+  --accent-2:  #4a7c5a;
+  --gold:      #8c5c1a;
+  --gold-hi:   #a86d22;
+  --gold-dim:  #5c3a0e;
+  --teal:      #4a7c5a;
+  --teal-hi:   #5a9470;
+  --teal-dim:  #3a6048;
+  --danger:    #8c2a2a;
+  --danger-line:#7a2020;
+  --good:      #2a6a40;
+  --shadow:    0 2px 10px rgba(90,70,40,0.18);
+  --shadow-lg: 0 10px 30px rgba(90,70,40,0.25);
+  --ring: 0 0 0 3px rgba(140,92,26,0.25);
+}
+
+[data-theme="terminal"] {
+  --bg:        #020608;
+  --bg-grad:   radial-gradient(140% 120% at 50% -10%, #040e10 0%, #020608 60%);
+  --surface:   #060e12;
+  --surface-2: #091418;
+  --surface-3: #0c1a20;
+  --surface-hi:#0f2028;
+  --border:    #1a3040;
+  --border-hi: #2a4a60;
+  --ink:       #c8f0d8;
+  --ink-dim:   #94cca8;
+  --muted:     #4a7860;
+  --accent:    #00d96a;
+  --accent-2:  #00a8c4;
+  --gold:      #00d96a;
+  --gold-hi:   #22f080;
+  --gold-dim:  #008a44;
+  --teal:      #00a8c4;
+  --teal-hi:   #20c0dc;
+  --teal-dim:  #007a90;
+  --danger:    #ff4a4a;
+  --danger-line:#cc2222;
+  --good:      #00ff88;
+  --ring: 0 0 0 3px rgba(0,217,106,0.25);
+}
+
+/* Theme picker in topbar */
+.theme-pick { display: flex; align-items: center; gap: 0.35rem; }
+.theme-swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer; padding: 0;
+  transition: transform .15s, border-color .15s;
+}
+.theme-swatch:hover { transform: scale(1.15); }
+.theme-swatch.active { border-color: var(--ink); }
+.theme-swatch--dark      { background: conic-gradient(#060808 50%, #c8a96e 50%); }
+.theme-swatch--parchment { background: conic-gradient(#f0e8d5 50%, #8c5c1a 50%); }
+.theme-swatch--terminal  { background: conic-gradient(#020608 50%, #00d96a 50%); }

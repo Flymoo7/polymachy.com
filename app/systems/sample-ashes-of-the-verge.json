@@ -6,7 +6,8 @@
     "version": "1.0.0",
     "author": "Polymachy",
     "summary": "An original d10 dice-pool sample system used to exercise the Omni Matrix engine. All names and wording are invented; it is not derived from any published game.",
-    "diceModel": "pool-success"
+    "diceModel": "pool-success",
+    "defaultTheme": "parchment"
   },
 
   "fields": {
