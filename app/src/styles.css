@@ -13,9 +13,9 @@
   --gold:        #c8a96e;   /* warm amber gold, matching the main Polymachy site */
   --gold-hi:     #d9bc8c;
   --gold-dim:    #8c6f3f;
-  --teal:        #59d6bf;   /* C65 M16 Y25 K0  — secondary accent */
-  --teal-hi:     #7fe6d3;
-  --teal-dim:    #348b7a;
+  --teal:        #36b5c4;   /* C65 M16 Y25 K0 — true cyan-teal (Adobe render), not minty */
+  --teal-hi:     #5fcdd9;
+  --teal-dim:    #2a8a96;
   --near-black:  #060808;   /* C75 M68 Y67 K90 — base ink */
   --pure-white:  #ffffff;
 
@@ -287,7 +287,7 @@ body {
 .pool-row { display: flex; align-items: center; gap: 0.45rem; }
 .pool-pips { display: flex; gap: 4px; flex-wrap: wrap; }
 .pip { width: 13px; height: 13px; border: 1.5px solid var(--teal); border-radius: 3px; transition: all .12s; }
-.pip.on { background: var(--teal); box-shadow: 0 0 6px rgba(89,214,191,0.5); }
+.pip.on { background: var(--teal); box-shadow: 0 0 6px rgba(54,181,196,0.5); }
 .pool-count { font-family: var(--font-head); font-weight: 700; font-size: 0.78rem; color: var(--teal-dim); margin-left: auto; }
 .step {
   width: 24px; height: 24px; border: 1px solid var(--border); background: var(--surface-2);
@@ -430,7 +430,7 @@ body {
   padding: 0.55rem 1.4rem; border-bottom: 1px solid var(--border);
   background: var(--surface); position: sticky; top: 49px; z-index: 16;
 }
-.sessbar.online { background: rgba(89,214,191,0.07); border-bottom-color: var(--teal-dim); }
+.sessbar.online { background: rgba(54,181,196,0.07); border-bottom-color: var(--teal-dim); }
 .sessbar .field-input { max-width: 14ch; }
 .sess-code { max-width: 8ch; text-transform: uppercase; letter-spacing: 0.2em; }
 .sess-pill {
