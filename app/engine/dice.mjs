@@ -88,8 +88,19 @@ export function resolvePoolSuccess({ faces = [], complication = [], config }) {
  * @param {number} [args.strain]      how many of the pool are complication dice
  * @param {object} args.config        the `dice` definition block
  * @param {Function} [args.rng]
+ * @param {number} [args.modifier]    flat modifier added to the sum (sum-banded only)
  */
-export function rollAndResolve({ pool, strain = 0, config, rng = defaultRng }) {
+export function rollAndResolve({ pool = 0, strain = 0, config, rng = defaultRng, modifier = 0 }) {
+  if (config.model === 'sum-banded') {
+    return rollSumBanded({
+      count: config.count ?? 2,
+      sides: config.die ?? 6,
+      modifier,
+      bands: config.bands ?? [],
+      rng,
+    });
+  }
+  // pool-success (existing logic unchanged)
   const sides = config.die ?? 10;
   const total = Math.max(0, Math.floor(pool));
   const compCount = Math.min(strain, total);
@@ -97,4 +108,28 @@ export function rollAndResolve({ pool, strain = 0, config, rng = defaultRng }) {
   const faces = rollPool(regCount, sides, rng);
   const complication = rollPool(compCount, sides, rng);
   return resolvePoolSuccess({ faces, complication, config });
+}
+
+/**
+ * Roll dice and resolve against a set of numbered bands (e.g. 2d6 + modifier).
+ *
+ * @param {object} args
+ * @param {number} args.count         number of dice to roll
+ * @param {number} args.sides         sides per die
+ * @param {number} [args.modifier]    flat modifier added to the sum
+ * @param {Array}  args.bands         sorted band array from the dice config
+ * @param {Function} [args.rng]
+ */
+export function rollSumBanded({ count, sides, modifier = 0, bands, rng = defaultRng }) {
+  const faces = Array.from({ length: Math.max(0, Math.floor(count)) }, () =>
+    1 + Math.floor(rng() * sides));
+  const total = faces.reduce((a, b) => a + b, 0) + modifier;
+  const band = bands.find((b) => b.max === null || total <= b.max) ?? bands[bands.length - 1];
+  return {
+    total, modifier, faces,
+    band: band.label,
+    result: band.result,
+    success: band.result !== 'miss',
+    partial: band.result === 'partial',
+  };
 }

@@ -38,12 +38,14 @@ export interface SectionDef {
   groups: GroupDef[];
 }
 
-export interface RollDef { label: string; pool: string }
+export interface RollDef { label: string; pool?: string; modifier?: string }
 
 export interface DiceConfig {
   model: string;
   die: number;
-  target: number;
+  target?: number;
+  count?: number;
+  bands?: Array<{ max: number | null; label: string; result: string }>;
   double?: { value: number; perPair: number };
   complication?: {
     enabled: boolean; label: string; fromField: string;
@@ -107,13 +109,18 @@ export type Resolved = Record<string, any>;
 export interface RollResult {
   id: string;
   label: string;
-  pool: number;
-  strain: number;
-  successes: number;
-  critical: boolean;
   success: boolean;
-  complication: string | null;
-  faces: number[];
-  complicationFaces: number[];
   at: number;
+  // pool-success fields
+  pool?: number;
+  strain?: number;
+  successes?: number;
+  critical?: boolean;
+  complication?: string | null;
+  faces?: number[];
+  complicationFaces?: number[];
+  // sum-banded fields
+  total?: number;
+  modifier?: number;
+  band?: string;
 }

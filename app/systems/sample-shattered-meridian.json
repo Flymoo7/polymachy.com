@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 0,
+  "system": {
+    "id": "shattered-meridian",
+    "name": "Shattered Meridian",
+    "version": "1.0.0",
+    "author": "Polymachy",
+    "summary": "An original 2d6 + modifier sample system for void-faring mercenaries. All names and wording are invented; it is not derived from any published game.",
+    "diceModel": "sum-banded"
+  },
+
+  "fields": {
+    "force":   { "type": "dots", "label": "Force",  "max": 3, "default": 1, "help": "Physical power." },
+    "reflex":  { "type": "dots", "label": "Reflex", "max": 3, "default": 1, "help": "Speed and aim." },
+    "nerve":   { "type": "dots", "label": "Nerve",  "max": 3, "default": 1, "help": "Composure under fire." },
+    "sharp":   { "type": "dots", "label": "Sharp",  "max": 3, "default": 1, "help": "Intellect and tech skill." },
+    "sway":    { "type": "dots", "label": "Sway",   "max": 3, "default": 1, "help": "Persuasion and social pressure." },
+    "drive":   { "type": "dots", "label": "Drive",  "max": 3, "default": 1, "help": "Determination and will." },
+
+    "hull_len": { "type": "number", "label": "Hull boxes", "editable": "none", "derived": "3 + force" },
+    "hull": {
+      "type": "track", "label": "Hull",
+      "length": { "derived": "hull_len" },
+      "states": ["ok", "damaged", "critical"],
+      "help": "Physical condition."
+    },
+
+    "composure_max": { "type": "number", "label": "Composure max", "editable": "none", "derived": "2 + nerve" },
+    "composure": {
+      "type": "pool", "label": "Composure",
+      "max": { "derived": "composure_max" },
+      "help": "Spend to resist fear or stay focused."
+    },
+
+    "heat":     { "type": "number", "label": "Heat",     "min": 0, "max": 5, "default": 0, "help": "Faction attention. Accrues on risky Partials." },
+    "momentum": { "type": "pool",   "label": "Momentum", "max": 3, "default": 0, "help": "Tactical advantage. Spend for bonus effects on hits." },
+
+    "combat":    { "type": "dots", "label": "Combat",    "max": 3, "default": 0 },
+    "stealth":   { "type": "dots", "label": "Stealth",   "max": 3, "default": 0 },
+    "pilot":     { "type": "dots", "label": "Pilot",     "max": 3, "default": 0 },
+    "tech":      { "type": "dots", "label": "Tech",      "max": 3, "default": 0 },
+    "medicine":  { "type": "dots", "label": "Medicine",  "max": 3, "default": 0 },
+    "deception": { "type": "dots", "label": "Deception", "max": 3, "default": 0 },
+    "influence": { "type": "dots", "label": "Influence", "max": 3, "default": 0 },
+
+    "gear":     { "type": "list",     "label": "Gear" },
+    "contacts": { "type": "list",     "label": "Contacts" },
+    "notes":    { "type": "longtext", "label": "Notes", "default": "" }
+  },
+
+  "dice": {
+    "model": "sum-banded",
+    "die": 6,
+    "count": 2,
+    "bands": [
+      { "max": 6,   "label": "Miss",        "result": "miss" },
+      { "max": 9,   "label": "Partial hit", "result": "partial" },
+      { "max": null,"label": "Full hit",    "result": "success" }
+    ]
+  },
+
+  "rolls": {
+    "force_check":    { "label": "Force Check",    "modifier": "force" },
+    "reflex_check":   { "label": "Reflex Check",   "modifier": "reflex" },
+    "nerve_check":    { "label": "Nerve Check",    "modifier": "nerve" },
+    "sharp_check":    { "label": "Sharp Check",    "modifier": "sharp" },
+    "sway_check":     { "label": "Sway Check",     "modifier": "sway" },
+    "drive_check":    { "label": "Drive Check",    "modifier": "drive" },
+    "combat_strike":  { "label": "Combat Strike",  "modifier": "force + combat" },
+    "evade":          { "label": "Evade",          "modifier": "reflex + combat" },
+    "hack":           { "label": "Hack System",    "modifier": "sharp + tech" },
+    "persuade":       { "label": "Persuade",       "modifier": "sway + deception" },
+    "pilot_ship":     { "label": "Pilot Ship",     "modifier": "reflex + pilot" }
+  },
+
+  "sections": [
+    {
+      "tab": "Core",
+      "groups": [
+        { "title": "Attributes", "fields": ["force","reflex","nerve","sharp","sway","drive"], "columns": 2 },
+        { "title": "Condition",  "fields": ["hull","composure"] }
+      ]
+    },
+    {
+      "tab": "Skills",
+      "groups": [
+        { "title": "Skills",    "fields": ["combat","stealth","pilot","tech","medicine","deception","influence"], "columns": 2 },
+        { "title": "Resources", "fields": ["heat","momentum"] }
+      ]
+    },
+    {
+      "tab": "Notes",
+      "groups": [
+        { "title": "Gear & Contacts", "fields": ["gear","contacts"] },
+        { "title": "Notes",           "fields": ["notes"] }
+      ]
+    }
+  ],
+
+  "resources": [
+    { "id": "heat",     "fieldId": "heat",     "label": "Heat" },
+    { "id": "momentum", "fieldId": "momentum", "label": "Momentum" }
+  ],
+
+  "statusEffects": [
+    { "id": "rattled",  "label": "Rattled",  "help": "Shaken; -1 to your next roll." },
+    { "id": "exposed",  "label": "Exposed",  "help": "Position known; enemies can act freely." },
+    { "id": "burning",  "label": "Burning",  "help": "Ongoing hazard; mark Hull at end of each turn." }
+  ],
+
+  "character": {
+    "newSheet": {
+      "meta": { "name": "New Operative" }
+    }
+  }
+}

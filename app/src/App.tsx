@@ -1,8 +1,7 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { Responsive, WidthProvider, type Layout } from 'react-grid-layout';
-import sampleDef from '../systems/sample-ashes-of-the-verge.json';
 import type { SystemDefinition, CharacterDoc, LayoutDoc, LayoutBlock, RollResult, RosterEntry } from './types';
-import { computeResolved, performRoll } from './engineBridge';
+import { computeResolved, performRoll, rollResultText } from './engineBridge';
 import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
 import { GmConsole } from './gm/GmConsole';
@@ -12,7 +11,6 @@ import { SessionBar } from './net/SessionBar';
 import { ProposePanel } from './net/ProposePanel';
 
 const Grid = WidthProvider(Responsive);
-const def = sampleDef as unknown as SystemDefinition;
 
 // migrate a pre-pages layout ({blocks}) into the paged shape
 function migrateLayout(lo: any): LayoutDoc {
@@ -42,22 +40,33 @@ function readFile(file: File): Promise<unknown> {
 const SWATCHES = ['#c8a96e', '#7a1f1f', '#3a5a78', '#4a6b4a', '#6b4a6b', '#8a8a8a'];
 
 // Initialise the roster, migrating any pre-roster single-character save.
-function boot(): { roster: RosterEntry[]; activeId: string; char: CharacterDoc; layout: LayoutDoc } {
-  let roster: RosterEntry[] | null = rawLoad('roster');
-  if (!roster || !roster.length) {
+function boot(def: SystemDefinition): { roster: RosterEntry[]; activeId: string; char: CharacterDoc; layout: LayoutDoc } {
+  const sysId = def.system.id;
+  const allRoster: RosterEntry[] = rawLoad('roster') ?? [];
+  // keep only characters belonging to this system
+  let roster = allRoster.filter((r) => {
+    const c = rawLoad(`char:${r.id}`) as CharacterDoc | null;
+    return c?.system === sysId;
+  });
+  // migration: single pre-roster character
+  if (!roster.length) {
     const old = rawLoad('char') as CharacterDoc | null;
-    if (old) {
+    if (old && old.system === sysId) {
       const id = old.id || genId();
       old.id = id;
-      const oldLayout = migrateLayout(rawLoad('layout') || defaultLayout(def));
-      save(`char:${id}`, old); save(`layout:${id}`, oldLayout);
-      roster = [{ id, name: old.meta.name }];
-    } else {
-      const c = newCharacter(def);
-      save(`char:${c.id}`, c); save(`layout:${c.id}`, defaultLayout(def));
-      roster = [{ id: c.id, name: c.meta.name }];
+      const lo = migrateLayout(rawLoad('layout') || defaultLayout(def));
+      save(`char:${id}`, old); save(`layout:${id}`, lo);
+      const entry = { id, name: old.meta.name };
+      roster = [entry];
+      save('roster', [...allRoster, entry]);
     }
-    save('roster', roster);
+  }
+  if (!roster.length) {
+    const c = newCharacter(def);
+    save(`char:${c.id}`, c); save(`layout:${c.id}`, defaultLayout(def));
+    const entry = { id: c.id, name: c.meta.name };
+    roster = [entry];
+    save('roster', [...allRoster, entry]);
   }
   let activeId: string = rawLoad('active');
   if (!activeId || !roster.find((r) => r.id === activeId)) activeId = roster[0].id;
@@ -67,8 +76,8 @@ function boot(): { roster: RosterEntry[]; activeId: string; char: CharacterDoc; 
   return { roster, activeId, char, layout };
 }
 
-export default function App() {
-  const [start] = useState(boot);
+export default function App({ def, onChangeDef }: { def: SystemDefinition; onChangeDef: () => void }) {
+  const [start] = useState(() => boot(def));
   const [roster, setRoster] = useState<RosterEntry[]>(start.roster);
   const [activeId, setActiveId] = useState<string>(start.activeId);
   const [char, setChar] = useState<CharacterDoc>(start.char);
@@ -136,7 +145,7 @@ export default function App() {
   const roll = useCallback((id: string) => {
     const r = performRoll(def, id, resolved);
     if (session.connected) {
-      session.appendLog(`${char.meta.name} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
+      session.appendLog(`${char.meta.name} · ${r.label}: ${rollResultText(r, def.dice.model)}`);
     } else {
       setLog((l) => [r, ...l].slice(0, 50));
     }
@@ -239,6 +248,7 @@ export default function App() {
           )}
         </div>
         <div className="actions">
+          <button className="btn" onClick={onChangeDef}>Change system</button>
           <button className="btn" onClick={() => setView('gm')}>GM view</button>
           <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
             {edit ? 'Done arranging' : 'Arrange blocks'}
@@ -371,14 +381,10 @@ export default function App() {
                   {log.map((r, i) => (
                     <div key={i} className={`logentry ${r.success ? 'ok' : 'fail'}`}>
                       <strong>{r.label}</strong>
-                      <span className="result">
-                        {r.successes} success{r.successes === 1 ? '' : 'es'}
-                        {r.critical ? ' · crit' : ''}
-                        {r.complication ? ` · ${r.complication}` : ''}
-                      </span>
-                      <span className="faces">
-                        [{r.faces.join(' ')}]{r.complicationFaces.length ? ` ⚠ [${r.complicationFaces.join(' ')}]` : ''}
-                      </span>
+                      {def.dice.model === 'sum-banded'
+                        ? <><span className="result">{r.total} → <strong>{r.band}</strong></span><span className="faces">[{r.faces?.join(' ')}]{r.modifier != null ? ` +${r.modifier}` : ''}</span></>
+                        : <><span className="result">{r.successes ?? 0} success{(r.successes ?? 0) === 1 ? '' : 'es'}{r.critical ? ' · crit' : ''}{r.complication ? ` · ${r.complication}` : ''}</span><span className="faces">[{r.faces?.join(' ')}]{r.complicationFaces?.length ? ` ⚠ [${r.complicationFaces.join(' ')}]` : ''}</span></>
+                      }
                     </div>
                   ))}
                 </div>

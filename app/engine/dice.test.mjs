@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolvePoolSuccess, rollPool, rollAndResolve } from './dice.mjs';
+import { resolvePoolSuccess, rollPool, rollAndResolve, rollSumBanded } from './dice.mjs';
 
 // mirrors the `dice` block in sample-ashes-of-the-verge.json
 const config = {
@@ -69,4 +69,47 @@ test('rollAndResolve splits strain dice out of the pool', () => {
   assert.equal(r.detail.complicationFaces.length, 1);
   assert.equal(r.critical, true);          // four 10s -> two pairs
   assert.equal(r.complication, 'overreach'); // a strain die shows 10
+});
+
+// ── sum-banded (Shattered Meridian model) ────────────────────────────────────
+const smBands = [
+  { max: 6,   label: 'Miss',        result: 'miss' },
+  { max: 9,   label: 'Partial hit', result: 'partial' },
+  { max: null, label: 'Full hit',   result: 'success' },
+];
+
+test('rollSumBanded: faces sum below band threshold → Miss', () => {
+  // two 6-sided dice always showing 1 -> sum 2, modifier 0 -> total 2 <= 6
+  const r = rollSumBanded({ count: 2, sides: 6, modifier: 0, bands: smBands, rng: () => 0 });
+  assert.equal(r.total, 2);
+  assert.equal(r.band, 'Miss');
+  assert.equal(r.result, 'miss');
+  assert.equal(r.success, false);
+});
+
+test('rollSumBanded: faces sum in middle band → Partial hit', () => {
+  // rng 0.5 -> 1 + floor(3) = 4 per die; two dice = 8, modifier 0; 6 < 8 <= 9
+  const r = rollSumBanded({ count: 2, sides: 6, modifier: 0, bands: smBands, rng: () => 0.5 });
+  assert.equal(r.total, 8);
+  assert.equal(r.band, 'Partial hit');
+  assert.equal(r.result, 'partial');
+  assert.equal(r.partial, true);
+});
+
+test('rollSumBanded: faces sum above top band → Full hit', () => {
+  // rng 0.999 -> 1 + floor(5.994) = 6 per die; two dice = 12 > 9
+  const r = rollSumBanded({ count: 2, sides: 6, modifier: 0, bands: smBands, rng: () => 0.999 });
+  assert.equal(r.total, 12);
+  assert.equal(r.band, 'Full hit');
+  assert.equal(r.result, 'success');
+  assert.equal(r.success, true);
+});
+
+test('rollSumBanded: modifier shifts total into a higher band', () => {
+  // rng 0 -> each die shows 1; two dice sum = 2; +5 modifier -> total 7; 6 < 7 <= 9 = Partial hit
+  const r = rollSumBanded({ count: 2, sides: 6, modifier: 5, bands: smBands, rng: () => 0 });
+  assert.equal(r.total, 7);
+  assert.equal(r.modifier, 5);
+  assert.equal(r.band, 'Partial hit');
+  assert.equal(r.result, 'partial');
 });
