@@ -56,7 +56,7 @@ export interface DiceConfig {
 
 export interface SystemDefinition {
   schemaVersion: number;
-  system: { id: string; name: string; version: string; author?: string; summary?: string; diceModel: string };
+  system: { id: string; name: string; version: string; author?: string; summary?: string; diceModel: string; defaultTheme?: string };
   fields: Record<string, FieldDef>;
   sections: SectionDef[];
   dice: DiceConfig;
@@ -100,6 +100,7 @@ export interface LayoutDoc {
   system: string;
   name: string;
   pages: LayoutPage[];
+  theme?: string;   // 'dark' | 'parchment' | 'terminal' | undefined (= dark)
   meta: { created: string; updated: string };
 }
 

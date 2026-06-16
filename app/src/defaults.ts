@@ -65,5 +65,5 @@ export function defaultLayout(def: SystemDefinition): LayoutDoc {
   }
 
   const now = new Date().toISOString();
-  return { schemaVersion: 0, system: def.system.id, name: 'Default layout', pages, meta: { created: now, updated: now } };
+  return { schemaVersion: 0, system: def.system.id, name: 'Default layout', pages, theme: def.system.defaultTheme, meta: { created: now, updated: now } };
 }
