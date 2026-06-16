@@ -251,7 +251,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
           <button className="btn" onClick={onChangeDef}>Change system</button>
           <button className="btn" onClick={() => setView('gm')}>GM view</button>
           <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
-            {edit ? 'Done arranging' : 'Arrange blocks'}
+            {edit ? 'Done editing' : 'Edit / Arrange blocks'}
           </button>
           {edit && <button className="btn" onClick={() => setShowPalette((s) => !s)}>Add block ({hiddenBlocks.length})</button>}
           {edit && <button className="btn" onClick={resetLayout}>Reset layout</button>}
