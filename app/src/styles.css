@@ -312,3 +312,21 @@ body {
 /* react-grid-layout polish */
 .react-grid-item.react-grid-placeholder { background: var(--accent); opacity: 0.18; border-radius: 6px; }
 .react-resizable-handle { filter: invert(0.7); }
+
+/* ── System Picker ─────────────────────────────────────────────────────── */
+.syspick { min-height: 100vh; background: var(--black); }
+.syspick-body { max-width: 860px; margin: 0 auto; padding: 3rem 1.5rem; }
+.syspick-heading { font-size: 1.6rem; font-weight: 700; color: var(--white); margin: 0 0 .5rem; }
+.syspick-sub { margin: 0 0 2rem; }
+.syspick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.syspick-card {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 1.25rem; text-align: left;
+  cursor: pointer; transition: border-color .15s, background .15s;
+  display: flex; flex-direction: column; gap: .5rem;
+}
+.syspick-card:hover { border-color: var(--accent); background: var(--panel-2); }
+.syspick-card--import { border-style: dashed; }
+.syspick-name { font-weight: 700; color: var(--white); font-size: 1rem; }
+.syspick-dice { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); }
+.syspick-summary { font-size: .82rem; color: var(--mid); line-height: 1.5; }

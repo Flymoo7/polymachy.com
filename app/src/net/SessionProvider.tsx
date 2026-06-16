@@ -2,10 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import type { ReactNode } from 'react';
 import * as Y from 'yjs';
 import { WebrtcProvider } from 'y-webrtc';
-import sampleDef from '../../systems/sample-ashes-of-the-verge.json';
 import type { CharacterDoc } from '../types';
-
-const SYS = (sampleDef as any).system.id as string;
 
 // The one shared piece of infrastructure: a signalling server that only
 // introduces peers (carries no game data). Public default for now; for
@@ -60,7 +57,7 @@ const roomCode = () => {
   return Array.from({ length: 4 }, () => a[Math.floor(Math.random() * a.length)]).join('');
 };
 
-export function SessionProvider({ children }: { children: ReactNode }) {
+export function SessionProvider({ children, sysId }: { children: ReactNode; sysId: string }) {
   const docRef = useRef<Y.Doc | null>(null);
   const provRef = useRef<WebrtcProvider | null>(null);
   const ownedRef = useRef<string | null>(null);
@@ -104,7 +101,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const connect = useCallback((code: string, id: Identity) => {
     teardown();
     const doc = new Y.Doc();
-    const provider = new WebrtcProvider(`omni-${SYS}-${code}`, doc, {
+    const provider = new WebrtcProvider(`omni-${sysId}-${code}`, doc, {
       signaling: SIGNALING,
       password: code,
     });

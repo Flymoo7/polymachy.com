@@ -63,15 +63,28 @@ export function trackLength(f: FieldDef, vars: Resolved): number {
   return 0;
 }
 
+/** Format a roll result as a human-readable string. */
+export function rollResultText(r: RollResult, model: string): string {
+  if (model === 'sum-banded') {
+    return `${r.total} → ${r.band}  [${r.faces?.join(' ')}]${r.modifier ? ` +${r.modifier}` : ''}`;
+  }
+  return `${r.successes ?? 0} success${(r.successes ?? 0) === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces?.join(' ')}${r.complicationFaces?.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`;
+}
+
 /** Build a dice pool from a roll expression and resolve it. */
 export function performRoll(
   def: SystemDefinition, id: string, vars: Resolved,
 ): RollResult {
   const roll = def.rolls[id];
-  const pool = Math.max(0, Math.round(Number(evaluate(roll.pool, vars)) || 0));
+  if (def.dice.model === 'sum-banded') {
+    const mod = Math.round(Number(evaluate(roll.modifier ?? '0', vars)) || 0);
+    const res = rollAndResolve({ pool: 0, config: def.dice, modifier: mod }) as any;
+    return { id, label: roll.label, total: res.total, modifier: res.modifier, faces: res.faces, band: res.band, success: res.success, at: Date.now() };
+  }
+  const pool = Math.max(0, Math.round(Number(evaluate(roll.pool ?? '0', vars)) || 0));
   const strainField = def.dice.complication?.fromField;
   const strain = strainField && isNum(vars[strainField]) ? vars[strainField] : 0;
-  const res = rollAndResolve({ pool, strain, config: def.dice });
+  const res = rollAndResolve({ pool, strain, config: def.dice }) as any;
   return {
     id, label: roll.label, pool, strain,
     successes: res.successes, critical: res.critical, success: res.success,

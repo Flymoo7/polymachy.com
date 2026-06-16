@@ -6,7 +6,7 @@ import { CharacterSummary } from './CharacterSummary';
 import { useSession } from '../net/SessionProvider';
 import type { LogEntry, Initiative, Proposal } from '../net/SessionProvider';
 import { SessionBar } from '../net/SessionBar';
-import { computeResolved, performRoll } from '../engineBridge';
+import { computeResolved, performRoll, rollResultText } from '../engineBridge';
 
 interface Props {
   def: SystemDefinition;
@@ -54,7 +54,7 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
   const clearLog = () => { if (live) return; setLocalLog([]); save('gm:log', []); };
 
   const onRoll = (charName: string, r: RollResult) => {
-    pushLog(`${charName} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
+    pushLog(`${charName} · ${r.label}: ${rollResultText(r, def.dice.model)}`);
   };
 
   const toggleShown = (id: string) => setShown((sh) => sh.includes(id) ? sh.filter((x) => x !== id) : [...sh, id]);
@@ -74,7 +74,7 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
       const char = characters[p.charId];
       if (char) {
         const r = performRoll(def, p.rollId, computeResolved(def, char.data));
-        pushLog(`✔ ${p.charName} · ${r.label}: ${r.successes} success${r.successes === 1 ? '' : 'es'}${r.critical ? ' · crit' : ''}${r.complication ? ` · ${r.complication}` : ''}  [${r.faces.join(' ')}${r.complicationFaces.length ? ' ⚠ ' + r.complicationFaces.join(' ') : ''}]`);
+        pushLog(`✔ ${p.charName} · ${r.label}: ${rollResultText(r, def.dice.model)}`);
       } else {
         pushLog(`✔ approved ${p.charName} · ${p.label}`);
       }
