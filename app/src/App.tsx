@@ -6,6 +6,7 @@ import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
 import { Icon, ICON_NAMES, guessIcon } from './icons';
 import { downscaleImage } from './image';
+import { backgroundCss } from './backgrounds';
 import { GmConsole } from './gm/GmConsole';
 import { KEY, save, rawLoad } from './storage';
 import { useSession } from './net/SessionProvider';
@@ -108,6 +109,22 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
     document.documentElement.setAttribute('data-theme', theme);
     return () => { document.documentElement.removeAttribute('data-theme'); };
   }, [theme]);
+
+  // the GM's shared table background (synced over the session) is painted on
+  // body, behind everything, with a scrim so the opaque blocks stay readable
+  const sessionBg = session.connected ? backgroundCss(session.background) : null;
+  useEffect(() => {
+    const b = document.body.style;
+    if (sessionBg) {
+      b.backgroundImage = `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.6)), ${sessionBg}`;
+      b.backgroundSize = 'cover, cover';
+      b.backgroundPosition = 'center, center';
+      b.backgroundAttachment = 'fixed, fixed';
+    } else {
+      b.backgroundImage = ''; b.backgroundSize = ''; b.backgroundPosition = ''; b.backgroundAttachment = '';
+    }
+    return () => { b.backgroundImage = ''; b.backgroundSize = ''; b.backgroundPosition = ''; b.backgroundAttachment = ''; };
+  }, [sessionBg]);
 
   const persistChar = (next: CharacterDoc) => { save(`char:${activeId}`, next); return next; };
   const persistLayout = (next: LayoutDoc) => { save(`layout:${activeId}`, next); return next; };
