@@ -92,6 +92,9 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const [iconPick, setIconPick] = useState<string | null>(null);
   const [pageIdx, setPageIdx] = useState(0);
   const [view, setView] = useState<'player' | 'gm'>('player');
+  // GM-local background preview (used offline so the GM can theme before hosting)
+  const [previewBg, setPreviewBgState] = useState<string | null>(() => rawLoad('gm:previewBg') ?? null);
+  const setPreviewBg = (v: string | null) => { setPreviewBgState(v); save('gm:previewBg', v); };
   const importRef = useRef<HTMLInputElement>(null);
   const session = useSession();
 
@@ -111,8 +114,15 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   }, [theme]);
 
   // the GM's shared table background (synced over the session) is painted on
-  // body, behind everything, with a scrim so the opaque blocks stay readable
-  const sessionBg = session.connected ? backgroundCss(session.background) : null;
+  // body, behind everything, with a scrim so the opaque blocks stay readable.
+  // Offline we paint the GM's local preview instead so they can theme ahead.
+  const sessionBg = session.connected ? backgroundCss(session.background) : backgroundCss(previewBg);
+  // when the GM hosts with a preview set, carry it into the live session
+  useEffect(() => {
+    if (session.connected && session.isGm && previewBg && !session.background) {
+      session.setBackground(previewBg);
+    }
+  }, [session.connected]);
   useEffect(() => {
     const b = document.body.style;
     if (sessionBg) {
@@ -274,6 +284,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
 
   if (view === 'gm') return (
     <GmConsole def={def} onExit={() => setView('player')}
+      previewBg={previewBg} setPreviewBg={setPreviewBg}
       onOpenChar={(id) => { openChar(id); setView('player'); }} />
   );
 

@@ -14,12 +14,14 @@ interface Props {
   def: SystemDefinition;
   onExit: () => void;
   onOpenChar: (id: string) => void;
+  previewBg: string | null;
+  setPreviewBg: (v: string | null) => void;
 }
 
 const byInit = (a: { init: number }, b: { init: number }) => b.init - a.init;
 const EMPTY_INIT: Initiative = { list: [], turn: 0 };
 
-export function GmConsole({ def, onExit, onOpenChar }: Props) {
+export function GmConsole({ def, onExit, onOpenChar, previewBg, setPreviewBg }: Props) {
   const s = useSession();
 
   // local (offline) state
@@ -87,8 +89,11 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
   };
   const deny = (p: Proposal) => { pushLog(`✗ ${p.charName}: ${p.label} (denied)`); s.removeProposal(p.id); };
 
+  // background: write to the live session when hosting, else to the local preview
+  const bgValue = live ? s.background : previewBg;
+  const setBg = (v: string | null) => { if (live) s.setBackground(v); else setPreviewBg(v); };
   const uploadBackground = async (file: File) => {
-    try { s.setBackground(await downscaleImage(file, 1600, 0.72)); }
+    try { setBg(await downscaleImage(file, 1600, 0.72)); }
     catch { alert('Could not read that image.'); }
   };
 
@@ -169,30 +174,27 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
             <h3 className="gm-panel-title">Table background</h3>
             <p className="muted" style={{ marginBottom: '0.5rem' }}>
               {live ? 'Sets the backdrop for every player at the table.'
-                    : 'Host a session to set a shared backdrop for your players.'}
+                    : 'Preview a backdrop here — it applies to your table automatically when you host.'}
             </p>
-            <div className={`bgpick-grid ${live ? '' : 'is-disabled'}`}>
-              <button className={`bgpick-cell bgpick-none ${!s.background ? 'on' : ''}`}
-                title="None" disabled={!live} onClick={() => s.setBackground(null)}>None</button>
+            <div className="bgpick-grid">
+              <button className={`bgpick-cell bgpick-none ${!bgValue ? 'on' : ''}`}
+                title="None" onClick={() => setBg(null)}>None</button>
               {BG_PRESETS.map((p) => (
-                <button key={p.id} title={p.label} disabled={!live}
-                  className={`bgpick-cell ${s.background === `preset:${p.id}` ? 'on' : ''}`}
+                <button key={p.id} title={p.label}
+                  className={`bgpick-cell ${bgValue === `preset:${p.id}` ? 'on' : ''}`}
                   style={{ backgroundImage: p.css }}
-                  onClick={() => s.setBackground(`preset:${p.id}`)}>
+                  onClick={() => setBg(`preset:${p.id}`)}>
                   <span className="bgpick-label">{p.label}</span>
                 </button>
               ))}
             </div>
-            {live ? (
-              <label className="btn bgpick-upload">
-                Upload image…
-                <input type="file" accept="image/*" hidden
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ''; }} />
-              </label>
-            ) : (
-              <button className="btn bgpick-upload" disabled>Upload image…</button>
-            )}
-            {live && s.background?.startsWith('data:') && <span className="muted bgpick-current">Custom image set ✓</span>}
+            <label className="btn bgpick-upload">
+              Upload image…
+              <input type="file" accept="image/*" hidden
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ''; }} />
+            </label>
+            {bgValue?.startsWith('data:') && <span className="muted bgpick-current">Custom image set ✓</span>}
+            {!live && <span className="muted bgpick-current">Preview only — not yet shared.</span>}
           </section>
 
           <section className="gm-panel">
