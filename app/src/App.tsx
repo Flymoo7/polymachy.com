@@ -98,6 +98,17 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const importRef = useRef<HTMLInputElement>(null);
   const session = useSession();
 
+  // mobile/tablet: a stacked, touch-friendly reference view (no drag-to-arrange)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 820px)').matches);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 820px)');
+    const on = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  const editing = edit && !isMobile;
+
   const resolved = useMemo(() => computeResolved(def, char.data), [char.data]);
 
   // when in a live session, share the active character and keep it updated
@@ -282,6 +293,149 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const visibleBlocks = page.blocks.filter((b) => !b.hidden);
   const rglLayout: Layout[] = visibleBlocks.map((b) => ({ i: b.id, x: b.x, y: b.y, w: b.w, h: b.h, minW: 2, minH: 2 }));
 
+  // the inner content of one block — shared by the desktop grid and the
+  // mobile stacked view (edit affordances only show when `editing`)
+  const blockContent = (b: LayoutBlock) => (
+    <>
+      <div className="block-head">
+        <span className="block-title">
+          {editing
+            ? <button className={`block-icon-btn block-ctrl ${iconPick === b.id ? 'on' : ''}`} title="Change icon"
+                onClick={() => setIconPick((c) => c === b.id ? null : b.id)}>
+                <Icon name={b.icon ?? guessIcon(b.title, b.source)} />
+              </button>
+            : <Icon name={b.icon ?? guessIcon(b.title, b.source)} className="block-icon" />}
+          {editing
+            ? <input className="block-title-input block-ctrl" value={b.title ?? ''}
+                onChange={(e) => setTitle(b.id, e.target.value)} aria-label="Block title" />
+            : <span className="txt">{b.title}</span>}
+        </span>
+        {editing && (
+          <span className="block-ctrl">
+            {(b.source === 'group' || b.source === 'hero') && (
+              <button className={`block-cfg ${configBlock === b.id ? 'on' : ''}`} title="Choose fields"
+                onClick={() => setConfigBlock((c) => c === b.id ? null : b.id)}>⚙</button>
+            )}
+            {SWATCHES.map((c) => (
+              <button key={c} className="swatch" style={{ background: c }} title={c}
+                onClick={() => setColour(b.id, c)} />
+            ))}
+            <button className="block-hide" title="Remove block" onClick={() => hideBlock(b.id)}>×</button>
+          </span>
+        )}
+      </div>
+      <div className="block-body">
+        {editing && iconPick === b.id && (
+          <div className="iconpick">
+            <div className="fieldpick-head">Icon for “{b.title}”</div>
+            <div className="iconpick-grid">
+              {ICON_NAMES.map((n) => (
+                <button key={n} title={n}
+                  className={`iconpick-cell ${(b.icon ?? guessIcon(b.title, b.source)) === n ? 'on' : ''}`}
+                  onClick={() => { setIcon(b.id, n); setIconPick(null); }}>
+                  <Icon name={n} size={20} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {editing && configBlock === b.id && (b.source === 'group' || b.source === 'hero') && (
+          <div className="fieldpick">
+            <div className="fieldpick-head">{b.source === 'hero' ? `Stats to show in “${b.title}”` : `Show fields in “${b.title}”`}</div>
+            {def.sections.map((sec, si) => (
+              <div key={sec.tab ?? si} className="fieldpick-group">
+                <div className="fieldpick-tab">{sec.tab}</div>
+                {sec.groups.flatMap((g) => g.fields).map((fid) => {
+                  const fd = def.fields[fid];
+                  if (!fd) return null;
+                  return (
+                    <label key={fid} className="pick">
+                      <input type="checkbox" checked={(b.fields ?? []).includes(fid)}
+                        onChange={() => toggleField(b.id, fid)} />
+                      <span>{fd.label}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {b.source === 'group' && (b.fields ?? []).map((fid) => {
+          const fdef = def.fields[fid];
+          if (!fdef) return null;
+          return <Field key={fid} id={fid} def={fdef} raw={char.data[fid]} resolved={resolved} onChange={updateField} />;
+        })}
+
+        {b.source === 'hero' && (
+          <div className="hero">
+            <div className="hero-portrait">
+              {char.meta.portrait
+                ? <img src={char.meta.portrait} alt={char.meta.name} />
+                : <div className="hero-portrait-empty"><Icon name="user" size={40} /></div>}
+              <div className="hero-portrait-actions">
+                <label className="hero-upload">
+                  {char.meta.portrait ? 'Change' : 'Add image'}
+                  <input type="file" accept="image/*" hidden
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPortrait(f); e.target.value = ''; }} />
+                </label>
+                {char.meta.portrait && <button className="hero-remove" onClick={() => setPortrait(undefined)}>Remove</button>}
+              </div>
+            </div>
+            <div className="hero-info">
+              <div className="hero-name">{char.meta.name}</div>
+              <div className="hero-badges">
+                {(b.fields ?? []).map((fid) => {
+                  const fd = def.fields[fid];
+                  if (!fd) return null;
+                  const rv = resolved[fid];
+                  const val = fd.type === 'pool' ? `${rv?.current ?? 0}/${rv?.max ?? 0}` : String(rv ?? 0);
+                  return <span key={fid} className="hero-badge"><b>{val}</b> {fd.label}</span>;
+                })}
+                {(b.fields ?? []).length === 0 && editing && <span className="muted">Use ⚙ to pick stats to show here.</span>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {b.source === 'rolls' && (
+          <div className="rolls">
+            {Object.entries(def.rolls).map(([id, r]) => (
+              <button key={id} className="roll-btn" onClick={() => roll(id)}>{r.label}</button>
+            ))}
+          </div>
+        )}
+
+        {b.source === 'log' && session.connected && (
+          <div className="rolllog">
+            {session.log.length === 0 && <p className="muted">No rolls yet.</p>}
+            {[...session.log].reverse().map((e, i) => (
+              <div key={i} className="logentry ok">
+                <span className="result">{e.text}</span>
+                <span className="faces">— {e.by}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {b.source === 'log' && !session.connected && (
+          <div className="rolllog">
+            {log.length === 0 && <p className="muted">No rolls yet.</p>}
+            {log.map((r, i) => (
+              <div key={i} className={`logentry ${r.success ? 'ok' : 'fail'}`}>
+                <strong>{r.label}</strong>
+                {def.dice.model === 'sum-banded'
+                  ? <><span className="result">{r.total} → <strong>{r.band}</strong></span><span className="faces">[{r.faces?.join(' ')}]{r.modifier != null ? ` +${r.modifier}` : ''}</span></>
+                  : <><span className="result">{r.successes ?? 0} success{(r.successes ?? 0) === 1 ? '' : 'es'}{r.critical ? ' · crit' : ''}{r.complication ? ` · ${r.complication}` : ''}</span><span className="faces">[{r.faces?.join(' ')}]{r.complicationFaces?.length ? ` ⚠ [${r.complicationFaces.join(' ')}]` : ''}</span></>
+                }
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+
   if (view === 'gm') return (
     <GmConsole def={def} onExit={() => setView('player')}
       previewBg={previewBg} setPreviewBg={setPreviewBg}
@@ -289,7 +443,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   );
 
   return (
-    <div className={`app ${edit ? 'editing' : ''}`}>
+    <div className={`app ${editing ? 'editing' : ''}`}>
       <header className="topbar">
         <div className="brand">POLY<span>MACHY</span><em>Omni Matrix</em></div>
         <div className="charbar">
@@ -316,11 +470,13 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
           </span>
           <button className="btn" onClick={onChangeDef}>Change system</button>
           <button className="btn" onClick={() => setView('gm')}>GM view</button>
-          <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
-            {edit ? 'Done editing' : 'Edit / Arrange blocks'}
-          </button>
-          {edit && <button className="btn" onClick={() => setShowPalette((s) => !s)}>Add block ({hiddenBlocks.length})</button>}
-          {edit && <button className="btn" onClick={resetLayout}>Reset layout</button>}
+          {!isMobile && (
+            <button className={`btn ${edit ? 'btn-on' : ''}`} onClick={() => setEdit((e) => !e)}>
+              {edit ? 'Done editing' : 'Edit / Arrange blocks'}
+            </button>
+          )}
+          {editing && <button className="btn" onClick={() => setShowPalette((s) => !s)}>Add block ({hiddenBlocks.length})</button>}
+          {editing && <button className="btn" onClick={resetLayout}>Reset layout</button>}
           <button className="btn" onClick={() => importRef.current?.click()}>Import</button>
           <button className="btn" onClick={() => download('character.json', char)}>Export character</button>
           <button className="btn" onClick={() => download('layout.json', layout)}>Export layout</button>
@@ -335,18 +491,18 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
       <nav className="pagebar">
         {layout.pages.map((p, i) => (
           <span key={p.id} className={`page-tab ${i === idx ? 'on' : ''}`}>
-            {edit && i === idx
+            {editing && i === idx
               ? <input className="page-name-input" value={p.name} onChange={(e) => renamePage(i, e.target.value)} aria-label="Page name" />
               : <button className="page-name" onClick={() => setPageIdx(i)}>{p.name}</button>}
-            {edit && i === idx && layout.pages.length > 1 && (
+            {editing && i === idx && layout.pages.length > 1 && (
               <button className="page-del" title="Delete page" onClick={() => deletePage(i)}>×</button>
             )}
           </span>
         ))}
-        {edit && <button className="page-add" title="Add page" onClick={addPage}>+ Page</button>}
+        {editing && <button className="page-add" title="Add page" onClick={addPage}>+ Page</button>}
       </nav>
 
-      {edit && showPalette && (
+      {editing && showPalette && (
         <div className="palette">
           <span className="palette-label">Add a block to “{page.name}”:</span>
           <button className="chip chip-new" onClick={addNewBlock}>+ New empty block</button>
@@ -359,164 +515,40 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
         </div>
       )}
 
-      {/* canvas-scroll lets the grid maintain min-width and scroll horizontally
-          rather than reflowing into broken 2-col layouts when zoomed in */}
-      <div className="canvas-scroll"><Grid
-        className="canvas"
-        // key forces a clean remount per page so positions never bleed across pages
-        key={page.id}
-        layouts={{ lg: rglLayout, md: rglLayout }}
-        breakpoints={{ lg: 600, md: 0 }}
-        cols={{ lg: 12, md: 12 }}
-        rowHeight={34}
-        margin={[12, 12]}
-        isDraggable={edit}
-        isResizable={edit}
-        draggableHandle=".block-head"
-        draggableCancel=".block-ctrl"
-        onLayoutChange={onLayoutChange}
-      >
-        {visibleBlocks.map((b) => (
-          <section key={b.id} className="block" style={{ ['--block-accent' as any]: b.colour ?? 'var(--accent)' }}>
-            <div className="block-head">
-              <span className="block-title">
-                {edit
-                  ? <button className={`block-icon-btn block-ctrl ${iconPick === b.id ? 'on' : ''}`} title="Change icon"
-                      onClick={() => setIconPick((c) => c === b.id ? null : b.id)}>
-                      <Icon name={b.icon ?? guessIcon(b.title, b.source)} />
-                    </button>
-                  : <Icon name={b.icon ?? guessIcon(b.title, b.source)} className="block-icon" />}
-                {edit
-                  ? <input className="block-title-input block-ctrl" value={b.title ?? ''}
-                      onChange={(e) => setTitle(b.id, e.target.value)} aria-label="Block title" />
-                  : <span className="txt">{b.title}</span>}
-              </span>
-              {edit && (
-                <span className="block-ctrl">
-                  {(b.source === 'group' || b.source === 'hero') && (
-                    <button className={`block-cfg ${configBlock === b.id ? 'on' : ''}`} title="Choose fields"
-                      onClick={() => setConfigBlock((c) => c === b.id ? null : b.id)}>⚙</button>
-                  )}
-                  {SWATCHES.map((c) => (
-                    <button key={c} className="swatch" style={{ background: c }} title={c}
-                      onClick={() => setColour(b.id, c)} />
-                  ))}
-                  <button className="block-hide" title="Remove block" onClick={() => hideBlock(b.id)}>×</button>
-                </span>
-              )}
-            </div>
-            <div className="block-body">
-              {edit && iconPick === b.id && (
-                <div className="iconpick">
-                  <div className="fieldpick-head">Icon for “{b.title}”</div>
-                  <div className="iconpick-grid">
-                    {ICON_NAMES.map((n) => (
-                      <button key={n} title={n}
-                        className={`iconpick-cell ${(b.icon ?? guessIcon(b.title, b.source)) === n ? 'on' : ''}`}
-                        onClick={() => { setIcon(b.id, n); setIconPick(null); }}>
-                        <Icon name={n} size={20} />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {edit && configBlock === b.id && (b.source === 'group' || b.source === 'hero') && (
-                <div className="fieldpick">
-                  <div className="fieldpick-head">{b.source === 'hero' ? `Stats to show in “${b.title}”` : `Show fields in “${b.title}”`}</div>
-                  {def.sections.map((sec, si) => (
-                    <div key={sec.tab ?? si} className="fieldpick-group">
-                      <div className="fieldpick-tab">{sec.tab}</div>
-                      {sec.groups.flatMap((g) => g.fields).map((fid) => {
-                        const fd = def.fields[fid];
-                        if (!fd) return null;
-                        return (
-                          <label key={fid} className="pick">
-                            <input type="checkbox" checked={(b.fields ?? []).includes(fid)}
-                              onChange={() => toggleField(b.id, fid)} />
-                            <span>{fd.label}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {b.source === 'group' && (b.fields ?? []).map((fid) => {
-                const fdef = def.fields[fid];
-                if (!fdef) return null;
-                return <Field key={fid} id={fid} def={fdef} raw={char.data[fid]} resolved={resolved} onChange={updateField} />;
-              })}
-
-              {b.source === 'hero' && (
-                <div className="hero">
-                  <div className="hero-portrait">
-                    {char.meta.portrait
-                      ? <img src={char.meta.portrait} alt={char.meta.name} />
-                      : <div className="hero-portrait-empty"><Icon name="user" size={40} /></div>}
-                    <div className="hero-portrait-actions">
-                      <label className="hero-upload">
-                        {char.meta.portrait ? 'Change' : 'Add image'}
-                        <input type="file" accept="image/*" hidden
-                          onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPortrait(f); e.target.value = ''; }} />
-                      </label>
-                      {char.meta.portrait && <button className="hero-remove" onClick={() => setPortrait(undefined)}>Remove</button>}
-                    </div>
-                  </div>
-                  <div className="hero-info">
-                    <div className="hero-name">{char.meta.name}</div>
-                    <div className="hero-badges">
-                      {(b.fields ?? []).map((fid) => {
-                        const fd = def.fields[fid];
-                        if (!fd) return null;
-                        const rv = resolved[fid];
-                        const val = fd.type === 'pool' ? `${rv?.current ?? 0}/${rv?.max ?? 0}` : String(rv ?? 0);
-                        return <span key={fid} className="hero-badge"><b>{val}</b> {fd.label}</span>;
-                      })}
-                      {(b.fields ?? []).length === 0 && edit && <span className="muted">Use ⚙ to pick stats to show here.</span>}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {b.source === 'rolls' && (
-                <div className="rolls">
-                  {Object.entries(def.rolls).map(([id, r]) => (
-                    <button key={id} className="roll-btn" onClick={() => roll(id)}>{r.label}</button>
-                  ))}
-                </div>
-              )}
-
-              {b.source === 'log' && session.connected && (
-                <div className="rolllog">
-                  {session.log.length === 0 && <p className="muted">No rolls yet.</p>}
-                  {[...session.log].reverse().map((e, i) => (
-                    <div key={i} className="logentry ok">
-                      <span className="result">{e.text}</span>
-                      <span className="faces">— {e.by}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {b.source === 'log' && !session.connected && (
-                <div className="rolllog">
-                  {log.length === 0 && <p className="muted">No rolls yet.</p>}
-                  {log.map((r, i) => (
-                    <div key={i} className={`logentry ${r.success ? 'ok' : 'fail'}`}>
-                      <strong>{r.label}</strong>
-                      {def.dice.model === 'sum-banded'
-                        ? <><span className="result">{r.total} → <strong>{r.band}</strong></span><span className="faces">[{r.faces?.join(' ')}]{r.modifier != null ? ` +${r.modifier}` : ''}</span></>
-                        : <><span className="result">{r.successes ?? 0} success{(r.successes ?? 0) === 1 ? '' : 'es'}{r.critical ? ' · crit' : ''}{r.complication ? ` · ${r.complication}` : ''}</span><span className="faces">[{r.faces?.join(' ')}]{r.complicationFaces?.length ? ` ⚠ [${r.complicationFaces.join(' ')}]` : ''}</span></>
-                      }
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        ))}
-      </Grid></div>
+      {isMobile ? (
+        // stacked, touch-friendly reference view in reading order (y, then x)
+        <div className="canvas-mobile">
+          {[...visibleBlocks].sort((a, b) => (a.y - b.y) || (a.x - b.x)).map((b) => (
+            <section key={b.id} className="block" style={{ ['--block-accent' as any]: b.colour ?? 'var(--accent)' }}>
+              {blockContent(b)}
+            </section>
+          ))}
+        </div>
+      ) : (
+        /* canvas-scroll lets the grid maintain min-width and scroll horizontally
+           rather than reflowing into broken 2-col layouts when zoomed in */
+        <div className="canvas-scroll"><Grid
+          className="canvas"
+          // key forces a clean remount per page so positions never bleed across pages
+          key={page.id}
+          layouts={{ lg: rglLayout, md: rglLayout }}
+          breakpoints={{ lg: 600, md: 0 }}
+          cols={{ lg: 12, md: 12 }}
+          rowHeight={34}
+          margin={[12, 12]}
+          isDraggable={editing}
+          isResizable={editing}
+          draggableHandle=".block-head"
+          draggableCancel=".block-ctrl"
+          onLayoutChange={onLayoutChange}
+        >
+          {visibleBlocks.map((b) => (
+            <section key={b.id} className="block" style={{ ['--block-accent' as any]: b.colour ?? 'var(--accent)' }}>
+              {blockContent(b)}
+            </section>
+          ))}
+        </Grid></div>
+      )}
     </div>
   );
 }
