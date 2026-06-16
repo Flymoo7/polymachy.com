@@ -101,7 +101,8 @@ export interface LayoutDoc {
   system: string;
   name: string;
   pages: LayoutPage[];
-  theme?: string;   // 'dark' | 'parchment' | 'terminal' | undefined (= dark)
+  theme?: string;     // 'dark' | 'parchment' | 'terminal' | undefined (= dark)
+  themeSet?: boolean; // true once a user has explicitly chosen a theme
   meta: { created: string; updated: string };
 }
 
