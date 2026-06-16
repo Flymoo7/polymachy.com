@@ -343,6 +343,45 @@ body {
 }
 .row-add:hover { border-color: var(--accent); background: var(--surface-2); }
 
+/* hero banner */
+.hero { display: flex; gap: 0.9rem; align-items: stretch; height: 100%; }
+.hero-portrait {
+  display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0;
+  width: clamp(90px, 28%, 150px);
+}
+.hero-portrait img {
+  width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-sm);
+  border: 1px solid var(--border); display: block;
+}
+.hero-portrait-empty {
+  width: 100%; aspect-ratio: 1; border-radius: var(--r-sm);
+  border: 1px dashed var(--border); background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center; color: var(--muted);
+}
+.hero-portrait-actions { display: flex; gap: 0.3rem; }
+.hero-upload {
+  flex: 1; text-align: center; cursor: pointer;
+  font-family: var(--font-label); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-dim);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 0.32rem 0.4rem; transition: all .15s;
+}
+.hero-upload:hover { border-color: var(--accent); color: var(--accent); }
+.hero-remove {
+  cursor: pointer; font-family: var(--font-label); font-weight: 600; font-size: 0.6rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0.32rem 0.5rem; transition: all .15s;
+}
+.hero-remove:hover { border-color: var(--danger-line); color: var(--danger); }
+.hero-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.hero-name { font-family: var(--font-head); font-weight: 900; font-size: clamp(1.2rem, 2.4vw, 1.9rem); line-height: 1.05; color: var(--ink); }
+.hero-badges { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-content: flex-start; }
+.hero-badge {
+  font-size: 0.78rem; color: var(--ink-dim);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.6rem;
+}
+.hero-badge b { color: var(--accent); font-family: var(--font-head); font-weight: 800; }
+
 /* rolls */
 .rolls { display: flex; flex-direction: column; gap: 0.45rem; }
 .roll-btn {
@@ -388,8 +427,10 @@ body {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
   background: linear-gradient(180deg, var(--accent), transparent 85%);
 }
-.gm-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.55rem; }
-.gm-card-name { font-family: var(--font-head); font-weight: 800; font-size: 1.15rem; letter-spacing: 0.005em; }
+.gm-card-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
+.gm-card-id { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.gm-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+.gm-card-name { font-family: var(--font-head); font-weight: 800; font-size: 1.15rem; letter-spacing: 0.005em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gm-open {
   background: transparent; border: 1px solid var(--border); color: var(--muted);
   border-radius: var(--r-sm); cursor: pointer; font-size: 0.62rem; padding: 0.22rem 0.45rem;

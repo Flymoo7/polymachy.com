@@ -73,7 +73,7 @@ export interface CharacterDoc {
   system: string;
   systemVersion: string;
   data: Record<string, unknown>;
-  meta: { name: string; created: string; updated: string };
+  meta: { name: string; created: string; updated: string; portrait?: string };
 }
 
 export interface RosterEntry { id: string; name: string }

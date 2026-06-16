@@ -26,7 +26,10 @@ export function CharacterSummary({ def, char, statuses, onRoll, onToggleStatus, 
   return (
     <div className="gm-card">
       <div className="gm-card-head">
-        <span className="gm-card-name">{char.meta.name}</span>
+        <span className="gm-card-id">
+          {char.meta.portrait && <img className="gm-avatar" src={char.meta.portrait} alt={char.meta.name} />}
+          <span className="gm-card-name">{char.meta.name}</span>
+        </span>
         {onOpen && <button className="gm-open" title="Open in player view" onClick={onOpen}>open ↗</button>}
       </div>
 

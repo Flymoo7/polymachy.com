@@ -5,6 +5,7 @@ import { computeResolved, performRoll, rollResultText } from './engineBridge';
 import { newCharacter, defaultLayout, genId } from './defaults';
 import { Field } from './components/Field';
 import { Icon, ICON_NAMES, guessIcon } from './icons';
+import { downscaleImage } from './image';
 import { GmConsole } from './gm/GmConsole';
 import { KEY, save, rawLoad } from './storage';
 import { useSession } from './net/SessionProvider';
@@ -198,6 +199,20 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
     setConfigBlock(id);
   };
 
+  const addHero = () => {
+    const id = `panel:hero-${Date.now()}`;
+    mutateBlocks((bs) => [{ id, source: 'hero', title: 'Character', icon: 'user', fields: [], x: 0, y: 0, w: 12, h: 6, hidden: false },
+      ...bs.map((b) => ({ ...b, y: b.y + 6 }))]);
+  };
+
+  // ---- portrait ----
+  const setPortrait = (portrait?: string) =>
+    setChar((c) => persistChar({ ...c, meta: { ...c.meta, portrait, updated: new Date().toISOString() } }));
+  const uploadPortrait = async (file: File) => {
+    try { setPortrait(await downscaleImage(file)); }
+    catch { alert('Could not read that image.'); }
+  };
+
   // ---- page ops ----
   const addPage = () => {
     const newIdx = layout.pages.length;
@@ -307,6 +322,9 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
         <div className="palette">
           <span className="palette-label">Add a block to “{page.name}”:</span>
           <button className="chip chip-new" onClick={addNewBlock}>+ New empty block</button>
+          {!page.blocks.some((b) => b.source === 'hero') && (
+            <button className="chip chip-new" onClick={addHero}>+ Hero banner</button>
+          )}
           {hiddenBlocks.map((b) => (
             <button key={b.id} className="chip" onClick={() => showBlock(b.id)}>+ {b.title}</button>
           ))}
@@ -347,7 +365,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
               </span>
               {edit && (
                 <span className="block-ctrl">
-                  {b.source === 'group' && (
+                  {(b.source === 'group' || b.source === 'hero') && (
                     <button className={`block-cfg ${configBlock === b.id ? 'on' : ''}`} title="Choose fields"
                       onClick={() => setConfigBlock((c) => c === b.id ? null : b.id)}>⚙</button>
                   )}
@@ -374,9 +392,9 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
                   </div>
                 </div>
               )}
-              {edit && configBlock === b.id && b.source === 'group' && (
+              {edit && configBlock === b.id && (b.source === 'group' || b.source === 'hero') && (
                 <div className="fieldpick">
-                  <div className="fieldpick-head">Show fields in “{b.title}”</div>
+                  <div className="fieldpick-head">{b.source === 'hero' ? `Stats to show in “${b.title}”` : `Show fields in “${b.title}”`}</div>
                   {def.sections.map((sec, si) => (
                     <div key={sec.tab ?? si} className="fieldpick-group">
                       <div className="fieldpick-tab">{sec.tab}</div>
@@ -401,6 +419,37 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
                 if (!fdef) return null;
                 return <Field key={fid} id={fid} def={fdef} raw={char.data[fid]} resolved={resolved} onChange={updateField} />;
               })}
+
+              {b.source === 'hero' && (
+                <div className="hero">
+                  <div className="hero-portrait">
+                    {char.meta.portrait
+                      ? <img src={char.meta.portrait} alt={char.meta.name} />
+                      : <div className="hero-portrait-empty"><Icon name="user" size={40} /></div>}
+                    <div className="hero-portrait-actions">
+                      <label className="hero-upload">
+                        {char.meta.portrait ? 'Change' : 'Add image'}
+                        <input type="file" accept="image/*" hidden
+                          onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadPortrait(f); e.target.value = ''; }} />
+                      </label>
+                      {char.meta.portrait && <button className="hero-remove" onClick={() => setPortrait(undefined)}>Remove</button>}
+                    </div>
+                  </div>
+                  <div className="hero-info">
+                    <div className="hero-name">{char.meta.name}</div>
+                    <div className="hero-badges">
+                      {(b.fields ?? []).map((fid) => {
+                        const fd = def.fields[fid];
+                        if (!fd) return null;
+                        const rv = resolved[fid];
+                        const val = fd.type === 'pool' ? `${rv?.current ?? 0}/${rv?.max ?? 0}` : String(rv ?? 0);
+                        return <span key={fid} className="hero-badge"><b>{val}</b> {fd.label}</span>;
+                      })}
+                      {(b.fields ?? []).length === 0 && edit && <span className="muted">Use ⚙ to pick stats to show here.</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {b.source === 'rolls' && (
                 <div className="rolls">

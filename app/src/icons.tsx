@@ -76,7 +76,7 @@ const RULES: [RegExp, IconName][] = [
   [/condition|health|vitality|hull|wound|damage/, 'heart'],
   [/power|magic|spell|discipline|gift|psi/, 'sparkles'],
   [/resource|reserve/, 'gem'],
-  [/identity|concept|bio|profile|persona/, 'user'],
+  [/identity|concept|bio|profile|persona|hero|portrait|avatar|character/, 'user'],
   [/contact|ally|allies|relationship|bond/, 'chat'],
   [/lore|knowledge|memory|secret/, 'book'],
   [/standing|reputation|wealth|coin|money|credit|fund/, 'coins'],
@@ -92,6 +92,7 @@ const RULES: [RegExp, IconName][] = [
 export function guessIcon(title?: string, source?: string): IconName {
   if (source === 'rolls') return 'dice';
   if (source === 'log') return 'list';
+  if (source === 'hero') return 'user';
   const t = (title ?? '').toLowerCase();
   for (const [re, name] of RULES) if (re.test(t)) return name;
   return 'hexagon';

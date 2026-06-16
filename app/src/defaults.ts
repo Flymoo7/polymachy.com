@@ -56,9 +56,13 @@ export function defaultLayout(def: SystemDefinition): LayoutDoc {
     return { id: `page:${section.tab ?? si}`, name: section.tab ?? `Page ${si + 1}`, blocks };
   });
 
-  // dice + log panels go on the first page by default
+  // hero banner (portrait + name + key stats) tops the first page; below it
+  // sit the group blocks, then the dice + log panels
   if (pages.length) {
     const p0 = pages[0];
+    const HERO_H = 6;
+    p0.blocks = p0.blocks.map((b) => ({ ...b, y: b.y + HERO_H }));
+    p0.blocks.unshift({ id: 'panel:hero', source: 'hero', title: 'Character', icon: 'user', fields: [], x: 0, y: 0, w: COLS, h: HERO_H });
     const maxY = p0.blocks.reduce((m, b) => Math.max(m, b.y + b.h), 0);
     p0.blocks.push({ id: 'panel:rolls', source: 'rolls', title: 'Dice', x: 0, y: maxY, w: 4, h: 8 });
     p0.blocks.push({ id: 'panel:log', source: 'log', title: 'Roll log', x: 4, y: maxY, w: 4, h: 8 });
