@@ -290,13 +290,15 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
         </div>
       )}
 
-      <Grid
+      {/* canvas-scroll lets the grid maintain min-width and scroll horizontally
+          rather than reflowing into broken 2-col layouts when zoomed in */}
+      <div className="canvas-scroll"><Grid
         className="canvas"
         // key forces a clean remount per page so positions never bleed across pages
         key={page.id}
-        layouts={{ lg: rglLayout, md: rglLayout, sm: rglLayout, xs: rglLayout, xxs: rglLayout }}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 12, md: 12, sm: 8, xs: 4, xxs: 2 }}
+        layouts={{ lg: rglLayout, md: rglLayout }}
+        breakpoints={{ lg: 600, md: 0 }}
+        cols={{ lg: 12, md: 12 }}
         rowHeight={34}
         margin={[12, 12]}
         isDraggable={edit}
@@ -392,7 +394,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
             </div>
           </section>
         ))}
-      </Grid>
+      </Grid></div>
     </div>
   );
 }

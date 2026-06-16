@@ -9,10 +9,10 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* — Polymachy brand palette (CMYK → RGB) — */
-  --gold:        #c0ae3f;   /* C24 M31 Y75 K1  — primary accent */
-  --gold-hi:     #d8c557;
-  --gold-dim:    #8c7e2e;
+  /* — Polymachy brand palette — */
+  --gold:        #c8a96e;   /* warm amber gold, matching the main Polymachy site */
+  --gold-hi:     #d9bc8c;
+  --gold-dim:    #8c6f3f;
   --teal:        #59d6bf;   /* C65 M16 Y25 K0  — secondary accent */
   --teal-hi:     #7fe6d3;
   --teal-dim:    #348b7a;
@@ -91,12 +91,13 @@ body {
 .brand {
   font-family: var(--font-head); font-weight: 900;
   font-size: 1.15rem; letter-spacing: 0.04em; line-height: 1;
+  white-space: nowrap; display: inline-flex; align-items: baseline; gap: 0;
 }
 .brand span { color: var(--accent); }
 .brand em {
   font-style: normal; font-family: var(--font-label); font-weight: 600;
-  font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--muted); margin-left: 0.7rem;
+  font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); margin-left: 0.7rem; white-space: nowrap;
 }
 .charbar { display: flex; align-items: center; gap: 0.4rem; }
 .char-select {
@@ -204,7 +205,7 @@ body {
   text-transform: uppercase; cursor: pointer; padding: 0.4rem 0.75rem; border-radius: var(--r-sm);
   transition: all .15s;
 }
-.page-tab.on .page-name { color: var(--accent); border-color: var(--border); background: var(--surface-2); }
+.page-tab.on .page-name { color: var(--teal); border-color: var(--teal-dim); background: var(--surface-2); }
 .page-name:hover, .page-add:hover { color: var(--ink); }
 .page-add { border: 1px dashed var(--border); color: var(--accent); margin-left: 0.4rem; }
 .page-name-input {
@@ -220,25 +221,23 @@ body {
 .page-del:hover { border-color: var(--danger-line); color: var(--danger); }
 
 /* ── canvas + bento blocks ────────────────────────────────────────────── */
-.canvas { min-height: calc(100vh - 92px); padding: 0.4rem 0.4rem 2rem; }
+/* min-width ensures the grid never drops to tiny breakpoints when zoomed.
+   The outer .canvas-scroll wrapper handles horizontal scroll. */
+.canvas-scroll { overflow-x: auto; }
+.canvas { min-height: calc(100vh - 92px); min-width: 1200px; padding: 0.4rem 0.4rem 2rem; }
 
 .block {
-  position: relative;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0) 40%),
     var(--surface);
   border: 1px solid var(--border);
+  /* thick top accent bar — visible at any block size, colour-per-block */
+  border-top: 5px solid var(--block-accent);
   border-radius: var(--r);
   overflow: hidden;
   display: flex; flex-direction: column;
   box-shadow: var(--shadow);
   transition: border-color .15s, box-shadow .15s, transform .15s;
-}
-/* accent spine down the left edge — reads at any block size */
-.block::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: linear-gradient(180deg, var(--block-accent), transparent 85%);
-  opacity: 0.9;
 }
 .editing .block { cursor: default; }
 .editing .block:hover { border-color: var(--border-hi); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
@@ -284,12 +283,12 @@ body {
 .dot:hover { transform: scale(1.12); }
 .dot.on { background: var(--accent); box-shadow: 0 0 6px rgba(192,174,63,0.45); }
 
-/* pools */
+/* pools — teal is the pool accent so it reads distinctly from gold dots */
 .pool-row { display: flex; align-items: center; gap: 0.45rem; }
 .pool-pips { display: flex; gap: 4px; flex-wrap: wrap; }
-.pip { width: 13px; height: 13px; border: 1.5px solid var(--block-accent); border-radius: 3px; transition: all .12s; }
-.pip.on { background: var(--block-accent); box-shadow: 0 0 5px rgba(89,214,191,0.35); }
-.pool-count { font-family: var(--font-head); font-weight: 700; font-size: 0.78rem; color: var(--ink-dim); margin-left: auto; }
+.pip { width: 13px; height: 13px; border: 1.5px solid var(--teal); border-radius: 3px; transition: all .12s; }
+.pip.on { background: var(--teal); box-shadow: 0 0 6px rgba(89,214,191,0.5); }
+.pool-count { font-family: var(--font-head); font-weight: 700; font-size: 0.78rem; color: var(--teal-dim); margin-left: auto; }
 .step {
   width: 24px; height: 24px; border: 1px solid var(--border); background: var(--surface-2);
   color: var(--ink); border-radius: var(--r-sm); cursor: pointer; line-height: 1; transition: all .15s;
