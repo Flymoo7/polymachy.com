@@ -165,30 +165,35 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
             </section>
           )}
 
-          {live && (
-            <section className="gm-panel">
-              <h3 className="gm-panel-title">Table background</h3>
-              <p className="muted" style={{ marginBottom: '0.5rem' }}>Sets the backdrop for every player at the table.</p>
-              <div className="bgpick-grid">
-                <button className={`bgpick-cell bgpick-none ${!s.background ? 'on' : ''}`}
-                  title="None" onClick={() => s.setBackground(null)}>None</button>
-                {BG_PRESETS.map((p) => (
-                  <button key={p.id} title={p.label}
-                    className={`bgpick-cell ${s.background === `preset:${p.id}` ? 'on' : ''}`}
-                    style={{ backgroundImage: p.css }}
-                    onClick={() => s.setBackground(`preset:${p.id}`)}>
-                    <span className="bgpick-label">{p.label}</span>
-                  </button>
-                ))}
-              </div>
+          <section className="gm-panel">
+            <h3 className="gm-panel-title">Table background</h3>
+            <p className="muted" style={{ marginBottom: '0.5rem' }}>
+              {live ? 'Sets the backdrop for every player at the table.'
+                    : 'Host a session to set a shared backdrop for your players.'}
+            </p>
+            <div className={`bgpick-grid ${live ? '' : 'is-disabled'}`}>
+              <button className={`bgpick-cell bgpick-none ${!s.background ? 'on' : ''}`}
+                title="None" disabled={!live} onClick={() => s.setBackground(null)}>None</button>
+              {BG_PRESETS.map((p) => (
+                <button key={p.id} title={p.label} disabled={!live}
+                  className={`bgpick-cell ${s.background === `preset:${p.id}` ? 'on' : ''}`}
+                  style={{ backgroundImage: p.css }}
+                  onClick={() => s.setBackground(`preset:${p.id}`)}>
+                  <span className="bgpick-label">{p.label}</span>
+                </button>
+              ))}
+            </div>
+            {live ? (
               <label className="btn bgpick-upload">
                 Upload image…
                 <input type="file" accept="image/*" hidden
                   onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ''; }} />
               </label>
-              {s.background?.startsWith('data:') && <span className="muted bgpick-current">Custom image set ✓</span>}
-            </section>
-          )}
+            ) : (
+              <button className="btn bgpick-upload" disabled>Upload image…</button>
+            )}
+            {live && s.background?.startsWith('data:') && <span className="muted bgpick-current">Custom image set ✓</span>}
+          </section>
 
           <section className="gm-panel">
             <h3 className="gm-panel-title">Initiative</h3>

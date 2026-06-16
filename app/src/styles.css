@@ -473,6 +473,11 @@ body {
 }
 .bgpick-cell:hover { transform: scale(1.03); border-color: var(--accent); }
 .bgpick-cell.on { border-color: var(--accent); box-shadow: var(--ring); }
+.bgpick-grid.is-disabled { opacity: 0.45; }
+.bgpick-cell:disabled { cursor: not-allowed; }
+.bgpick-cell:disabled:hover { transform: none; border-color: var(--border); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:disabled:hover { border-color: var(--border); color: var(--ink-dim); background: var(--surface-2); }
 .bgpick-label {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 0.15rem 0.3rem;
   font-family: var(--font-label); font-weight: 600; font-size: 0.58rem; letter-spacing: 0.04em;
