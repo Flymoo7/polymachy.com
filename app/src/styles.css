@@ -464,6 +464,28 @@ body {
 }
 .gm-roll:hover { border-color: var(--accent); color: var(--accent); }
 
+/* table background picker */
+.bgpick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 0.6rem; }
+.bgpick-cell {
+  aspect-ratio: 16 / 10; border: 1px solid var(--border); border-radius: var(--r-sm);
+  background-size: cover; background-position: center; cursor: pointer; position: relative;
+  overflow: hidden; transition: border-color .15s, transform .12s; padding: 0;
+}
+.bgpick-cell:hover { transform: scale(1.03); border-color: var(--accent); }
+.bgpick-cell.on { border-color: var(--accent); box-shadow: var(--ring); }
+.bgpick-label {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 0.15rem 0.3rem;
+  font-family: var(--font-label); font-weight: 600; font-size: 0.58rem; letter-spacing: 0.04em;
+  color: #fff; background: linear-gradient(transparent, rgba(0,0,0,0.7)); text-align: left;
+}
+.bgpick-none {
+  display: flex; align-items: center; justify-content: center; background: var(--surface-2);
+  color: var(--muted); font-family: var(--font-label); font-weight: 600; font-size: 0.62rem;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.bgpick-upload { display: inline-block; text-align: center; cursor: pointer; width: 100%; }
+.bgpick-current { display: block; margin-top: 0.4rem; }
+
 .gm-rail { display: flex; flex-direction: column; gap: 1.1rem; position: sticky; top: 62px; }
 .gm-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 0.9rem; box-shadow: var(--shadow); }
 .gm-panel-title {

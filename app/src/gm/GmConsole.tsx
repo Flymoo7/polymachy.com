@@ -7,6 +7,8 @@ import { useSession } from '../net/SessionProvider';
 import type { LogEntry, Initiative, Proposal } from '../net/SessionProvider';
 import { SessionBar } from '../net/SessionBar';
 import { computeResolved, performRoll, rollResultText } from '../engineBridge';
+import { BG_PRESETS } from '../backgrounds';
+import { downscaleImage } from '../image';
 
 interface Props {
   def: SystemDefinition;
@@ -85,6 +87,11 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
   };
   const deny = (p: Proposal) => { pushLog(`✗ ${p.charName}: ${p.label} (denied)`); s.removeProposal(p.id); };
 
+  const uploadBackground = async (file: File) => {
+    try { s.setBackground(await downscaleImage(file, 1600, 0.72)); }
+    catch { alert('Could not read that image.'); }
+  };
+
   const commitInit = (next: Initiative) => { if (live) s.setInitiative(next); else { setLocalInit(next); save('gm:initiative', next); } };
   const addCombatant = (name: string, value: number) => {
     if (!name.trim()) return;
@@ -155,6 +162,31 @@ export function GmConsole({ def, onExit, onOpenChar }: Props) {
                   </div>
                 </div>
               ))}
+            </section>
+          )}
+
+          {live && (
+            <section className="gm-panel">
+              <h3 className="gm-panel-title">Table background</h3>
+              <p className="muted" style={{ marginBottom: '0.5rem' }}>Sets the backdrop for every player at the table.</p>
+              <div className="bgpick-grid">
+                <button className={`bgpick-cell bgpick-none ${!s.background ? 'on' : ''}`}
+                  title="None" onClick={() => s.setBackground(null)}>None</button>
+                {BG_PRESETS.map((p) => (
+                  <button key={p.id} title={p.label}
+                    className={`bgpick-cell ${s.background === `preset:${p.id}` ? 'on' : ''}`}
+                    style={{ backgroundImage: p.css }}
+                    onClick={() => s.setBackground(`preset:${p.id}`)}>
+                    <span className="bgpick-label">{p.label}</span>
+                  </button>
+                ))}
+              </div>
+              <label className="btn bgpick-upload">
+                Upload image…
+                <input type="file" accept="image/*" hidden
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ''; }} />
+              </label>
+              {s.background?.startsWith('data:') && <span className="muted bgpick-current">Custom image set ✓</span>}
             </section>
           )}
 

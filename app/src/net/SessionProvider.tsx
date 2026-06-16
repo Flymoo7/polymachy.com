@@ -36,6 +36,7 @@ interface SessionAPI {
   log: LogEntry[];
   initiative: Initiative;
   statuses: Record<string, string[]>;
+  background: string | null;
   proposals: Proposal[];
   host: (name: string) => string;
   join: (room: string, name: string, role: Role) => void;
@@ -45,6 +46,7 @@ interface SessionAPI {
   appendLog: (text: string) => void;
   setInitiative: (init: Initiative) => void;
   setCharacterStatuses: (charId: string, list: string[]) => void;
+  setBackground: (value: string | null) => void;
   propose: (p: Omit<Proposal, 'id' | 'at'>) => void;
   removeProposal: (id: string) => void;
 }
@@ -72,6 +74,7 @@ export function SessionProvider({ children, sysId }: { children: ReactNode; sysI
   const [log, setLog] = useState<LogEntry[]>([]);
   const [initiative, setInit] = useState<Initiative>(EMPTY_INIT);
   const [statuses, setStatuses] = useState<Record<string, string[]>>({});
+  const [background, setBg] = useState<string | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const teardown = useCallback(() => {
@@ -82,7 +85,7 @@ export function SessionProvider({ children, sysId }: { children: ReactNode; sysI
     ownedRef.current = null;
     peerCharsRef.current = new Map();
     setStatus('offline'); setRoom(null); setIdentity(null); setPeers([]);
-    setCharacters({}); setLog([]); setInit(EMPTY_INIT); setStatuses({}); setProposals([]);
+    setCharacters({}); setLog([]); setInit(EMPTY_INIT); setStatuses({}); setBg(null); setProposals([]);
   }, []);
 
   useEffect(() => () => teardown(), [teardown]);
@@ -122,6 +125,7 @@ export function SessionProvider({ children, sysId }: { children: ReactNode; sysI
     const readSess = () => {
       setInit((sessMap.get('initiative') as Initiative) ?? EMPTY_INIT);
       setStatuses((sessMap.get('statuses') as Record<string, string[]>) ?? {});
+      setBg((sessMap.get('background') as string) ?? null);
     };
     const readProps = () => setProposals((propArr.toArray() as Proposal[]).slice());
     charMap.observe(readChars);
@@ -209,12 +213,16 @@ export function SessionProvider({ children, sysId }: { children: ReactNode; sysI
     const cur = (m.get('statuses') as Record<string, string[]>) ?? {};
     m.set('statuses', { ...cur, [charId]: list });
   }), []);
+  const setBackground = useCallback((value: string | null) => withDoc((d) => {
+    const m = d.getMap('session');
+    if (value) m.set('background', value); else m.delete('background');
+  }), []);
 
   const api: SessionAPI = {
     status, connected: status === 'connected', isGm: identity?.role === 'gm', room, identity, peers,
-    characters, log, initiative, statuses, proposals,
+    characters, log, initiative, statuses, background, proposals,
     host, join, leave,
-    publishCharacter, removeCharacter, appendLog, setInitiative, setCharacterStatuses,
+    publishCharacter, removeCharacter, appendLog, setInitiative, setCharacterStatuses, setBackground,
     propose, removeProposal,
   };
 
