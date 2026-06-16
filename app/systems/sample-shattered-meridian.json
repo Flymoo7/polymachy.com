@@ -6,8 +6,7 @@
     "version": "1.0.0",
     "author": "Polymachy",
     "summary": "An original 2d6 + modifier sample system for void-faring mercenaries. All names and wording are invented; it is not derived from any published game.",
-    "diceModel": "sum-banded",
-    "defaultTheme": "terminal"
+    "diceModel": "sum-banded"
   },
 
   "fields": {

@@ -15,10 +15,21 @@ import { ProposePanel } from './net/ProposePanel';
 
 const Grid = WidthProvider(Responsive);
 
+// the per-system themes auto-applied before we defaulted everything to Dark
+const LEGACY_AUTO_THEME: Record<string, string> = {
+  'ashes-of-the-verge': 'parchment',
+  'shattered-meridian': 'terminal',
+};
+
 // migrate a pre-pages layout ({blocks}) into the paged shape
 function migrateLayout(lo: any): LayoutDoc {
   if (lo && !lo.pages && Array.isArray(lo.blocks)) {
-    return { ...lo, pages: [{ id: 'page-1', name: 'Sheet', blocks: lo.blocks }] };
+    lo = { ...lo, pages: [{ id: 'page-1', name: 'Sheet', blocks: lo.blocks }] };
+  }
+  // one-time: drop the old auto-applied per-system theme (so the app starts on
+  // the default Dark scheme); a theme the user picked themselves is kept
+  if (lo && lo.theme && !lo.themeSet && LEGACY_AUTO_THEME[lo.system] === lo.theme) {
+    lo = { ...lo, theme: undefined };
   }
   return lo as LayoutDoc;
 }
@@ -151,7 +162,7 @@ export default function App({ def, onChangeDef }: { def: SystemDefinition; onCha
   const persistLayout = (next: LayoutDoc) => { save(`layout:${activeId}`, next); return next; };
   const persistRoster = (next: RosterEntry[]) => { save('roster', next); return next; };
   const setTheme = (t: string) =>
-    setLayout((lo) => persistLayout({ ...lo, theme: t, meta: { ...lo.meta, updated: new Date().toISOString() } }));
+    setLayout((lo) => persistLayout({ ...lo, theme: t, themeSet: true, meta: { ...lo.meta, updated: new Date().toISOString() } }));
 
   const idx = Math.min(pageIdx, layout.pages.length - 1);
   const page = layout.pages[idx];
