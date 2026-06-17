@@ -176,7 +176,10 @@ Key locked decisions (full detail in those docs):
   game). OM's JS engine can't be reused → **re-implement the sandboxed
   expression evaluator + dice resolver in UE** so both apps interpret
   identical definitions. Platforms: **desktop → tablet → mobile**
-  (Windows first). Medieval visuals are a **swappable skin**, not locked.
+  (Windows first). **Setting/skin is a swappable layer** with vast scope —
+  **all of history and beyond** (earliest civilizations → present →
+  future, plus fantasy/supernatural like vampire courts & dragon realms);
+  "as limited as our imaginations." Medieval is just the first skin.
 - **Data model = four layers:** system definition (OM + combat
   extensions) / character data (OM-compatible) / **session-encounter
   state** (wounds, vitals, position, initiative, action log — transient) /

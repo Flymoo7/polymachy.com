@@ -16,8 +16,9 @@ made with the owner. **Read it before working on anything under
 > (the "Player Screen" demo — shared 2026-06-17 via a GitHub release, not
 > committed). It established the Player Screen layout, the action tree,
 > the tactical map, and the Health Page. The medieval visuals in it are a
-> **framework to present ideas, not a locked art direction** — theming is
-> a swappable layer (see below).
+> **framework to present ideas, not a locked art direction** — setting and
+> art are a swappable layer (see "Platforms & theming" below). Tempus
+> draws on **all of history and beyond**, not one period.
 
 ## What it is
 
@@ -183,8 +184,14 @@ Same line as Omni Matrix, and **stricter because Tempus is sold**:
 
 - **Order: desktop → tablet → mobile.** Desktop first (Windows first;
   Mac TBD).
-- The medieval **scene/skin is a swappable layer** — Tempus is not locked
-  to a period or art style; future eras re-skin the same systems.
+- **Setting/scene-skin is a swappable layer, and the thematic scope is
+  vast.** Tempus is not tied to any one period or genre — it draws on the
+  **whole sweep of history and beyond**: from the earliest civilizations,
+  through the present day, into the future, *and* across fantasy and the
+  supernatural (vampire courts, realms of dragons, …). The guiding line is
+  "**as limited as our imaginations**." The same data-driven combat
+  systems are re-skinned per setting; the medieval hall in the demo is the
+  first skin, not the boundary.
 
 ## Data model — four independent layers
 
