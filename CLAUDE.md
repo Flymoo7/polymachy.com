@@ -135,6 +135,67 @@ Progress:
   on `beforeunload`. Build green; 18 tests pass. NEXT (P3c): finer role
   permissions, abrupt-disconnect pruning by host, self-hosted signalling.
 
+## Tempus app (combat companion) — status
+
+New major workstream (product 03, `app.html`). A **system-agnostic combat
+companion** for tabletop RPGs — a "smart combat copilot" pairing full
+rules automation with a physiological combat simulation, in a 3D scene
+shared across a GM-hosted table. **Source of truth: `tempus/ARCHITECTURE.md`
+— read it before touching anything under `tempus/`; the format spec is
+`tempus/TEMPUS-FORMAT.md`.**
+
+Key locked decisions (full detail in those docs):
+- **Agnostic & growing:** combat is **data-driven content** (action tree,
+  weapons, hit-location effect tables, vitals all live in a definition);
+  ship a basic ruleset set and grow it. First system = **Yves's** original
+  spreadsheet ruleset (to be shared with the build later).
+- **Shared format with Omni Matrix:** the Tempus definition **extends OM's**
+  format (reuses fields/derived/dice, adds combat sections OM ignores).
+  Characters **round-trip with OM** (import an OM character; standalone
+  Tempus writes OM-format characters). One agnostic format across both
+  apps is the backbone.
+- **Realism = automation AND simulation, both feeding back:** located
+  damage → wounds + a multi-axis vitals panel (pulse/breathing/blood/…)
+  that **feeds back into later resolution** and is **forwarded to the GM**.
+  Rich hit-location wound model, NOT hit-points.
+- **Networking:** **GM-hosted**, players join (OM model). **GM approves
+  outcomes** (locked) — combat runs **propose → GM approve/deny → execute**
+  like OM's action log. Paid product, so **managed services OK** (Steam
+  networking+voice on desktop; EOS cross-platform later) — a departure
+  from OM's serverless rule.
+- **Comms:** capability-adaptive voice (1:1 / whole-team) + text; remote-
+  focused; a live connection is assumed.
+- **IP guardrail (stricter — Tempus is SOLD):** ship only ORIGINAL
+  rulesets; no branded names/conventions/text. "Works with D&D/VtM" = the
+  user adapts our system themselves; we never distribute third-party IP.
+- **Monetization:** paid, **Steam-first** desktop (app stores for
+  tablet/mobile later); content grows as **paid DLC** → built as
+  composable, namespaced, mergeable packs from day one. One-off vs
+  subscription undecided (architecture-neutral).
+- **Stack:** **Unreal Engine** (team familiarity + runway to a future full
+  game). OM's JS engine can't be reused → **re-implement the sandboxed
+  expression evaluator + dice resolver in UE** so both apps interpret
+  identical definitions. Platforms: **desktop → tablet → mobile**
+  (Windows first). Medieval visuals are a **swappable skin**, not locked.
+- **Data model = four layers:** system definition (OM + combat
+  extensions) / character data (OM-compatible) / **session-encounter
+  state** (wounds, vitals, position, initiative, action log — transient) /
+  layout-scene-skin.
+- **Team:** Yves (Designer), Dmir (UI/UX Director & lead), Nick (Tech Art
+  Director / UE expert), Alex (Lead Programmer, role under evaluation),
+  Claude (engineering/architecture).
+
+Progress:
+- **2026-06-17 founding records committed:** discovery done with the owner
+  over chat + the owner's `Screen_006.mp4` Player-Screen walkthrough
+  (shared via a GitHub release, NOT committed; frames extracted with
+  `imageio-ffmpeg` to study it — no ffmpeg in the env, installed via pip).
+  Wrote `tempus/ARCHITECTURE.md` (decision record) and
+  `tempus/TEMPUS-FORMAT.md` (v0 draft of the OM-extending combat
+  definition format). No code/UE scaffolding yet. NEXT: harden the format
+  against Yves's spreadsheet when shared; then Phase 0 (UE rules-core
+  re-implementation + first original sample combat system).
+
 ## Hero loop task — status
 
 Goal: an AI-generated slow-motion loop of `hero.png` that plays behind
