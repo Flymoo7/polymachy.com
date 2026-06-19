@@ -36,7 +36,13 @@ MODEL="${MODEL:-wavespeed-ai/wan-2.2/i2v-720p}"
 DURATION="${DURATION:-5}"
 RESOLUTION="${RESOLUTION:-720p}"
 SEED="${SEED:--1}"
-LAST_IMAGE="${LAST_IMAGE:-$IMAGE}"
+# By default we DON'T pin a last frame: an image-to-video model fills in
+# the frames between first and last, so an identical first==last frame
+# yields a static clip. Leave LAST_IMAGE unset for real motion; set it
+# only for a deliberate first-last-frame (FLF2V) transition. Seamless
+# looping is done as a post-process (boomerang / crossfade), not by
+# pinning identical endpoints.
+LAST_IMAGE="${LAST_IMAGE:-}"
 
 if [ -n "${PROMPT_FILE:-}" ]; then
   PROMPT="$(cat "$PROMPT_FILE")"
@@ -51,28 +57,34 @@ distortion, melting, watermark, text}"
 mime() { case "$1" in *.png) echo image/png;; *.jpg|*.jpeg) echo image/jpeg;; *.webp) echo image/webp;; *) echo image/png;; esac; }
 
 # Data URLs can be several MB — far past the shell ARG_MAX limit — so we
-# write them to temp files and let jq read them with --rawfile.
+# write them to a temp file and let jq read it with --rawfile.
 TMP_IMG="$(mktemp)"; TMP_LAST="$(mktemp)"
 trap 'rm -f "$TMP_IMG" "$TMP_LAST"' EXIT
-printf 'data:%s;base64,' "$(mime "$IMAGE")"      > "$TMP_IMG";  base64 -w0 "$IMAGE"      >> "$TMP_IMG"
-printf 'data:%s;base64,' "$(mime "$LAST_IMAGE")" > "$TMP_LAST"; base64 -w0 "$LAST_IMAGE" >> "$TMP_LAST"
+printf 'data:%s;base64,' "$(mime "$IMAGE")" > "$TMP_IMG"; base64 -w0 "$IMAGE" >> "$TMP_IMG"
 
 echo "Model      : $MODEL"
-echo "Source     : $IMAGE  (first & last frame)"
+echo "Source     : $IMAGE"
+echo "Last frame : ${LAST_IMAGE:-<none — free motion>}"
 echo "Output     : $OUTPUT"
 echo "Spec       : ${RESOLUTION}, ${DURATION}s, seed $SEED"
 echo "Submitting..."
 
-SUBMIT=$(jq -n \
-  --arg prompt "$PROMPT" \
-  --arg neg "$NEGATIVE" \
-  --rawfile image "$TMP_IMG" \
-  --rawfile last  "$TMP_LAST" \
-  --arg res "$RESOLUTION" \
-  --argjson duration "$DURATION" \
-  --argjson seed "$SEED" \
-  '{prompt:$prompt, negative_prompt:$neg, image:$image, last_image:$last,
-    resolution:$res, duration:$duration, seed:$seed}' |
+PAYLOAD_ARGS=(-n
+  --arg prompt "$PROMPT"
+  --arg neg "$NEGATIVE"
+  --rawfile image "$TMP_IMG"
+  --arg res "$RESOLUTION"
+  --argjson duration "$DURATION"
+  --argjson seed "$SEED")
+FILTER='{prompt:$prompt, negative_prompt:$neg, image:$image, resolution:$res, duration:$duration, seed:$seed}'
+
+if [ -n "$LAST_IMAGE" ]; then
+  printf 'data:%s;base64,' "$(mime "$LAST_IMAGE")" > "$TMP_LAST"; base64 -w0 "$LAST_IMAGE" >> "$TMP_LAST"
+  PAYLOAD_ARGS+=(--rawfile last "$TMP_LAST")
+  FILTER='{prompt:$prompt, negative_prompt:$neg, image:$image, last_image:$last, resolution:$res, duration:$duration, seed:$seed}'
+fi
+
+SUBMIT=$(jq "${PAYLOAD_ARGS[@]}" "$FILTER" |
   curl -sS -X POST "https://api.wavespeed.ai/api/v3/$MODEL" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $WAVESPEED_API_KEY" \
