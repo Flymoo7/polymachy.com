@@ -51,8 +51,12 @@ fi
 
 NEGATIVE="${NEGATIVE:-photorealistic, 3d render, cgi, plastic, glossy, smooth digital gradient, \
 photograph, video game, camera shake, pan, zoom, dolly, scene change, cut, fast motion, \
-new characters, extra limbs, morphing faces, warping armour, flicker, strobing, blur, \
-distortion, melting, watermark, text}"
+large movement, walking, running, stepping forward, lunging, new characters, extra limbs, \
+weapon changing shape, weapon morphing, transforming weapon, sword turning into bow, \
+extra weapon, duplicate weapon, second sword, laser, laser beam, energy beam, light beam, \
+muzzle flash, flash, projectile, flying arrow, releasing arrow, firing arrow, magic, glowing \
+energy, sparks, morphing faces, warping armour, flicker, strobing, blur, distortion, melting, \
+watermark, text}"
 
 mime() { case "$1" in *.png) echo image/png;; *.jpg|*.jpeg) echo image/jpeg;; *.webp) echo image/webp;; *) echo image/png;; esac; }
 
