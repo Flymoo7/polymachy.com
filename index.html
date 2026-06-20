@@ -606,6 +606,30 @@
       border-top: 1px solid #1a1a1a;
     }
 
+    /* animated barbican loop behind the interstitial title */
+    #immersed .immersed-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    #immersed .immersed-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      /* darken the busy battle art so the title stays legible */
+      background: linear-gradient(to bottom,
+        rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.78) 100%);
+    }
+    #immersed .bg-art {
+      background-image: url('barbican-poster.jpg');
+      background-position: center;
+    }
+    #immersed .immersed-content {
+      position: relative;
+      z-index: 2;
+    }
+
     .immersed-tagline {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(2.5rem, 6vw, 6rem);
@@ -1305,11 +1329,14 @@
 
   <!-- CHAPTER · INTERSTITIAL -->
   <section id="immersed" class="chapter chapter--full">
-    <p class="immersed-tagline reveal">
-      How Immersed Do You<br><span>Want To Be...?</span>
-    </p>
-    <div class="reveal delay-2">
-      <a href="#contact" class="btn-primary">Register Interest</a>
+    <div class="immersed-bg"><div class="bg-art"></div></div>
+    <div class="immersed-content">
+      <p class="immersed-tagline reveal">
+        How Immersed Do You<br><span>Want To Be...?</span>
+      </p>
+      <div class="reveal delay-2">
+        <a href="#contact" class="btn-primary">Register Interest</a>
+      </div>
     </div>
   </section>
 
@@ -1587,7 +1614,8 @@
       'home': 'hero-loop.mp4',
       'project-01': 'archer-loop.mp4',
       'project-02': null,
-      'project-03': null
+      'project-03': null,
+      'immersed': 'barbican-loop.mp4'
     };
 
     const chapterVideos = {};
@@ -1878,6 +1906,13 @@
 
       atmospheres.forEach(a => liveObserver.observe(a.el));
 
+      // chapters with a background video but no atmosphere canvas (e.g.
+      // the interstitial) still need their loop paused/resumed off-screen
+      Object.keys(chapterVideos).forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !atmospheres.some(a => a.el === el)) liveObserver.observe(el);
+      });
+
       document.addEventListener('visibilitychange', () => {
         atmospheres.forEach(a => {
           if (document.hidden) a.stop();
@@ -1901,6 +1936,7 @@
             '<option value="project-01">Rules Omnibus</option>' +
             '<option value="project-02">The Omni Matrix</option>' +
             '<option value="project-03">Tempus</option>' +
+            '<option value="immersed">Immersed</option>' +
           '</select></label>' +
           '<label>God rays — number <span id="vRayCount"></span>' +
             '<input type="range" id="tRayCount" min="0" max="14" step="1"></label>' +
