@@ -55,9 +55,17 @@ live in the repo root: `hero-loop.mp4`, `archer-loop.mp4`, `barbican-loop.mp4`.
   her side. Prompting "one sword" / negatives like "second sword, duplicate weapon"
   makes the model DELETE her real blade mid-clip. The old knight has a longsword,
   the young knight a poleaxe, the elf a nocked bow.
+- **Don't pin a weapon/limb "fixed" while the figure moves — it distorts.**
+  Telling the model to hold the old knight's sword at a fixed height while he
+  shifts made the blade physically stretch/grow. Instead minimise the whole
+  character's motion so the weapon naturally barely moves with the hand. Block
+  `stretching/growing/elongating sword` in negatives.
 - **Elf bow:** he only draws the string; the arrow stays nocked and is never
   released. Negatives must block `laser, beam, flash, projectile, flying arrow,
-  firing arrow, magic` (the model once fired a "laser").
+  firing arrow, magic` (the model once fired a "laser"). He also keeps
+  re-aiming his bow at his own colleagues when he moves — the cure is to keep
+  him almost static, holding the painting's existing aim (up/away toward the
+  distant gate + horde), rather than describing a new aiming action.
 - **Model limits:** `wan-2.2/i2v-720p` only does 720p and 5 or 8 seconds (no 6s).
   True 1080p needs `alibaba/wan-2.7/image-to-video`. A "≤6s loop" is a 5s render
   crossfaded to ~5.27s.

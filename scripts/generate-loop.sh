@@ -53,7 +53,8 @@ NEGATIVE="${NEGATIVE:-photorealistic, 3d render, cgi, plastic, glossy, smooth di
 photograph, video game, camera shake, pan, zoom, dolly, scene change, cut, fast motion, \
 sudden movement, abrupt movement, knights walking, knights running, knights advancing, \
 striding forward, travelling forward, new characters, extra limbs, weapon changing shape, \
-weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, laser, \
+weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, \
+stretching weapon, growing weapon, elongating sword, bending sword, rubbery weapon, laser, \
 laser beam, energy beam, light beam, muzzle flash, flash, projectile, flying arrow, releasing \
 arrow, firing arrow, magic, glowing energy, sparks, morphing faces, warping armour, flicker, \
 strobing, blur, distortion, melting, watermark, text}"
