@@ -50,12 +50,13 @@ fi
 : "${PROMPT:?Set PROMPT or PROMPT_FILE}"
 
 NEGATIVE="${NEGATIVE:-photorealistic, 3d render, cgi, plastic, glossy, smooth digital gradient, \
-photograph, video game, camera shake, pan, zoom, dolly, scene change, cut, new characters, \
-extra limbs, weapon changing shape, weapon morphing, transforming weapon, disappearing weapon, \
-sword turning into bow, laser, laser beam, energy beam, light beam, \
-muzzle flash, flash, projectile, flying arrow, releasing arrow, firing arrow, magic, glowing \
-energy, sparks, morphing faces, warping armour, flicker, strobing, blur, distortion, melting, \
-watermark, text}"
+photograph, video game, camera shake, pan, zoom, dolly, scene change, cut, fast motion, \
+sudden movement, abrupt movement, knights walking, knights running, knights advancing, \
+striding forward, travelling forward, new characters, extra limbs, weapon changing shape, \
+weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, laser, \
+laser beam, energy beam, light beam, muzzle flash, flash, projectile, flying arrow, releasing \
+arrow, firing arrow, magic, glowing energy, sparks, morphing faces, warping armour, flicker, \
+strobing, blur, distortion, melting, watermark, text}"
 
 mime() { case "$1" in *.png) echo image/png;; *.jpg|*.jpeg) echo image/jpeg;; *.webp) echo image/webp;; *) echo image/png;; esac; }
 
