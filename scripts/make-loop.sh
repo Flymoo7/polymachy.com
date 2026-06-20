@@ -22,7 +22,10 @@ OUT="${OUT:-loop.mp4}"
 XFADE="${XFADE:-0.13}"
 
 FF="$(python3 -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
-D="$("$FF" -hide_banner -i "$IN" 2>&1 | sed -n 's/.*Duration: \([0-9:.]*\).*/\1/p' \
+# `ffmpeg -i <file>` with no output exits 1, which would trip pipefail+set -e,
+# so capture its banner with `|| true` before parsing the duration.
+PROBE="$("$FF" -hide_banner -i "$IN" 2>&1 || true)"
+D="$(printf '%s' "$PROBE" | sed -n 's/.*Duration: \([0-9:.]*\).*/\1/p' \
       | awk -F: '{print $1*3600+$2*60+$3}')"
 TS="$(python3 -c "print(round($D-$XFADE,3))")"
 
@@ -34,4 +37,5 @@ TS="$(python3 -c "print(round($D-$XFADE,3))")"
 [xf][body]concat=n=2:v=1,fps=30[out]
 " -map "[out]" -an -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart "$OUT"
 
-echo "Wrote $OUT ($("$FF" -hide_banner -i "$OUT" 2>&1 | sed -n 's/.*Duration: \([0-9:.]*\).*/\1/p'), crossfade ${XFADE}s)"
+OUT_DUR="$("$FF" -hide_banner -i "$OUT" 2>&1 || true)"
+echo "Wrote $OUT ($(printf '%s' "$OUT_DUR" | sed -n 's/.*Duration: \([0-9:.]*\).*/\1/p'), crossfade ${XFADE}s)"
