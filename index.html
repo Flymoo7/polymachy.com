@@ -617,9 +617,10 @@
       content: '';
       position: absolute;
       inset: 0;
-      /* darken the busy battle art so the title stays legible */
+      /* gently darken the art for legibility without dimming the scene;
+         the title's own shadow carries the contrast */
       background: linear-gradient(to bottom,
-        rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.78) 100%);
+        rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.26) 45%, rgba(0,0,0,0.6) 100%);
     }
     #immersed .bg-art {
       background-image: url('barbican-poster.jpg');
@@ -638,6 +639,8 @@
       line-height: 1.1;
       margin-bottom: 2.5rem;
       padding: 0 2rem;
+      /* keep the title readable now the background is brighter */
+      text-shadow: 0 2px 16px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,0.7);
     }
 
     .immersed-tagline span { color: var(--accent); }
