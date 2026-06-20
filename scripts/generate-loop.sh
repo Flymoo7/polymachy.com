@@ -57,7 +57,10 @@ striding forward, travelling forward, new characters, extra limbs, weapon changi
 weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, \
 stretching weapon, growing weapon, elongating sword, bending sword, rubbery weapon, laser, \
 laser beam, energy beam, light beam, muzzle flash, flash, projectile, flying arrow, releasing \
-arrow, firing arrow, magic, glowing energy, sparks, morphing faces, warping armour, flicker, \
+arrow, firing arrow, loosing arrow, arrow leaving the bow, magic, glowing energy, sparks, \
+warping walls, bending walls, melting stone, wobbling castle, rippling architecture, \
+distorting building, morphing structures, flexing background, breathing walls, warping castle, \
+morphing faces, warping armour, flicker, \
 strobing, blur, distortion, melting, watermark, text}"
 
 mime() { case "$1" in *.png) echo image/png;; *.jpg|*.jpeg) echo image/jpeg;; *.webp) echo image/webp;; *) echo image/png;; esac; }
