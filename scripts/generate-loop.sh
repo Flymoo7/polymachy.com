@@ -51,7 +51,8 @@ fi
 
 NEGATIVE="${NEGATIVE:-photorealistic, 3d render, cgi, plastic, glossy, smooth digital gradient, \
 photograph, video game, camera shake, pan, zoom, dolly, scene change, cut, fast motion, \
-sudden movement, abrupt movement, knights walking, knights running, knights advancing, \
+sudden movement, abrupt movement, running in place, marching on the spot, jumping in place, \
+hopping, bouncing, dancing, static ogre, motionless ogre, knights walking, knights running, knights advancing, \
 striding forward, travelling forward, new characters, extra limbs, weapon changing shape, \
 weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, \
 stretching weapon, growing weapon, elongating sword, bending sword, rubbery weapon, laser, \
