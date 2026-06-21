@@ -1659,7 +1659,8 @@
        sunAngle: tilt of the beams in degrees from vertical (negative
        leans the light toward the left, positive toward the right) */
     /* loopSpeed: playbackRate of the chapter's video loop (1 = as rendered) */
-    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1, loopSpeed: 1 };
+    /* dustCount: number of floating dust/ember/mud sprites (desktop baseline) */
+    const ATMO_DEFAULTS = { rayCount: 7, rayBrightness: 0.6, sunX: 50, sunY: -50, sunAngle: 15, mistCount: 7, mistDensity: 1, loopSpeed: 1, dustCount: 64 };
 
     /* per-chapter defaults baked in from tuner sessions */
     const ATMO_CHAPTER_DEFAULTS = {
@@ -1844,12 +1845,16 @@
           };
         }
 
+        function buildParts() {
+          parts = Array.from({ length: Math.round(cfg.dustCount * mobileScale) }, makePart);
+        }
+
         function resize() {
           w = canvas.width = canvas.clientWidth;
           h = canvas.height = canvas.clientHeight;
           off.width = Math.max(1, w >> 2);
           off.height = Math.max(1, h >> 2);
-          parts = Array.from({ length: w < 700 ? 28 : 64 }, makePart);
+          buildParts();
         }
 
         function frame() {
@@ -1893,6 +1898,7 @@
             rays.length = 0;       // re-aim every beam at the new sun position
             buildRays();
             buildMist();
+            buildParts();
           },
           start() { if (!raf) raf = requestAnimationFrame(frame); },
           stop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
@@ -1959,6 +1965,8 @@
             '<input type="range" id="tMistCount" min="0" max="14" step="1"></label>' +
           '<label>Mist — density <span id="vMistDensity"></span>' +
             '<input type="range" id="tMistDensity" min="0" max="2.5" step="0.05"></label>' +
+          '<label>Dust — count <span id="vDustCount"></span>' +
+            '<input type="range" id="tDustCount" min="0" max="160" step="1"></label>' +
           '<label>Loop — speed (&times;) <span id="vLoopSpeed"></span>' +
             '<input type="range" id="tLoopSpeed" min="0.1" max="2" step="0.05"></label>' +
           '<div class="tuner-row">' +
@@ -1967,7 +1975,7 @@
           '</div>';
         document.body.appendChild(panel);
 
-        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity', 'LoopSpeed'];
+        const fields = ['RayCount', 'RayBrightness', 'SunX', 'SunY', 'SunAngle', 'MistCount', 'MistDensity', 'DustCount', 'LoopSpeed'];
         const scopeEl = panel.querySelector('#tunerScope');
         const keyOf = f => f.charAt(0).toLowerCase() + f.slice(1);
 
@@ -2025,18 +2033,21 @@
     }
 
     /* ── BACKGROUND MUSIC ──────────────────────────────────────────────
-       A ~24s medieval loop plays site-wide. Browsers block audio autoplay,
-       so it starts on the first user gesture (or the toggle). Playback uses
-       the Web Audio API looping a decoded buffer, which is sample-accurate
-       and gapless — unlike <audio loop>, which inserts a small gap from the
-       codec's encoder delay. The OGG decodes without that delay (MP3 is a
-       fallback for browsers that can't decode OGG). The user's choice is
-       remembered in localStorage. */
+       A ~36s seamless fantasy-medieval loop plays site-wide. We attempt to
+       start it the moment the page loads; browsers block sound autoplay
+       until the visitor interacts (or the site has prior engagement), so
+       on a first visit the very first gesture (scroll/tap/key) kicks it off
+       instead, and the toggle always works. Playback uses the Web Audio API
+       looping a decoded buffer, which is sample-accurate and gapless —
+       unlike <audio loop>, which inserts a small gap from the codec's
+       encoder delay. The OGG decodes without that delay (MP3 is a fallback
+       for browsers that can't decode OGG). The choice is remembered in
+       localStorage. */
     (function () {
       const toggle = document.getElementById('musicToggle');
       if (!toggle || !(window.AudioContext || window.webkitAudioContext)) return;
 
-      const SOURCES = ['audio/medieval-loop.ogg', 'audio/medieval-loop.mp3'];
+      const SOURCES = ['audio/fantasy-loop.ogg', 'audio/fantasy-loop.mp3'];
       const TARGET_GAIN = 0.25;
       const STORE_KEY = 'polymachy-music';
       let ctx, gain, source, buffer, playing = false, building = false;
@@ -2135,6 +2146,23 @@
         start().then(() => { if (playing) removeKick(); });
       }
       if (enabled) KICK_EVENTS.forEach(ev => window.addEventListener(ev, kick, { passive: true }));
+
+      /* Try to start immediately on load. Browsers block sound autoplay
+         until the visitor has interacted with the page (or the site has
+         enough prior engagement), so this succeeds for returning/engaged
+         visitors and otherwise silently no-ops — the first gesture above
+         then kicks it off. We retry the immediate attempt a couple of
+         times in case the AudioContext unlocks slightly after load. */
+      if (enabled) {
+        let tries = 0;
+        const tryAutostart = () => {
+          if (playing || !enabled) return;
+          start();
+          if (++tries < 3) setTimeout(tryAutostart, 600);
+        };
+        if (document.readyState === 'complete') tryAutostart();
+        else window.addEventListener('load', tryAutostart, { once: true });
+      }
 
       /* save CPU while the tab is hidden */
       document.addEventListener('visibilitychange', () => {

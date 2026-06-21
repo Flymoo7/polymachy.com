@@ -487,6 +487,28 @@ Each project's "Learn More →" links to a standalone page:
   navigation, so site-wide music would restart each time — not added
   there. To regenerate the loop, see the build steps in this entry
   (work WAV → `/tmp/build_loop.py` → ffmpeg encode).
+- **2026-06-21 (new track + autostart):** owner uploaded
+  `fantasy-medieval.mp3` (3:20, 60 BPM, 3s bars) to replace the medieval
+  loop. numpy/scipy analysis picked a **12-bar loop, 43.15s→79.09s
+  (~35.9s)** from the steady middle (avoids the intro and the outro fade;
+  best seam similarity), built with the same 0.7s equal-power crossfade
+  (verified continuous: `final[-1]=x[s+L-1]`, `final[0]=x[s+L]`).
+  Source is quiet, so the loop is peak-normalised to **-1.5 dBFS** so the
+  0.25 in-page gain stays audible. Encoded to `audio/fantasy-loop.ogg`
+  (Vorbis q5, primary) + `audio/fantasy-loop.mp3` (160k, fallback);
+  `SOURCES` updated; old `audio/medieval-loop.*` removed. **Autostart:**
+  now attempts `start()` on `load` (retried up to 3× at 600ms) so it
+  plays immediately for returning/engaged visitors; first-time visitors
+  still need a gesture (browser sound-autoplay policy is unavoidable), so
+  the `KICK_EVENTS` first-gesture path remains the reliable fallback.
+
+## Atmosphere FX — dust/ember slider
+
+- **2026-06-21:** the floating dust/ember/mud sprite count was hardcoded
+  (`w<700?28:64`). Added a **`dustCount`** config (default 64, scaled by
+  mobileScale) + a `buildParts()` that the tuner rebuilds live, plus a
+  **"Dust — count"** slider in the `?tune` panel (0–160). Bake per-chapter
+  values into `ATMO_CHAPTER_DEFAULTS` like the other atmosphere settings.
 
 ## Other chapters
 
