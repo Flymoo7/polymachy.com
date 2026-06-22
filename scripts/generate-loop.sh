@@ -55,8 +55,9 @@ sudden movement, abrupt movement, running in place, marching on the spot, jumpin
 hopping, bouncing, dancing, static ogre, motionless ogre, knights walking, knights running, knights advancing, \
 striding forward, travelling forward, new characters, extra limbs, weapon changing shape, \
 weapon morphing, transforming weapon, disappearing weapon, sword turning into bow, \
-stretching weapon, growing weapon, elongating sword, bending sword, rubbery weapon, laser, \
-laser beam, energy beam, light beam, muzzle flash, flash, projectile, flying arrow, releasing \
+stretching weapon, growing weapon, elongating sword, bending sword, rubbery weapon, \
+weapon clipping through body, axe through armour, weapon intersecting armour, weapon passing through body, \
+laser, laser beam, energy beam, light beam, muzzle flash, flash, projectile, flying arrow, releasing \
 arrow, firing arrow, loosing arrow, arrow leaving the bow, magic, glowing energy, sparks, \
 warping walls, bending walls, melting stone, wobbling castle, rippling architecture, \
 distorting building, morphing structures, flexing background, breathing walls, warping castle, \
