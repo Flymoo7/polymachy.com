@@ -1016,6 +1016,19 @@
       padding: 0.3rem 0.75rem;
     }
 
+    /* empty placeholder slots while products are being refreshed */
+    .merch-item--empty .merch-item-img-wrap {
+      background: #111;
+      outline: 1px dashed rgba(255,255,255,0.12);
+    }
+    .merch-slot-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.5);
+    }
+
     .merch-notify-banner {
       margin-top: 2rem;
       padding: 3.5rem 3rem;
@@ -1422,69 +1435,15 @@
     </div>
 
     <div class="merch-grid-3 reveal delay-1">
-      <div class="merch-item">
-        <div class="merch-item-img-wrap dark-product">
-          <img src="merch-tshirt-01.jpg" alt="Combat Copilot Black Polo" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Combat Copilot Polo</div>
-          <p class="merch-item-desc">Archer logo in white on black chest. Classic polo shirt.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
-      <div class="merch-item">
-        <div class="merch-item-img-wrap dark-product">
-          <img src="merch-tshirt-02.jpg" alt="Combat Copilot Half Archer Tee" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Half Archer Tee</div>
-          <p class="merch-item-desc">Half archer clock logo with wordmark and cyan rule. Black crew neck.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
-      <div class="merch-item">
-        <div class="merch-item-img-wrap dark-product">
-          <img src="merch-tshirt-03.jpg" alt="Combat Copilot Stripe Tee" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Stripe Tee</div>
-          <p class="merch-item-desc">Bold cyan stripe design with Combat Copilot wordmark. Black crew neck.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
     </div>
 
     <div class="merch-grid-3 reveal">
-      <div class="merch-item">
-        <div class="merch-item-img-wrap">
-          <img src="merch-cap-01.jpg" alt="Combat Copilot Baseball Cap — Full Logo" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Baseball Cap — Full Logo</div>
-          <p class="merch-item-desc">Full archer clock logo with Combat Copilot wordmark. Stone/black two-tone.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
-      <div class="merch-item">
-        <div class="merch-item-img-wrap">
-          <img src="merch-cap-02.jpg" alt="Combat Copilot Baseball Cap — Icon Only" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Baseball Cap — Icon</div>
-          <p class="merch-item-desc">Archer clock icon only in black. Stone/black two-tone.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
-      <div class="merch-item">
-        <div class="merch-item-img-wrap">
-          <img src="merch-cap-03.jpg" alt="Combat Copilot Baseball Cap — Stripe" class="merch-item-img" loading="lazy"/>
-        </div>
-        <div class="merch-item-info">
-          <div class="merch-item-name">Baseball Cap — Stripe</div>
-          <p class="merch-item-desc">Bold cyan stripe design with Combat Copilot wordmark. Stone/black two-tone.</p>
-          <span class="merch-item-status">Coming Soon</span>
-        </div>
-      </div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
+      <div class="merch-item merch-item--empty"><div class="merch-item-img-wrap"><span class="merch-slot-label">Coming Soon</span></div></div>
     </div>
 
     <div class="merch-notify-banner reveal">
