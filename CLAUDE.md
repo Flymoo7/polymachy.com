@@ -20,6 +20,52 @@ Everything lives in `index.html`; artwork files sit in the repo root.
 - Compress delivered video for web (H.264, faststart, no audio, aim for
   well under 10MB) before committing.
 
+## Uncle Lubin animations — layered pipeline (NAMING + STATUS)
+
+Subtle B&W pen-and-ink "living illustration" loops for the Uncle Lubin
+storybook pages. Source layers live in the **separate `Flymoo7/Uncle-Lubin`
+repo** (public; pull via raw.githubusercontent URLs — it is OUTSIDE the
+GitHub MCP scope so use curl/raw, not the MCP tools). All layers are
+6720×3780 (exact 16:9), same canvas → they composite in register.
+
+**Owner pipeline (decided 2026-06-26):** the owner SEPARATED each scene
+into layers and will **composite in After Effects** later. Characters are
+on a **green-screen** for keying. We animate each layer INDIVIDUALLY in
+Seedance, owner composites. This was the pivot after 7 failed full-frame
+Seedance renders of `Lubin_1` (the dense single-frame kept distorting —
+feather merged into canopy, Bagbird ballooned, stray birds flew in, face/
+eyes mangled). Lesson: Seedance can't hold this dense line art when the
+whole busy scene is in one frame; isolating layers (esp. character on
+green, feather drawn clean against green) removes the ambiguity.
+
+**File naming (Uncle-Lubin repo):**
+- Page 1: `Lubin_1_16_9.jpg` (Uncle Lubin + Little Peter, green-screen),
+  `Lubin_Background_16_9.jpg` (background scene — tree/meadow/pond, no
+  characters), `Lubin_BagBird_1_16_9.jpg` (the BagBird, green-screen).
+- Page 2: `Lubin_2_16_9.jpg` (Uncle Lubin, green-screen),
+  `Lubin_Background_16_9.jpg` (SAME shared background), `Lubin_BagBird_2_16_9
+  .jpg` (BagBird + Little Peter, green-screen).
+- Character sheets / refs also in repo: `UL_Character_Sheet.png`,
+  `LittlePeter_Character_Sheet.png`, `Bagbird_Character_Sheet.png`.
+- Old single-frame composites `Lubin_1.jpg`/`Lubin_2.jpg` still in repo
+  (the pre-separation versions — do NOT use for the new pipeline).
+
+**Seedance facts (model `bytedance/seedance-v1.5-pro/image-to-video`):**
+single first-frame `image` + optional `last_image` end-frame; params
+`prompt`, `resolution` (480p/720p/1080p), `duration` (int 4–12),
+`aspect_ratio` (incl. 16:9), `camera_fixed` (bool), `generate_audio`
+(bool), `seed`. NO reference-image input (can't feed character sheets).
+Pricing formula: `duration * 0.26 * (1080p?2:720p?1:0.46) / 5 *
+(audio?1:0.5)` → **1080p, no audio = $0.052/s** (10s = $0.52). Outputs to
+cloudfront, poll `…/predictions/{id}/result`. For a seamless LOOP, set
+`last_image` = the input image (start==end; subtle motion eases out and
+back). Render queue can back up (~8min) — use a background watcher.
+
+Progress:
+- **2026-06-26:** layers received; starting with **Page-1 background**
+  (gentle breeze through tree branches, camera fixed, NO creatures, 10s,
+  loopable, 1080p).
+
 ## Omni Matrix app (character-sheet platform) — status
 
 New major workstream (product 02, `charactersheet.html`). Building a
